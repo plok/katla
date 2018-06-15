@@ -26,16 +26,11 @@ int main(int argc, char *argv[])
     try
     {
 
-        uint32_t instance_extension_count = 0;
-        auto result = vk::enumerateInstanceExtensionProperties(nullptr, &instance_extension_count, nullptr);
-        assert (result == vk::Result::eSuccess);
+        auto instanceExtensionProperties = vk::enumerateInstanceExtensionProperties();
 
-        std::unique_ptr<vk::ExtensionProperties[]> instance_extensions(new vk::ExtensionProperties[instance_extension_count]);
-        result = vk::enumerateInstanceExtensionProperties(nullptr, &instance_extension_count, instance_extensions.get());
-        assert (result == vk::Result::eSuccess);
 
-        for (uint32_t i = 0; i < instance_extension_count; i++) {
-            std::cout << "Supported extensions:" << instance_extensions[i].extensionName << std::endl ;
+        for (auto property:  instanceExtensionProperties) {
+            std::cout << "Supported extensions:" << property.extensionName << std::endl ;
         }
 
 
@@ -57,13 +52,13 @@ int main(int argc, char *argv[])
         vk::Instance instance = vk::createInstance(inst_info, nullptr);
 
         auto physicalDevices = instance.enumeratePhysicalDevices();
+
         vk::PhysicalDevice gpu = physicalDevices[1];
 
 
         /* Look for device extensions */
         std::vector<const char *> device_extension_names({VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME});
-        auto extensionProperties = gpu.enumerateDeviceExtensionProperties(nullptr);
-
+        auto extensionProperties = gpu.enumerateDeviceExtensionProperties();
 
 
         auto deviceInfo = vk::DeviceCreateInfo()
@@ -104,7 +99,7 @@ int main(int argc, char *argv[])
         display = display_props.display;
 
         std::cout << "display:" << display_props.displayName << std::endl;
-        result = gpu.getDisplayModePropertiesKHR(display, &mode_count, nullptr);
+        auto result = gpu.getDisplayModePropertiesKHR(display, &mode_count, nullptr);
 
         if (mode_count == 0) {
             printf("Cannot find any mode for the display!\n");
