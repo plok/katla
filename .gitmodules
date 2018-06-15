@@ -1,0 +1,3 @@
+[submodule "external/kmsxx"]
+	path = external/kmsxx
+	url = https://github.com/tomba/kmsxx
