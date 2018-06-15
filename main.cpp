@@ -57,47 +57,33 @@ int main(int argc, char *argv[])
         vk::Instance instance = vk::createInstance(inst_info, nullptr);
 
         auto physicalDevices = instance.enumeratePhysicalDevices();
-        vk::PhysicalDevice gpu = physicalDevices[0];
+        vk::PhysicalDevice gpu = physicalDevices[1];
 
 
         /* Look for device extensions */
-        std::vector<const char *> device_extension_names({VK_KHR_DISPLAY_EXTENSION_NAME});
+        std::vector<const char *> device_extension_names({VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME});
+        auto extensionProperties = gpu.enumerateDeviceExtensionProperties(nullptr);
 
-        try {
-            auto extensionProperties = gpu.enumerateDeviceExtensionProperties(nullptr);
-        } catch (std::system_error e) {
-            std::cout << e.what() << std::endl;
-        }
 
 
         auto deviceInfo = vk::DeviceCreateInfo()
                 .setEnabledExtensionCount(device_extension_names.size())
                 .setPpEnabledExtensionNames(device_extension_names.data());
 
-        vk::Device device;
-        result = gpu.createDevice(&deviceInfo, nullptr, &device);
-        assert((result == vk::Result::eSuccess));
+        vk::Device device = gpu.createDevice(deviceInfo, nullptr);
         printf("Have device!\n");
-
-
-        uint32_t display_count = 0;
-
+        fflush(stdout);
         // Get the first display
-        std::cout << "sdawqeqwdasdas" << std::endl;
 
-        result = gpu.getDisplayPropertiesKHR(&display_count, nullptr);
-        assert((result == vk::Result::eSuccess) ||
-               (result == vk::Result::eIncomplete));
+        auto displayPropertiesKHR = gpu.getDisplayPropertiesKHR();
 
-        std::cout << "sdadasdas" << std::endl;
 
-        if (display_count == 0) {
-            printf("Cannot find any display!\n");
+        if (displayPropertiesKHR.size() == 0) {
+            printf("Cannot find any displaysdas!\n");
             fflush(stdout);
             exit(1);
         }
 
-        display_count = 1;
         printf("Have display!\n");
 
 
@@ -113,9 +99,7 @@ int main(int argc, char *argv[])
         vk::Extent2D image_extent;
 
         vk::SurfaceKHR surface;
-        result = gpu.getDisplayPropertiesKHR(&display_count, &display_props);
-        assert((result == vk::Result::eSuccess) ||
-               (result == vk::Result::eIncomplete));
+
 
         display = display_props.display;
 
