@@ -38,11 +38,8 @@ int main(int argc, char *argv[])
             std::cout << "Supported extensions:" << instance_extensions[i].extensionName << std::endl ;
         }
 
-        uint32_t enabled_extension_count = 0;
-        char const *extension_names[64];
-        memset(extension_names, 0, sizeof(extension_names));
-        extension_names[enabled_extension_count++] =
-                VK_KHR_DISPLAY_EXTENSION_NAME;
+
+        std::vector<const char *> extension_names({VK_KHR_DISPLAY_EXTENSION_NAME});
 
 
         auto const appInfo = vk::ApplicationInfo()
@@ -53,68 +50,29 @@ int main(int argc, char *argv[])
                 .setApiVersion(VK_API_VERSION_1_1);
         auto const inst_info = vk::InstanceCreateInfo()
                 .setPApplicationInfo(&appInfo)
-                .setEnabledExtensionCount(enabled_extension_count)
-                .setPpEnabledExtensionNames(extension_names);
+                .setEnabledExtensionCount(extension_names.size())
+                .setPpEnabledExtensionNames(extension_names.data());
 
 
-        vk::Instance instance;
-        result = vk::createInstance(&inst_info, nullptr, &instance);
-        assert(result == vk::Result::eSuccess);
+        vk::Instance instance = vk::createInstance(inst_info, nullptr);
 
-        uint32_t gpu_count = 0;
-        vk::PhysicalDevice gpu;
-        result = instance.enumeratePhysicalDevices(&gpu_count, nullptr);
-        assert(result == vk::Result::eSuccess);
-        std::cout << "Checking: " << "\n" ;
-
-        std::cout << "gpu_count: " << gpu_count <<"\n" ;
-
-        if (gpu_count > 0) {
-            std::unique_ptr<vk::PhysicalDevice[]> physical_devices(new vk::PhysicalDevice[gpu_count]);
-            result = instance.enumeratePhysicalDevices(&gpu_count, physical_devices.get());
-            assert(result == vk::Result::eSuccess);
-
-            std::cout << "" << physical_devices[0].getProperties().deviceName << std::endl;
-            gpu = physical_devices[0];
-        } else {
-            assert(false);
-        }
-
+        auto physicalDevices = instance.enumeratePhysicalDevices();
+        vk::PhysicalDevice gpu = physicalDevices[0];
 
 
         /* Look for device extensions */
-        uint32_t device_extension_count = 0;
-        vk::Bool32 swapchainExtFound = VK_FALSE;
-        enabled_extension_count = 0;
-        memset(extension_names, 0, sizeof(extension_names));
+        std::vector<const char *> device_extension_names({VK_KHR_DISPLAY_EXTENSION_NAME});
 
-        result = gpu.enumerateDeviceExtensionProperties(nullptr, &device_extension_count, nullptr);
-        assert(result == vk::Result::eSuccess);
-
-        if (device_extension_count > 0) {
-            std::unique_ptr<vk::ExtensionProperties[]> device_extensions(new vk::ExtensionProperties[device_extension_count]);
-            result = gpu.enumerateDeviceExtensionProperties(nullptr, &device_extension_count, device_extensions.get());
-            assert(result == vk::Result::eSuccess);
-
-            for (uint32_t i = 0; i < device_extension_count; i++) {
-                std::cout << device_extensions[i].extensionName << std::endl;
-                if (!strcmp(VK_KHR_SWAPCHAIN_EXTENSION_NAME, device_extensions[i].extensionName)) {
-                    swapchainExtFound = VK_TRUE;
-                    std::cout << "found swapchain" << std::endl;
-                    extension_names[enabled_extension_count++] = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
-                } else if (!strcmp(VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, device_extensions[i].extensionName)) {
-                    std::cout << "found ext_memory" << std::endl;
-
-                    extension_names[enabled_extension_count++] = VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME;
-                }
-                assert(enabled_extension_count < 64);
-            }
+        try {
+            auto extensionProperties = gpu.enumerateDeviceExtensionProperties(nullptr);
+        } catch (std::system_error e) {
+            std::cout << e.what() << std::endl;
         }
-        assert(swapchainExtFound);
+
 
         auto deviceInfo = vk::DeviceCreateInfo()
-                .setEnabledExtensionCount(enabled_extension_count)
-                .setPpEnabledExtensionNames(extension_names);
+                .setEnabledExtensionCount(device_extension_names.size())
+                .setPpEnabledExtensionNames(device_extension_names.data());
 
         vk::Device device;
         result = gpu.createDevice(&deviceInfo, nullptr, &device);
