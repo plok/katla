@@ -38,8 +38,6 @@ int main(int argc, char *argv[])
             std::cout << "Supported extensions:" << instance_extensions[i].extensionName << std::endl ;
         }
 
-
-
         uint32_t enabled_extension_count = 0;
         char const *extension_names[64];
         memset(extension_names, 0, sizeof(extension_names));
@@ -82,14 +80,6 @@ int main(int argc, char *argv[])
             assert(false);
         }
 
-        auto deviceInfo = vk::DeviceCreateInfo()
-                .setEnabledExtensionCount(enabled_extension_count)
-                .setPpEnabledExtensionNames(extension_names);
-
-        vk::Device device;
-        result = gpu.createDevice(&deviceInfo, nullptr, &device);
-        assert((result == vk::Result::eSuccess));
-        printf("Have device!\n");
 
 
         /* Look for device extensions */
@@ -121,6 +111,16 @@ int main(int argc, char *argv[])
             }
         }
         assert(swapchainExtFound);
+
+        auto deviceInfo = vk::DeviceCreateInfo()
+                .setEnabledExtensionCount(enabled_extension_count)
+                .setPpEnabledExtensionNames(extension_names);
+
+        vk::Device device;
+        result = gpu.createDevice(&deviceInfo, nullptr, &device);
+        assert((result == vk::Result::eSuccess));
+        printf("Have device!\n");
+
 
         uint32_t display_count = 0;
 
@@ -280,8 +280,4 @@ int main(int argc, char *argv[])
         exit(-1);
     }
     return 0;
-}
-
-void init_vk_swapchain() {
-
 }
