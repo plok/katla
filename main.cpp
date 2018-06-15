@@ -60,7 +60,18 @@ int main(int argc, char *argv[])
 //        auto extensionProperties = gpu.enumerateDeviceExtensionProperties();
 
 
+        float priorities[] = { 1.0f };
+        auto queueCreateInfo = vk::DeviceQueueCreateInfo()
+                .setPNext(NULL)
+                .setQueueCount(1)
+                .setPQueuePriorities(priorities);
+
+        std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos = {queueCreateInfo};
         auto deviceInfo = vk::DeviceCreateInfo()
+                .setPNext(nullptr)
+                .setEnabledLayerCount(0)
+                .setQueueCreateInfoCount(queueCreateInfos.size())
+                .setPQueueCreateInfos(queueCreateInfos.data())
                 .setEnabledExtensionCount(device_extension_names.size())
                 .setPpEnabledExtensionNames(device_extension_names.data());
         printf("Creating device \n" );
@@ -69,8 +80,11 @@ int main(int argc, char *argv[])
         printf("Have device!\n");
         // Get the first display
 
-        auto displayPropertiesKHR = gpu.getDisplayPropertiesKHR();
 
+        auto displayPropertiesKHR = gpu.getDisplayPropertiesKHR();
+        printf("Have displaythingies!\n");
+
+        fflush(stdout);
 
         if (displayPropertiesKHR.size() == 0) {
             printf("Cannot find any displaysdas!\n");
@@ -79,7 +93,7 @@ int main(int argc, char *argv[])
         }
 
         printf("Have display!\n");
-
+        fflush(stdout);
 
         uint32_t mode_count;
         uint32_t plane_count =0;
