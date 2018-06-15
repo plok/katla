@@ -28,14 +28,11 @@ int main(int argc, char *argv[])
 
         auto instanceExtensionProperties = vk::enumerateInstanceExtensionProperties();
 
-
         for (auto property:  instanceExtensionProperties) {
             std::cout << "Supported extensions:" << property.extensionName << std::endl ;
         }
 
-
         std::vector<const char *> extension_names({VK_KHR_DISPLAY_EXTENSION_NAME});
-
 
         auto const appInfo = vk::ApplicationInfo()
                 .setPApplicationName(AppName)
@@ -50,24 +47,26 @@ int main(int argc, char *argv[])
 
 
         vk::Instance instance = vk::createInstance(inst_info, nullptr);
+        printf("Have instance!\n");
 
         auto physicalDevices = instance.enumeratePhysicalDevices();
+        printf("size: %d\n", physicalDevices.size() );
 
         vk::PhysicalDevice gpu = physicalDevices[1];
 
-
+        printf("gpu: %s\n", gpu.getProperties().deviceName);
         /* Look for device extensions */
         std::vector<const char *> device_extension_names({VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME});
-        auto extensionProperties = gpu.enumerateDeviceExtensionProperties();
+//        auto extensionProperties = gpu.enumerateDeviceExtensionProperties();
 
 
         auto deviceInfo = vk::DeviceCreateInfo()
                 .setEnabledExtensionCount(device_extension_names.size())
                 .setPpEnabledExtensionNames(device_extension_names.data());
+        printf("Creating device \n" );
 
-        vk::Device device = gpu.createDevice(deviceInfo, nullptr);
+        vk::Device device = gpu.createDevice(deviceInfo);
         printf("Have device!\n");
-        fflush(stdout);
         // Get the first display
 
         auto displayPropertiesKHR = gpu.getDisplayPropertiesKHR();
