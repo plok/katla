@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         auto physicalDevices = instance.enumeratePhysicalDevices();
         printf("size: %d\n", physicalDevices.size() );
 
-        vk::PhysicalDevice gpu = physicalDevices[1];
+        vk::PhysicalDevice gpu = physicalDevices[0];
 
         printf("gpu: %s\n", gpu.getProperties().deviceName);
         /* Look for device extensions */
@@ -101,12 +101,12 @@ int main(int argc, char *argv[])
         fflush(stdout);
 
 
-        printf("Have display!\n");
-        fflush(stdout);
+//        printf("Have display!\n");
+//        fflush(stdout);
 
 //        uint32_t mode_count;
 //        uint32_t plane_count =0;
-//
+
 //        vk::DisplayPropertiesKHR display_props;
 //        vk::DisplayKHR display;
 //        vk::DisplayModePropertiesKHR mode_props;
@@ -114,15 +114,15 @@ int main(int argc, char *argv[])
 //        vk::Bool32 found_plane = VK_FALSE;
 //        uint32_t plane_index;
 //        vk::Extent2D image_extent;
-//
+
 //        vk::SurfaceKHR surface;
-//
-//
+
+
 //        display = display_props.display;
-//
+
 //        std::cout << "display:" << display_props.displayName << std::endl;
 //        auto result = gpu.getDisplayModePropertiesKHR(display, &mode_count, nullptr);
-//
+
 //        if (mode_count == 0) {
 //            printf("Cannot find any mode for the display!\n");
 //            fflush(stdout);
