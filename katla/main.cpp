@@ -21,222 +21,140 @@
 static char const* AppName = "02_EnumerateDevices";
 static char const* EngineName = "Vulkan.hpp";
 
-int main(int argc, char *argv[])
+
+
+int main ( int argc, char *argv[] )
 {
-    try
-    {
+    try {
 
         auto instanceExtensionProperties = vk::enumerateInstanceExtensionProperties();
 
-        for (auto property:  instanceExtensionProperties) {
+        for ( auto property:  instanceExtensionProperties ) {
             std::cout << "Supported extensions:" << property.extensionName << std::endl ;
         }
 
-        std::vector<const char *> extension_names({VK_KHR_DISPLAY_EXTENSION_NAME, VK_KHR_SURFACE_EXTENSION_NAME});
+        std::vector<const char *> extension_names ( {VK_KHR_DISPLAY_EXTENSION_NAME, VK_KHR_SURFACE_EXTENSION_NAME} );
 
         auto const appInfo = vk::ApplicationInfo()
-                .setPApplicationName(AppName)
-                .setApplicationVersion(0)
-                .setPEngineName(EngineName)
-                .setEngineVersion(0)
-                .setApiVersion(VK_API_VERSION_1_1);
+                             .setPApplicationName ( AppName )
+                             .setApplicationVersion ( 0 )
+                             .setPEngineName ( EngineName )
+                             .setEngineVersion ( 0 )
+                             .setApiVersion ( VK_API_VERSION_1_1 );
         auto const inst_info = vk::InstanceCreateInfo()
-                .setPApplicationInfo(&appInfo)
-                .setEnabledExtensionCount(extension_names.size())
-                .setPpEnabledExtensionNames(extension_names.data());
+                               .setPApplicationInfo ( &appInfo )
+                               .setEnabledExtensionCount ( extension_names.size() )
+                               .setPpEnabledExtensionNames ( extension_names.data() );
 
 
-        vk::Instance instance = vk::createInstance(inst_info, nullptr);
-        printf("Have instance!\n");
+        vk::Instance instance = vk::createInstance ( inst_info, nullptr );
+        printf ( "Have instance!\n" );
 
         auto physicalDevices = instance.enumeratePhysicalDevices();
-        printf("size: %d\n", physicalDevices.size() );
+        printf ( "size: %zu\n", physicalDevices.size() );
 
-        vk::PhysicalDevice gpu = physicalDevices[0];
+        vk::PhysicalDevice gpu = physicalDevices[1];
 
-        printf("gpu: %s\n", gpu.getProperties().deviceName);
+
+
+
+        printf ( "gpu: %s\n", gpu.getProperties().deviceName );
         /* Look for device extensions */
-        std::vector<const char *> device_extension_names({VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, VK_KHR_SWAPCHAIN_EXTENSION_NAME});
+        std::vector<const char *> device_extension_names ( {VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, VK_KHR_SWAPCHAIN_EXTENSION_NAME} );
         auto extensionProperties = gpu.enumerateDeviceExtensionProperties();
-        for (auto i: extensionProperties) {
-            printf("blat: %s\n",i.extensionName);
+        for ( auto i: extensionProperties ) {
+            printf ( "Supperted device extensions: %s\n",i.extensionName );
+        }
+
+
+        /* Layers */
+        std::vector<const char *> enabledLayers ( {"VK_LAYER_LUNARG_standard_validation"} );
+
+        auto layerProperties = vk::enumerateInstanceLayerProperties();
+        for ( auto layerProperty : layerProperties ) {
+            printf ( "layer property supported: %s \n", layerProperty.layerName );
         }
 
 
         auto queueFamilyProperties = gpu.getQueueFamilyProperties();
 
         uint32_t graphicsQueueFamilyIndex = 0;
-        for (size_t i = 0; i < queueFamilyProperties.size(); i++)
-        {
-            if (queueFamilyProperties[i].queueFlags & vk::QueueFlagBits::eGraphics)
-            {
+        for ( size_t i = 0; i < queueFamilyProperties.size(); i++ ) {
+            if ( queueFamilyProperties[i].queueFlags & vk::QueueFlagBits::eGraphics ) {
                 graphicsQueueFamilyIndex = i;
                 break;
             }
         }
-        float priorities[] = { 1.0f };
+
+        printf ( "Selected graphicsQueue, %d of %zu \n", graphicsQueueFamilyIndex,  queueFamilyProperties.size() );
+        float priorities[] = { 0.0f };
         auto queueCreateInfo = vk::DeviceQueueCreateInfo()
-                .setPNext(NULL)
-                .setQueueCount(1)
-                .setQueueFamilyIndex(graphicsQueueFamilyIndex)
-                .setPQueuePriorities(priorities);
+                               .setPNext ( NULL )
+                               .setQueueCount ( 1 )
+                               .setQueueFamilyIndex ( graphicsQueueFamilyIndex )
+                               .setPQueuePriorities ( priorities );
 
-//        std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos = {queueCreateInfo};
+        std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos ( {queueCreateInfo});
         auto deviceInfo = vk::DeviceCreateInfo()
-                .setPNext(NULL)
-                .setEnabledLayerCount(0)
-                .setQueueCreateInfoCount(1)
-                .setPQueueCreateInfos(&queueCreateInfo)
-                .setEnabledExtensionCount(device_extension_names.size())
-                .setPpEnabledExtensionNames(device_extension_names.data());
-        printf("Creating device \n" );
-
-        vk::Device device = gpu.createDevice(deviceInfo);
-        printf("Have device!\n");
-        // Get the first display
-
-        gpu.getDisplayPropertiesKHR();
-        printf("Have displaythingies!:\n");
-
-        fflush(stdout);
+                          .setPNext ( NULL )
+                          .setEnabledLayerCount ( enabledLayers.size() )
+                          .setPpEnabledLayerNames ( enabledLayers.data() )
+                          .setPQueueCreateInfos ( &queueCreateInfo )
+                          .setEnabledExtensionCount ( device_extension_names.size() )
+                          .setPpEnabledExtensionNames ( device_extension_names.data() );
+        printf ( "Creating device \n" );
 
 
-//        printf("Have display!\n");
-//        fflush(stdout);
+        vk::Device device = gpu.createDevice ( deviceInfo );
 
-//        uint32_t mode_count;
-//        uint32_t plane_count =0;
+        auto displayPropertiesList = gpu.getDisplayPropertiesKHR();
 
-//        vk::DisplayPropertiesKHR display_props;
-//        vk::DisplayKHR display;
-//        vk::DisplayModePropertiesKHR mode_props;
-//        vk::DisplayPlanePropertiesKHR *plane_props;
-//        vk::Bool32 found_plane = VK_FALSE;
-//        uint32_t plane_index;
-//        vk::Extent2D image_extent;
+        assert(displayPropertiesList.size() > 0 );
 
-//        vk::SurfaceKHR surface;
+        auto propertiesKHR = displayPropertiesList.front();
+        const auto display = propertiesKHR.display;
+
+        auto displayModePropertiesKHR = gpu.getDisplayModePropertiesKHR(display);
+
+        auto displayPlanePropertiesKHR = gpu.getDisplayPlanePropertiesKHR();
+
+        vk::DisplayPlanePropertiesKHR selectedPlane;
+        for (auto plane : displayPlanePropertiesKHR) {
+            if (plane.currentDisplay && plane.currentDisplay != display) {
+                continue;
+            }
+            auto supportedDisplaysKHR = gpu.getDisplayPlaneSupportedDisplaysKHR(plane.currentStackIndex);
+            if (supportedDisplaysKHR.size() > 0) {
+                selectedPlane = plane;
+                printf("yoohoooo\n" );
+            }
+            
+        }
 
 
-//        display = display_props.display;
 
-//        std::cout << "display:" << display_props.displayName << std::endl;
-//        auto result = gpu.getDisplayModePropertiesKHR(display, &mode_count, nullptr);
+        auto const createInfo = vk::DisplaySurfaceCreateInfoKHR()
+                .setDisplayMode(displayModePropertiesKHR.front().displayMode)
+                .setPlaneIndex(1)
+                .setPlaneStackIndex(selectedPlane.currentStackIndex)
+                .setGlobalAlpha(1.0f)
+                ;
+        auto surfaceKHR = instance.createDisplayPlaneSurfaceKHR(createInfo);
+        if(surfaceKHR) {
+            printf("I have many successes");
+        }
 
-//        if (mode_count == 0) {
-//            printf("Cannot find any mode for the display!\n");
-//            fflush(stdout);
-//            exit(1);
-//        }
-//        mode_count =1 ;
-//        printf("Have mode!\n");
-//
-//
-//        result = gpu.getDisplayModePropertiesKHR(display, &mode_count, &mode_props);
-//        assert((result == vk::Result::eSuccess) ||
-//               (result == vk::Result::eIncomplete));
-//        printf("Have modeProperties!\n");
-//
-//        result = gpu.getDisplayPlanePropertiesKHR(&plane_count, nullptr);
-//        assert(result == vk::Result::eSuccess);
-//        if (plane_count == 0) {
-//            printf("Cannot find any plane!\n");
-//            fflush(stdout);
-//            exit(1);
-//        }
-//
-//        std::cout << "Plane_count: " << plane_count << std::endl;
-//        plane_props = (vk::DisplayPlanePropertiesKHR *)
-//                malloc(sizeof(vk::DisplayPlanePropertiesKHR) * plane_count);
-//        assert(plane_props != nullptr);
-//
-//        result = gpu.getDisplayPlanePropertiesKHR(&plane_count, plane_props);
-//        assert(result == vk::Result::eSuccess);
-//        printf("Have planeCount!\n");
-//
-//
-//        // Find a plane compatible with the display
-//        for (plane_index = 0; plane_index < plane_count; plane_index++) {
-//            uint32_t supported_count;
-//            vk::DisplayKHR *supported_displays;
-//            printf("Checking plane!\n");
-//
-//            std::cout << "current display: " << plane_props[plane_index].currentDisplay <<"\n" ;
-//            std::cout << "display: " << display <<"\n" ;
-//
-////            // Disqualify planes that are bound to a different display
-//            if (plane_props[plane_index].currentDisplay &&
-//                (plane_props[plane_index].currentDisplay != display)) {
-//                continue;
-//            }
-//
-//            printf("Checking display!\n");
-//
-//            result = gpu.getDisplayPlaneSupportedDisplaysKHR(plane_index,
-//                                                             &supported_count,
-//                                                             nullptr);
-//
-//            printf("Found compatible plane!\n");
-//
-//
-//            if (supported_count == 0) {
-//                continue;
-//            }
-//
-//            supported_displays = (vk::DisplayKHR *)
-//                    malloc(sizeof(vk::DisplayKHR) * supported_count);
-//
-//            result = gpu.getDisplayPlaneSupportedDisplaysKHR(plane_index,
-//                                                             &supported_count,
-//                                                             supported_displays);
-//
-//
-//            for (uint32_t i = 0; i < supported_count; i++) {
-//                if (supported_displays[i] == display) {
-//                    found_plane = VK_TRUE;
-//                    break;
-//                }
-//            }
-//
-//            free(supported_displays);
-//
-//            if (found_plane) {
-//                break;
-//            }
-//        }
-//
-//        std::cout << "found_plane: " << found_plane <<"\n" ;
-//
-//        if (!found_plane) {
-//            printf("Cannot find a plane compatible with the display!\n");
-//            fflush(stdout);
-//            exit(1);
-//        }
-//
-//        free(plane_props);
-//
-//
-//
-//        auto const createInfo = vk::DisplaySurfaceCreateInfoKHR()
-//                .setDisplayMode(mode_props.displayMode)
-//                .setPlaneIndex(plane_index)
-//                .setPlaneStackIndex(plane_props[plane_index].currentStackIndex)
-//                .setGlobalAlpha(1.0f)
-//                .setImageExtent(image_extent);
 //
 //        instance.createDisplayPlaneSurfaceKHR(&createInfo, nullptr, &surface);
 
         /* VULKAN_HPP_KEY_END */
-    }
-    catch (vk::SystemError err)
-    {
+    } catch ( vk::SystemError err ) {
         std::cout << "vk::SystemError: " << err.what() << std::endl;
-        exit(-1);
-    }
-    catch (...)
-    {
+        exit ( -1 );
+    } catch ( ... ) {
         std::cout << "unknown error\n";
-        exit(-1);
+        exit ( -1 );
     }
     return 0;
 }
+
