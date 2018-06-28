@@ -18,98 +18,60 @@
 #include "vulkan/vulkan.hpp"
 #include <iostream>
 
-static char const* AppName = "02_EnumerateDevices";
-static char const* EngineName = "Vulkan.hpp";
+static char const *AppName = "02_EnumerateDevices";
+static char const *EngineName = "Vulkan.hpp";
 
 
+vk::PresentModeKHR getPresentMode(const vk::PhysicalDevice &gpu, const vk::SurfaceKHR &surfaceKHR);
 
-int main ( int argc, char *argv[] )
-{
+vk::DeviceCreateInfo
+generateDeviceCreateInfo(const vk::PhysicalDevice &gpu, std::vector<const char *> &device_extension_names,
+                         std::vector<const char *> &enabledLayers);
+
+vk::Instance createInstance(std::vector<const char *> &extension_names);
+
+vk::PhysicalDevice findBestDevice(const vk::Instance &instance);
+
+int main(int argc, char *argv[]) {
     try {
 
         auto instanceExtensionProperties = vk::enumerateInstanceExtensionProperties();
 
-        for ( auto property:  instanceExtensionProperties ) {
-            std::cout << "Supported extensions:" << property.extensionName << std::endl ;
+        for (auto property:  instanceExtensionProperties) {
+            std::cout << "Supported extensions:" << property.extensionName << std::endl;
         }
 
-        std::vector<const char *> extension_names ( {VK_KHR_DISPLAY_EXTENSION_NAME, VK_KHR_SURFACE_EXTENSION_NAME} );
+        std::vector<const char *> extension_names({VK_KHR_DISPLAY_EXTENSION_NAME, VK_KHR_SURFACE_EXTENSION_NAME});
 
-        auto const appInfo = vk::ApplicationInfo()
-                             .setPApplicationName ( AppName )
-                             .setApplicationVersion ( 0 )
-                             .setPEngineName ( EngineName )
-                             .setEngineVersion ( 0 )
-                             .setApiVersion ( VK_API_VERSION_1_1 );
-        auto const inst_info = vk::InstanceCreateInfo()
-                               .setPApplicationInfo ( &appInfo )
-                               .setEnabledExtensionCount ( extension_names.size() )
-                               .setPpEnabledExtensionNames ( extension_names.data() );
+        vk::Instance instance = createInstance(extension_names);
 
 
-        vk::Instance instance = vk::createInstance ( inst_info, nullptr );
-        printf ( "Have instance!\n" );
+        printf("Have instance!\n");
 
-        auto physicalDevices = instance.enumeratePhysicalDevices();
-        printf ( "size: %zu\n", physicalDevices.size() );
+        vk::PhysicalDevice gpu = findBestDevice(instance);
 
-        vk::PhysicalDevice gpu = physicalDevices[1];
+        printf("gpu: %s\n", gpu.getProperties().deviceName);
 
 
-
-
-        printf ( "gpu: %s\n", gpu.getProperties().deviceName );
         /* Look for device extensions */
-        std::vector<const char *> device_extension_names ( {VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, VK_KHR_SWAPCHAIN_EXTENSION_NAME} );
+        std::vector<const char *> device_extension_names(
+                {VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, VK_KHR_SWAPCHAIN_EXTENSION_NAME});
         auto extensionProperties = gpu.enumerateDeviceExtensionProperties();
-        for ( auto i: extensionProperties ) {
-            printf ( "Supperted device extensions: %s\n",i.extensionName );
+        for (auto i: extensionProperties) {
+            printf("Supperted device extensions: %s\n", i.extensionName);
         }
 
 
         /* Layers */
-        std::vector<const char *> enabledLayers ( {"VK_LAYER_LUNARG_standard_validation"} );
+        std::vector<const char *> enabledLayers({"VK_LAYER_LUNARG_standard_validation"});
 
-        auto layerProperties = vk::enumerateInstanceLayerProperties();
-        for ( auto layerProperty : layerProperties ) {
-            printf ( "layer property supported: %s \n", layerProperty.layerName );
-        }
+        vk::DeviceCreateInfo deviceInfo = generateDeviceCreateInfo(gpu, device_extension_names, enabledLayers);
 
 
-        auto queueFamilyProperties = gpu.getQueueFamilyProperties();
-
-        uint32_t graphicsQueueFamilyIndex = 0;
-        for ( size_t i = 0; i < queueFamilyProperties.size(); i++ ) {
-            if ( queueFamilyProperties[i].queueFlags & vk::QueueFlagBits::eGraphics ) {
-                graphicsQueueFamilyIndex = i;
-                break;
-            }
-        }
-
-        printf ( "Selected graphicsQueue, %d of %zu \n", graphicsQueueFamilyIndex,  queueFamilyProperties.size() );
-        float priorities[] = { 0.0f };
-        auto queueCreateInfo = vk::DeviceQueueCreateInfo()
-                               .setPNext ( NULL )
-                               .setQueueCount ( 1 )
-                               .setQueueFamilyIndex ( graphicsQueueFamilyIndex )
-                               .setPQueuePriorities ( priorities );
-
-        std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos ( {queueCreateInfo});
-        auto deviceInfo = vk::DeviceCreateInfo()
-                          .setPNext ( NULL )
-                          .setEnabledLayerCount ( enabledLayers.size() )
-                          .setPpEnabledLayerNames ( enabledLayers.data() )
-                          .setPQueueCreateInfos ( &queueCreateInfo )
-                          .setEnabledExtensionCount ( device_extension_names.size() )
-                          .setPpEnabledExtensionNames ( device_extension_names.data() );
-        printf ( "Creating device \n" );
-
-
-        vk::Device device = gpu.createDevice ( deviceInfo );
+        vk::Device device = gpu.createDevice(deviceInfo);
 
         auto displayPropertiesList = gpu.getDisplayPropertiesKHR();
 
-        assert(displayPropertiesList.size() > 0 );
 
         auto propertiesKHR = displayPropertiesList.front();
         const auto display = propertiesKHR.display;
@@ -119,6 +81,7 @@ int main ( int argc, char *argv[] )
         auto displayPlanePropertiesKHR = gpu.getDisplayPlanePropertiesKHR();
 
         vk::DisplayPlanePropertiesKHR selectedPlane;
+        uint32_t index = 0;
         for (auto plane : displayPlanePropertiesKHR) {
             if (plane.currentDisplay && plane.currentDisplay != display) {
                 continue;
@@ -126,35 +89,141 @@ int main ( int argc, char *argv[] )
             auto supportedDisplaysKHR = gpu.getDisplayPlaneSupportedDisplaysKHR(plane.currentStackIndex);
             if (supportedDisplaysKHR.size() > 0) {
                 selectedPlane = plane;
-                printf("yoohoooo\n" );
+                printf("yoohoooo\n");
+                index++;
             }
-            
-        }
 
+        }
 
 
         auto const createInfo = vk::DisplaySurfaceCreateInfoKHR()
                 .setDisplayMode(displayModePropertiesKHR.front().displayMode)
-                .setPlaneIndex(1)
+                .setPlaneIndex(index)
                 .setPlaneStackIndex(selectedPlane.currentStackIndex)
-                .setGlobalAlpha(1.0f)
-                ;
+                .setGlobalAlpha(1.0f);
         auto surfaceKHR = instance.createDisplayPlaneSurfaceKHR(createInfo);
-        if(surfaceKHR) {
-            printf("I have many successes");
+        if (surfaceKHR) {
+            printf("I have many successes\n");
         }
 
-//
-//        instance.createDisplayPlaneSurfaceKHR(&createInfo, nullptr, &surface);
+
+        auto surfaceCapabilitiesKHR = gpu.getSurfaceCapabilitiesKHR(surfaceKHR);
+
+        VkExtent2D swapchainExtent = {};
+
+        if (surfaceCapabilitiesKHR.currentExtent.width == -1 || surfaceCapabilitiesKHR.currentExtent.height == -1) {
+            printf("oh noo");
+        } else {
+            swapchainExtent = surfaceCapabilitiesKHR.currentExtent;
+        }
+
+
+        vk::PresentModeKHR presentMode = getPresentMode(gpu, surfaceKHR);
+
+
+        printf("Immediate presentmode \n", presentMode);
+
+        auto imageCount = surfaceCapabilitiesKHR.minImageCount + 1;
+        if (imageCount > surfaceCapabilitiesKHR.maxImageCount)
+            imageCount = surfaceCapabilitiesKHR.maxImageCount;
+
+        auto swapchainCreateInfoKHR = vk::SwapchainCreateInfoKHR()
+                .setMinImageCount(imageCount)
+                .setSurface(surfaceKHR);
 
         /* VULKAN_HPP_KEY_END */
-    } catch ( vk::SystemError err ) {
+    } catch (vk::SystemError err) {
         std::cout << "vk::SystemError: " << err.what() << std::endl;
-        exit ( -1 );
-    } catch ( ... ) {
+        exit(-1);
+    } catch (...) {
         std::cout << "unknown error\n";
-        exit ( -1 );
+        exit(-1);
     }
     return 0;
+}
+
+vk::PhysicalDevice findBestDevice(const vk::Instance &instance) {
+    auto physicalDevices = instance.enumeratePhysicalDevices();
+    printf("size: %zu\n", physicalDevices.size());
+
+    vk::PhysicalDevice gpu = physicalDevices[1];
+    return gpu;
+}
+
+vk::Instance createInstance(std::vector<const char *> &extension_names) {
+    auto const appInfo = vk::ApplicationInfo()
+            .setPApplicationName(AppName)
+            .setApplicationVersion(0)
+            .setPEngineName(EngineName)
+            .setEngineVersion(0)
+            .setApiVersion(VK_API_VERSION_1_1);
+    auto const inst_info = vk::InstanceCreateInfo()
+            .setPApplicationInfo(&appInfo)
+            .setEnabledExtensionCount(extension_names.size())
+            .setPpEnabledExtensionNames(extension_names.data());
+
+
+    vk::Instance instance = createInstance(inst_info, nullptr);
+    return instance;
+}
+
+vk::DeviceCreateInfo
+generateDeviceCreateInfo(const vk::PhysicalDevice &gpu, std::vector<const char *> &device_extension_names,
+                         std::vector<const char *> &enabledLayers) {
+    auto layerProperties = vk::enumerateInstanceLayerProperties();
+    for (auto layerProperty : layerProperties) {
+        printf("layer property supported: %s \n", layerProperty.layerName);
+    }
+
+
+    auto queueFamilyProperties = gpu.getQueueFamilyProperties();
+
+    uint32_t graphicsQueueFamilyIndex = 0;
+    for (size_t i = 0; i < queueFamilyProperties.size(); i++) {
+        if (queueFamilyProperties[i].queueFlags & vk::QueueFlagBits::eGraphics) {
+            graphicsQueueFamilyIndex = i;
+            break;
+        }
+    }
+
+    printf("Selected graphicsQueue, %d of %zu \n", graphicsQueueFamilyIndex, queueFamilyProperties.size());
+    float priorities[] = {0.0f};
+    auto queueCreateInfo = vk::DeviceQueueCreateInfo()
+            .setPNext(NULL)
+            .setQueueCount(1)
+            .setQueueFamilyIndex(graphicsQueueFamilyIndex)
+            .setPQueuePriorities(priorities);
+
+    std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos({queueCreateInfo});
+    auto deviceInfo = vk::DeviceCreateInfo()
+            .setPNext(NULL)
+            .setEnabledLayerCount(enabledLayers.size())
+            .setPpEnabledLayerNames(enabledLayers.data())
+            .setPQueueCreateInfos(&queueCreateInfo)
+            .setEnabledExtensionCount(device_extension_names.size())
+            .setPpEnabledExtensionNames(device_extension_names.data());
+    printf("Creating device \n");
+    return deviceInfo;
+}
+
+vk::PresentModeKHR getPresentMode(const vk::PhysicalDevice &gpu, const vk::SurfaceKHR &surfaceKHR) {
+    auto presentModesKHR = gpu.getSurfacePresentModesKHR(surfaceKHR);
+
+    auto presentMode = vk::PresentModeKHR::eFifo;
+    printf("presentModes: %d", presentModesKHR.size());
+    for (auto mode : presentModesKHR) {
+        if (mode == vk::PresentModeKHR::eMailbox) {
+            presentMode = vk::PresentModeKHR::eMailbox;
+            printf("Mailbox presentmode \n");
+            break;
+        }
+
+        if (mode == vk::PresentModeKHR::eImmediate) {
+            presentMode = vk::PresentModeKHR::eImmediate;
+            printf("Immediate presentmode \n");
+
+        }
+    }
+    return presentMode;
 }
 
