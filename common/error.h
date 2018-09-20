@@ -6,7 +6,7 @@
 #include <optional>
 
 class Error;
-typedef std::unique_ptr<Error> ErrorPtr;
+typedef std::shared_ptr<Error> ErrorPtr;
 
 class Error
 {

@@ -3,8 +3,9 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-VulkanWindow::VulkanWindow(GLFWwindow* window) :
-    m_window(window)
+VulkanWindow::VulkanWindow(GLFWwindow* window, VkSurfaceKHR surface) :
+    m_window(window),
+    m_surface(surface)
 {}
 
 VulkanWindow::~VulkanWindow() {

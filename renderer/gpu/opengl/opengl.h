@@ -2,6 +2,9 @@
 #define OPENGL_H
 
 #include "gpu/graphics-backend.h"
+#include "gpu/physical-device.h"
+#include "gpu/device.h"
+
 #include "common/error.h"
 
 #include <vulkan/vulkan_core.h>
@@ -18,6 +21,10 @@ public:
 
     ErrorPtr init();
     void cleanup();
+
+    ErrorPtr initDevice() {
+        return Error::none();
+    }
 
     std::unique_ptr<WindowFactory> windowFactory();
     

@@ -1,7 +1,14 @@
 #include "vulkan.h"
 
 #include "window/window-factory.h"
+
+#include "gpu/vulkan/vulkan-function-table.h"
 #include "gpu/vulkan/vulkan-window-factory.h"
+
+#include "gpu/vulkan/vulkan-physical-device.h"
+#include "gpu/vulkan/vulkan-physical-device-factory.h"
+#include "gpu/vulkan/vulkan-device.h"
+#include "gpu/vulkan/vulkan-device-factory.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -18,42 +25,6 @@ void glfw_vulkan_error_callback(int error, const char* description)
 {
     std::cout << description << std::endl;
 }
-
-class VulkanFunctionTable
-{
-public:
-    /**
-     * Vulkan Proc handles
-     */
-
-     // TODO not much safer than simple macro without using a function object
-
-    #define DEFINE_VFO(name) class VFO_##name \
-    { \
-    public: \
-        VFO_##name () : \
-            m_functionPointer(nullptr) \
-        { \
-            std::cout << "vk" #name << std::endl; \
-            m_functionPointer = ( PFN_vk##name ) glfwGetInstanceProcAddress(NULL, "vk" #name); \
-            std::cout << m_functionPointer << std::endl; \
-        } \
-        operator PFN_vk##name() const { return m_functionPointer; } \
-    private:    \
-        PFN_vk##name m_functionPointer; \
-    }; \
-    VFO_##name name;
-    
-    DEFINE_VFO(CreateInstance)
-    DEFINE_VFO(GetPhysicalDeviceQueueFamilyProperties)
-    DEFINE_VFO(GetDeviceProcAddr)
-    DEFINE_VFO(EnumerateDeviceExtensionProperties)
-    DEFINE_VFO(CreateDevice)
-    DEFINE_VFO(EnumeratePhysicalDevices)
-    DEFINE_VFO(GetPhysicalDeviceProperties)
-    DEFINE_VFO(GetPhysicalDeviceFeatures)
-    DEFINE_VFO(DestroyInstance)
-};
 
 Vulkan::Vulkan() :
     m_instance(nullptr),
@@ -77,12 +48,13 @@ ErrorPtr Vulkan::init()
         return Error::create("No vulkan supported!");
     }
 
-    m_functionTable = std::make_unique<VulkanFunctionTable>();
-   
-
+    m_functionTable = std::make_shared<VulkanFunctionTable>();
 
     uint32_t count;
     const char** extensions = glfwGetRequiredInstanceExtensions(&count);
+
+    for (int i=0; i<count; i++)
+        std::cout << "glfw required: " << extensions[i] << std::endl;
 
     std::cout << count << " extensions supported" << std::endl;
 
@@ -93,7 +65,7 @@ ErrorPtr Vulkan::init()
     appInfo.applicationVersion = 1;
     appInfo.pEngineName = "katla";
     appInfo.engineVersion = 1;
-    appInfo.apiVersion = VK_API_VERSION_1_0;
+    appInfo.apiVersion = VK_API_VERSION_1_1;
 
     VkInstanceCreateInfo instanceInfo;
     memset(&instanceInfo, 0, sizeof(instanceInfo));
@@ -113,49 +85,6 @@ ErrorPtr Vulkan::init()
         return Error::create("unknown error");
     }
 
-    uint32_t gpuCount = 1;
-
-    // Get number of devices
-    res = m_functionTable->EnumeratePhysicalDevices(m_instance, &gpuCount, NULL);
-
-    if (gpuCount == 0) {
-        return Error::create("No gpu found");
-    }
-
-    std::vector<VkPhysicalDevice> physicalDevices (gpuCount);
-
-    res = m_functionTable->EnumeratePhysicalDevices(m_instance, &gpuCount, physicalDevices.data());
-
-    for (auto physicalDevice : physicalDevices) {
-        // Return info from device
-        VkPhysicalDeviceProperties deviceProperties;
-        VkPhysicalDeviceFeatures   deviceFeatures;
-
-        m_functionTable->GetPhysicalDeviceProperties( physicalDevice, &deviceProperties );
-        m_functionTable->GetPhysicalDeviceFeatures( physicalDevice, &deviceFeatures );
-
-        uint32_t majorVersion = VK_VERSION_MAJOR( deviceProperties.apiVersion );
-        uint32_t minorVersion = VK_VERSION_MINOR( deviceProperties.apiVersion );
-        uint32_t patchVersion = VK_VERSION_PATCH( deviceProperties.apiVersion );
-        
-        std::cout << "Found device: " << deviceProperties.deviceID << " - " << deviceProperties.deviceType << " - " << deviceProperties.deviceName << std::endl;
-
-        if( (majorVersion < 1) &&
-            (deviceProperties.limits.maxImageDimension2D < 4096) ) {
-
-            std::stringstream message; // ugly
-            message << "Physical device " << physicalDevice << " doesn't support required parameters!";
-            return Error::create(message.str());
-        }
-
-        // if (glfwGetPhysicalDevicePresentationSupport(instance, physicalDevice, queue_family_index))
-        // {
-        //     // Queue family supports image presentation
-        // }
-        
-    }
-
-
     return Error::none();
 }
 
@@ -167,6 +96,72 @@ void Vulkan::cleanup()
     }
 
     glfwTerminate();
+}
+
+ErrorPtr Vulkan::initDevice()
+{
+    auto [physicalDevice, selectError] = selectDevice();
+
+    if (selectError) {
+        return selectError;
+    }
+
+    auto [device, initError] = initDevice(physicalDevice);
+
+    if (initError) {
+        return initError;
+    }
+
+    return Error::none();
+}
+
+std::tuple<VulkanPhysicalDevicePtr, ErrorPtr> Vulkan::selectDevice()
+{
+    PhysicalDeviceFactory physicalDeviceFactory(m_functionTable, m_instance);
+    auto [physicalDevices, getDeviceError] = physicalDeviceFactory.getPhysicalDevices();
+
+    if (getDeviceError) {
+        return {VulkanPhysicalDevicePtr(), getDeviceError};
+    }
+
+    VulkanPhysicalDevicePtr selectedPhysicalDevice;
+    for (auto physicalDevice : physicalDevices) {
+        
+        // TODO score devices;
+
+        physicalDevice->printInfo();
+
+        // TODO Look for device extensions
+        // std::vector<const char *> device_extension_names(
+        //     {VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, VK_KHR_SWAPCHAIN_EXTENSION_NAME}
+        // );
+
+        auto [deviceExtensions, getDeviceExtensionsError] = physicalDevice->getExtensions();        
+        for (auto ext: deviceExtensions) {
+            std::cout << "Supported device extensions: " << ext.extensionName << std::endl;
+        }
+
+        auto queueFamilyProperties = physicalDevice->getQueueFamilies();
+        std::cout << "QueueFamilies count: " << queueFamilyProperties.size() << std::endl;
+
+        // TODO validate if device can output to surface?
+//        auto error = physicalDevice->validateForGraphics(surface);
+//        if (!error) {
+//            selectedPhysicalDevice = physicalDevice;
+//        }
+    }
+
+    if (!selectedPhysicalDevice) {
+        return {VulkanPhysicalDevicePtr(), Error::create("no device found!")};
+    }
+
+    return {selectedPhysicalDevice, Error::none()};
+}
+
+std::tuple<DevicePtr, ErrorPtr> Vulkan::initDevice(VulkanPhysicalDevicePtr physicalDevice)
+{
+    DeviceFactory deviceFactory(m_functionTable);
+    return deviceFactory.create(physicalDevice);
 }
 
 std::unique_ptr<WindowFactory> Vulkan::windowFactory()

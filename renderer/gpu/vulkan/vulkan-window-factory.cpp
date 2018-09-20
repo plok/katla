@@ -29,7 +29,7 @@ std::tuple<WindowPtr, ErrorPtr> VulkanWindowFactory::create(int x, int y, std::s
         return {std::shared_ptr<Window>(), Error::create("Error creating window surface")};
     }
 
-    auto vulkanWindow = std::make_shared<VulkanWindow>(window);
+    auto vulkanWindow = std::make_shared<VulkanWindow>(window, surface);
 
     return {vulkanWindow, Error::none()};    
 }

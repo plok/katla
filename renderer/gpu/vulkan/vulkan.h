@@ -4,6 +4,11 @@
 #include "gpu/graphics-backend.h"
 #include "common/error.h"
 
+// TODO non-vulkan interfaces
+#include "gpu/vulkan/vulkan-physical-device.h"
+#include "gpu/vulkan/vulkan-device.h"
+#include "gpu/vulkan/vulkan-window.h"
+
 #include <vulkan/vulkan_core.h>
 
 #include <memory>
@@ -21,12 +26,17 @@ public:
     ErrorPtr init();
     void cleanup();
 
+    ErrorPtr initDevice();
+
+    std::tuple<VulkanPhysicalDevicePtr, ErrorPtr> selectDevice();
+    std::tuple<DevicePtr, ErrorPtr> initDevice(VulkanPhysicalDevicePtr physicalDevice);
+
     std::unique_ptr<WindowFactory> windowFactory();
     
 private:
     VkInstance m_instance;
 
-    std::unique_ptr<VulkanFunctionTable> m_functionTable;
+    std::shared_ptr<VulkanFunctionTable> m_functionTable;
 };
 
 #endif

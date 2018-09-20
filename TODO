@@ -1,0 +1,6 @@
+- validation layer
+- assign score and select gpu devices
+- define katla options and create extension list based on that
+- move glfw to client specific part
+- destroy VkSurfaceKHR
+- destroy VkDevice?

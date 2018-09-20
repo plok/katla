@@ -1,5 +1,7 @@
 # katla
 
+Very very work in progress!!
+
 ## Renderer test 
 
 Dependencies (Arch Linux):
