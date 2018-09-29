@@ -12,9 +12,14 @@ class Error
 {
 public:
     Error(std::string message);
+    Error(std::string name, std::string message);
+
     static ErrorPtr create(std::string message);
+    static ErrorPtr create(std::string name, std::string message);
+
     static ErrorPtr none();
 
+    const std::string name;
     const std::string message;
 };
 

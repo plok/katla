@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(katla-renderer)
+project(katla-renderer-test)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -8,12 +8,7 @@ pkg_check_modules(GL REQUIRED gl)
 
 find_package(glfw3 3.2.0 REQUIRED)
 
-SET (skia_path $ENV{SKIA_PATH})
-
-if (NOT DEFINED skia_path)
-    SET(skia_path ${skia_env_path})
-endif()
-
+set (skia_path ../../skia)
 set (skia_output_path ${skia_path}/out/Shared/)
 set (skia_include_base_path ${skia_path}/include)
 
@@ -29,6 +24,7 @@ set (skia_include_directories
 )
 
 set(sources
+    main.cpp
     ../common/error.cpp
     drawing/skia-opengl.cpp
     gpu/vulkan/vulkan.cpp
@@ -45,14 +41,12 @@ set(sources
     gpu/opengl/opengl-window-factory.cpp
 )
 
-add_library(katla-renderer SHARED ${sources})
+add_executable(katla-renderer ${sources})
 
 target_include_directories(katla-renderer PRIVATE
     .
     ..
     ../external/
-    ../app-kit/
-    ../gui-kit/
     ${skia_include_directories})
 
 target_link_libraries(katla-renderer glfw ${GL_LIBRARIES} ${skia})

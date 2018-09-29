@@ -14,7 +14,7 @@ class OpenGlWindowFactory : public WindowFactory {
 public:
     OpenGlWindowFactory();
 
-    std::tuple<WindowPtr, ErrorPtr> create(int x, int y, std::string title);
+    std::tuple<WindowPtr, ErrorPtr> create(int x, int y, std::string title, std::shared_ptr<WindowEvents> events);
 private:
 
 };

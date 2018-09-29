@@ -13,9 +13,9 @@ public:
     UvEventLoop();
     virtual ~UvEventLoop();
 
-    void init();
-    void run();
-    void close();
+    ErrorPtr init();
+    ErrorPtr run();
+    ErrorPtr close();
 
     uv_loop_t* uvEventLoop() {
         return _eventLoop;

@@ -4,9 +4,14 @@
 
 #include <iostream>
 
-OpenGlWindow::OpenGlWindow(GLFWwindow* window) :
-    m_window(window)
-{}
+OpenGlWindow::OpenGlWindow(
+        GLFWwindow* window,
+        std::shared_ptr<WindowEvents> events) :
+    m_window(window),
+    m_events(events),
+    m_closeRequested(false)
+{
+}
 
 OpenGlWindow::~OpenGlWindow() {
     if (m_window) {
@@ -15,18 +20,17 @@ OpenGlWindow::~OpenGlWindow() {
     }
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
 void OpenGlWindow::init()
 {
     if (!m_window) {
         return;
     }
 
-    glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
+    glfwSetWindowUserPointer(m_window, this);
+
+    glfwSetWindowSizeCallback(m_window, &windowSizeCallback);
+    glfwSetWindowCloseCallback(m_window, &windowCloseCallback);
+    glfwSetFramebufferSizeCallback(m_window, &framebufferSizeCallback);
 }
 
 void OpenGlWindow::show()
@@ -51,22 +55,88 @@ void OpenGlWindow::clear()
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void OpenGlWindow::render()
+void OpenGlWindow::close()
 {
     if (!m_window) {
+        return;
+    }
+
+    m_closeRequested = true;
+    // TODO do not call from callback
+    glfwDestroyWindow (m_window);
+}
+
+void OpenGlWindow::render()
+{
+
+    if (!m_window || m_closeRequested) {
         return;
     }
     
     glfwSwapBuffers(m_window);
+    glfwPollEvents();
 }  
 
-void OpenGlWindow::waitForClose()
-{
-    if (!m_window) {
+void OpenGlWindow::windowSizeCallback(GLFWwindow *window, int width, int height)
+{    
+    auto userPtr = glfwGetWindowUserPointer(window);
+    if (!userPtr) {
         return;
     }
 
-    while(!glfwWindowShouldClose(m_window)) {
-        glfwPollEvents();
+    auto windowObj = static_cast<OpenGlWindow*>(userPtr);
+
+    windowObj->windowSizeChanged(width, height);
+}
+
+void OpenGlWindow::windowSizeChanged(int width, int height)
+{
+    if (m_events->sizeChanged) {
+
+        Size size {width, height};
+        m_events->sizeChanged->publish(size);
     }
+}
+
+void OpenGlWindow::windowFocusCallback(GLFWwindow *window)
+{
+    std::cout << "focus" << std::endl;
+
+}
+
+void OpenGlWindow::windowCloseCallback(GLFWwindow *window)
+{
+    auto userPtr = glfwGetWindowUserPointer(window);
+    if (!userPtr) {
+        return;
+    }
+
+    auto windowObj = static_cast<OpenGlWindow*>(userPtr);
+
+    windowObj->windowCloseRequested();
+}
+
+void OpenGlWindow::windowCloseRequested()
+{
+    m_closeRequested = false;
+
+    if (m_events->closeRequested) {
+        m_events->closeRequested->publish(true);
+    }
+}
+
+void OpenGlWindow::framebufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+    auto userPtr = glfwGetWindowUserPointer(window);
+    if (!userPtr) {
+        return;
+    }
+    auto windowObj = static_cast<OpenGlWindow*>(userPtr);
+
+    windowObj->framebufferSize(width, height);
+}
+
+void OpenGlWindow::framebufferSize(int width, int height)
+{
+    glViewport(0, 0, width, height);
 }

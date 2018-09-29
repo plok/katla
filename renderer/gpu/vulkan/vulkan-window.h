@@ -19,9 +19,11 @@ public:
     VulkanWindow(GLFWwindow* window, VkSurfaceKHR surface);
     virtual ~VulkanWindow();
 
+    void init() {};
     void show();
     void render();
     void clear() {}
+    void close() {}
 
     VkSurfaceKHR vulkanSurface() {
         return m_surface;
@@ -29,9 +31,15 @@ public:
 
     void waitForClose();
 
+    void attachCloseSubject(std::shared_ptr<Subject<bool>> closeSubject) {
+        m_closeSubject = closeSubject;
+    }
+
 private:
     GLFWwindow* m_window;
     VkSurfaceKHR m_surface;
+
+    std::shared_ptr<Subject<bool>> m_closeSubject;
 };
 
 #endif

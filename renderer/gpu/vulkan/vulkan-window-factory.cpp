@@ -8,7 +8,7 @@ VulkanWindowFactory::VulkanWindowFactory(VkInstance instance) :
     m_instance(instance)
 {}
 
-std::tuple<WindowPtr, ErrorPtr> VulkanWindowFactory::create(int x, int y, std::string title)
+std::tuple<WindowPtr, ErrorPtr> VulkanWindowFactory::create(int x, int y, std::string title, std::shared_ptr<WindowEvents> events)
 {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     GLFWwindow* window = glfwCreateWindow(x, y, title.c_str(), NULL, NULL);

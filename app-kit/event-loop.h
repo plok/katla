@@ -7,9 +7,9 @@
 
 class EventLoop {
 public:
-    virtual void init() = 0;
-    virtual void run() = 0;
-    virtual void close() = 0;
+    virtual ErrorPtr init() = 0;
+    virtual ErrorPtr run() = 0;
+    virtual ErrorPtr close() = 0;
 
 private:
     

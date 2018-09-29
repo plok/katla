@@ -2,12 +2,7 @@
 
 #include <iostream>
 
-void uv_timer_callback(uv_timer_t* handle)
-{
-    static_cast<UvTimer*>(handle->data)->callback();
-}
-
-UvTimer::UvTimer(UvEventLoop* eventLoop)
+UvTimer::UvTimer(std::shared_ptr<UvEventLoop> eventLoop)
 {
     _eventLoop = eventLoop->uvEventLoop();
     _timer = new uv_timer_t();
@@ -15,6 +10,7 @@ UvTimer::UvTimer(UvEventLoop* eventLoop)
 }
 
 UvTimer::~UvTimer() {
+    stop();
     delete _timer;
 }
 
@@ -30,7 +26,7 @@ void UvTimer::start(int msec, std::function<void()> function)
 {
     _function = function;
 
-    auto result = uv_timer_start(_timer, &uv_timer_callback, msec, msec);
+    auto result = uv_timer_start(_timer, &uvTimerCallback, msec, msec);
     if (result != 0) {
         // TODO
     }
@@ -48,4 +44,9 @@ void UvTimer::callback()
 {
     // TODO check
     _function();
+}
+
+void UvTimer::uvTimerCallback(uv_timer_t* handle)
+{
+    static_cast<UvTimer*>(handle->data)->callback();
 }

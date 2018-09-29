@@ -12,7 +12,7 @@
 
 class UvTimer : public Timer {
 public:
-    UvTimer(UvEventLoop* eventLoop);
+    UvTimer(std::shared_ptr<UvEventLoop> eventLoop);
     virtual ~UvTimer();
 
     void init();
@@ -21,6 +21,8 @@ public:
 
     void callback();
 private:
+    static void uvTimerCallback(uv_timer_t* handle);
+
     uv_loop_t* _eventLoop;
     uv_timer_t* _timer;
 
