@@ -4,7 +4,7 @@
 #include "common/error.h"
 
 #include <vulkan/vulkan_core.h>
-#include "renderer/gpu/vulkan/vulkan-physical-device.h"
+#include "gpu/backend/vulkan/vulkan-physical-device.h"
 
 #include <memory>
 #include <vector>

@@ -2,8 +2,8 @@
 #define GRAPHICS_BACKEND_H
 
 #include "common/error.h"
-#include "gpu/physical-device.h"
-#include "gpu/device.h"
+#include "gpu/backend/physical-device.h"
+#include "gpu/backend/device.h"
 
 #include <memory>
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(katla-renderer)
+project(katla-gpu)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -31,23 +31,23 @@ set (skia_include_directories
 set(sources
     ../common/error.cpp
     drawing/skia-opengl.cpp
-    gpu/vulkan/vulkan.cpp
-    gpu/vulkan/vulkan-window.cpp
-    gpu/vulkan/vulkan-window-factory.cpp
-    gpu/vulkan/vulkan-physical-device.cpp
-    gpu/vulkan/vulkan-physical-device-factory.cpp
-    gpu/vulkan/vulkan-device.cpp
-    gpu/vulkan/vulkan-device-factory.cpp
-    gpu/vulkan/vulkan-device-queue.cpp
+    backend/vulkan/vulkan.cpp
+    backend/vulkan/vulkan-window.cpp
+    backend/vulkan/vulkan-window-factory.cpp
+    backend/vulkan/vulkan-physical-device.cpp
+    backend/vulkan/vulkan-physical-device-factory.cpp
+    backend/vulkan/vulkan-device.cpp
+    backend/vulkan/vulkan-device-factory.cpp
+    backend/vulkan/vulkan-device-queue.cpp
 
-    gpu/opengl/opengl.cpp
-    gpu/opengl/opengl-window.cpp
-    gpu/opengl/opengl-window-factory.cpp
+    backend/opengl/opengl.cpp
+    backend/opengl/opengl-window.cpp
+    backend/opengl/opengl-window-factory.cpp
 )
 
-add_library(katla-renderer SHARED ${sources})
+add_library(katla-gpu SHARED ${sources})
 
-target_include_directories(katla-renderer PRIVATE
+target_include_directories(katla-gpu PRIVATE
     .
     ..
     ../external/
@@ -55,4 +55,4 @@ target_include_directories(katla-renderer PRIVATE
     ../gui-kit/
     ${skia_include_directories})
 
-target_link_libraries(katla-renderer glfw ${GL_LIBRARIES} ${skia})
+target_link_libraries(katla-gpu glfw ${GL_LIBRARIES} ${skia})

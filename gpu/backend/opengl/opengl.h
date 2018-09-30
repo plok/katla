@@ -1,9 +1,9 @@
 #ifndef OPENGL_H
 #define OPENGL_H
 
-#include "gpu/graphics-backend.h"
-#include "gpu/physical-device.h"
-#include "gpu/device.h"
+#include "gpu/backend/graphics-backend.h"
+#include "gpu/backend/physical-device.h"
+#include "gpu/backend/device.h"
 
 #include "common/error.h"
 

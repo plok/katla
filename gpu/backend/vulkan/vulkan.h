@@ -1,13 +1,13 @@
 #ifndef VULKAN_H
 #define VULKAN_H
 
-#include "gpu/graphics-backend.h"
+#include "gpu/backend/graphics-backend.h"
 #include "common/error.h"
 
 // TODO non-vulkan interfaces
-#include "gpu/vulkan/vulkan-physical-device.h"
-#include "gpu/vulkan/vulkan-device.h"
-#include "gpu/vulkan/vulkan-window.h"
+#include "gpu/backend/vulkan/vulkan-physical-device.h"
+#include "gpu/backend/vulkan/vulkan-device.h"
+#include "gpu/backend/vulkan/vulkan-window.h"
 
 #include <vulkan/vulkan_core.h>
 

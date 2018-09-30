@@ -1,7 +1,7 @@
 #ifndef VULKAN_WINDOW_FACTORY_H
 #define VULKAN_WINDOW_FACTORY_H
 
-#include "gpu/vulkan/vulkan-window.h"
+#include "gpu/backend/vulkan/vulkan-window.h"
 
 #include "window/window.h"
 #include "window/window-factory.h"

@@ -2,7 +2,7 @@
 #define VULKAN_PHYSICAL_DEVICE_H
 
 #include "common/error.h"
-#include "gpu/physical-device.h"
+#include "gpu/backend/physical-device.h"
 
 #include <vulkan/vulkan_core.h>
 

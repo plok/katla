@@ -1,7 +1,7 @@
 #include "opengl.h"
 
 #include "window/window-factory.h"
-#include "gpu/opengl/opengl-window-factory.h"
+#include "gpu/backend/opengl/opengl-window-factory.h"
 
 #include <GLFW/glfw3.h>
 

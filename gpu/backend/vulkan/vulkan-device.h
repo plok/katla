@@ -5,8 +5,8 @@
 
 #include <vulkan/vulkan_core.h>
 
-#include "renderer/gpu/device.h"
-#include "renderer/gpu/vulkan/vulkan-device-queue.h"
+#include "gpu/backend/device.h"
+#include "gpu/backend/vulkan/vulkan-device-queue.h"
 
 #include <memory>
 #include <vector>

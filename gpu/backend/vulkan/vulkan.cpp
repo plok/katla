@@ -2,13 +2,13 @@
 
 #include "window/window-factory.h"
 
-#include "gpu/vulkan/vulkan-function-table.h"
-#include "gpu/vulkan/vulkan-window-factory.h"
+#include "gpu/backend/vulkan/vulkan-function-table.h"
+#include "gpu/backend/vulkan/vulkan-window-factory.h"
 
-#include "gpu/vulkan/vulkan-physical-device.h"
-#include "gpu/vulkan/vulkan-physical-device-factory.h"
-#include "gpu/vulkan/vulkan-device.h"
-#include "gpu/vulkan/vulkan-device-factory.h"
+#include "gpu/backend/vulkan/vulkan-physical-device.h"
+#include "gpu/backend/vulkan/vulkan-physical-device-factory.h"
+#include "gpu/backend/vulkan/vulkan-device.h"
+#include "gpu/backend/vulkan/vulkan-device-factory.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
