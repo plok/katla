@@ -72,7 +72,6 @@ void SkiaOpenGL::draw()
 
     SkCanvas* canvas = m_surface->getCanvas();
     
-    SkRandom rand;
     canvas->clear(SK_ColorRED);
 
     SkPaint paint;

@@ -1,3 +1,6 @@
 [submodule "external/kmsxx"]
 	path = external/kmsxx
 	url = https://github.com/tomba/kmsxx
+[submodule "external/skia"]
+	path = external/skia
+	url = https://github.com/google/skia.git

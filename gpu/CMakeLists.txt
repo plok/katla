@@ -8,11 +8,7 @@ pkg_check_modules(GL REQUIRED gl)
 
 find_package(glfw3 3.2.0 REQUIRED)
 
-SET (skia_path $ENV{SKIA_PATH})
-
-if (NOT DEFINED skia_path)
-    SET(skia_path ${skia_env_path})
-endif()
+set (skia_path ${PROJECT_SOURCE_DIR}/../external/skia)
 
 set (skia_output_path ${skia_path}/out/Shared/)
 set (skia_include_base_path ${skia_path}/include)
