@@ -12,29 +12,7 @@
 // TODO remove
 #include <GLFW/glfw3.h>
 
-std::tuple<std::unique_ptr<GraphicsBackend>, ErrorPtr> initializeGraphicsBackend(bool useOpenGL) {
-    if (useOpenGL) {
-        std::cout << "Creating opengl backend!" << std::endl;
-        
-        auto opengl = std::make_unique<OpenGl>();
-        auto error = opengl->init();
-        if (error) {
-            return {std::unique_ptr<GraphicsBackend>(), Error::create("Failed initializing opengl backend: " + error->message)};
-        }
-    
-        return {std::unique_ptr<GraphicsBackend>(std::move(opengl)), Error::none()};
-    }
 
-    std::cout << "Creating vulkan backend!" << std::endl;
-
-    auto vulkan = std::make_unique<Vulkan>();
-    auto error = vulkan->init();
-    if (error) {
-        return {std::unique_ptr<GraphicsBackend>(), Error::create("Failed initializing vulkan backend: " + error->message)};
-    }
-
-    return {std::unique_ptr<GraphicsBackend>(std::move(vulkan)), Error::none()};
-}
 
 int main(int argc, char* argv[])
 {

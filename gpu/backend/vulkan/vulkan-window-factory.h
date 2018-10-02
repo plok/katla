@@ -7,17 +7,21 @@
 #include "window/window-factory.h"
 #include "common/error.h"
 
+#include "gpu/drawing/render-view.h"
+
 #include <memory>
 #include <string>
 
 #include <vulkan/vulkan_core.h>
+
+class WindowScene;
 
 class VulkanWindowFactory : public WindowFactory {
 public:
     // Takes ownership
     VulkanWindowFactory(VkInstance instance);
 
-    std::tuple<WindowPtr, ErrorPtr> create(int x, int y, std::string title, std::shared_ptr<WindowEvents> events);
+    std::tuple<WindowPtr, ErrorPtr> create(std::shared_ptr<RenderView> renderView, std::shared_ptr<WindowProperties> properties);
 
 private:
     VkInstance m_instance;

@@ -1,42 +1,46 @@
 #include "opengl-window.h"
 
+#include "gpu/drawing/render-view.h"
+
 #include <GLFW/glfw3.h>
 
 #include <iostream>
 
 OpenGlWindow::OpenGlWindow(
         GLFWwindow* window,
-        std::shared_ptr<WindowEvents> events) :
-    m_window(window),
-    m_events(events),
-    m_closeRequested(false)
+        std::shared_ptr<RenderView> renderView, 
+        std::shared_ptr<WindowProperties> properties) :
+    _window(window),
+    _renderView(renderView),
+    _properties(properties),
+    _closeRequested(false)
 {
 }
 
 OpenGlWindow::~OpenGlWindow() {
-    if (m_window) {
-        glfwDestroyWindow(m_window);
-        m_window = nullptr;
+    if (_window) {
+        glfwDestroyWindow(_window);
+        _window = nullptr;
     }
 }
 
 void OpenGlWindow::init()
 {
-    if (!m_window) {
+    if (!_window) {
         return;
     }
 
-    glfwSetWindowUserPointer(m_window, this);
+    glfwSetWindowUserPointer(_window, this);
 
-    glfwSetWindowSizeCallback(m_window, &windowSizeCallback);
-    glfwSetWindowCloseCallback(m_window, &windowCloseCallback);
-    glfwSetFramebufferSizeCallback(m_window, &framebufferSizeCallback);
+    glfwSetWindowSizeCallback(_window, &windowSizeCallback);
+    glfwSetWindowCloseCallback(_window, &windowCloseCallback);
+    glfwSetFramebufferSizeCallback(_window, &framebufferSizeCallback);
 }
 
 void OpenGlWindow::show()
 {
     int width = 0, height = 0;
-    glfwGetFramebufferSize(m_window, &width, &height);
+    glfwGetFramebufferSize(_window, &width, &height);
 
     glViewport(0, 0, width, height);
 
@@ -46,7 +50,7 @@ void OpenGlWindow::show()
 
 void OpenGlWindow::clear()
 {
-    if (!m_window) {
+    if (!_window) {
         return;
     }
 
@@ -57,25 +61,34 @@ void OpenGlWindow::clear()
 
 void OpenGlWindow::close()
 {
-    if (!m_window) {
+    if (!_window) {
         return;
     }
 
-    m_closeRequested = true;
+    _closeRequested = true;
     // TODO do not call from callback
-    glfwDestroyWindow (m_window);
+    glfwDestroyWindow (_window);
 }
 
 void OpenGlWindow::render()
 {
 
-    if (!m_window || m_closeRequested) {
+    if (!_window || _closeRequested) {
         return;
     }
     
-    glfwSwapBuffers(m_window);
-    glfwPollEvents();
+    if (_renderView) {
+        _renderView->render();
+    }
+
+    glfwSwapBuffers(_window);
+    // glfwPollEvents();
 }  
+
+void OpenGlWindow::processEvents()
+{
+    glfwPollEvents();
+}
 
 void OpenGlWindow::windowSizeCallback(GLFWwindow *window, int width, int height)
 {    
@@ -91,11 +104,20 @@ void OpenGlWindow::windowSizeCallback(GLFWwindow *window, int width, int height)
 
 void OpenGlWindow::windowSizeChanged(int width, int height)
 {
-    if (m_events->sizeChanged) {
+    // std::cout << "size" << std::endl;
 
-        Size size {width, height};
-        m_events->sizeChanged->publish(size);
+    // TODO schedule, not in callback
+    if (_renderView) {
+        _renderView->resize(width, height);
     }
+    // TODO needed, not in callback?
+    //render();
+
+    // if (_events->sizeChanged) {
+
+    //     Size size {width, height};
+    //     _events->sizeChanged->publish(size);
+    // }
 }
 
 void OpenGlWindow::windowFocusCallback(GLFWwindow *window)
@@ -118,15 +140,17 @@ void OpenGlWindow::windowCloseCallback(GLFWwindow *window)
 
 void OpenGlWindow::windowCloseRequested()
 {
-    m_closeRequested = false;
+    _closeRequested = false;
 
-    if (m_events->closeRequested) {
-        m_events->closeRequested->publish(true);
+    if (_properties->closeRequested) {
+        _properties->closeRequested->publish(true);
     }
 }
 
 void OpenGlWindow::framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
+    // std::cout << "fb size" << std::endl;
+
     auto userPtr = glfwGetWindowUserPointer(window);
     if (!userPtr) {
         return;
@@ -139,4 +163,5 @@ void OpenGlWindow::framebufferSizeCallback(GLFWwindow* window, int width, int he
 void OpenGlWindow::framebufferSize(int width, int height)
 {
     glViewport(0, 0, width, height);
+    render();
 }

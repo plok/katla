@@ -1,4 +1,4 @@
-#include "skia-opengl.h"
+#include "skia-render-view.h"
 
 #include <GLFW/glfw3.h>
 
@@ -14,11 +14,11 @@
 
 #include "GrBackendSurface.h"
 
-SkiaOpenGL::SkiaOpenGL()
+SkiaRenderView::SkiaRenderView()
 {
 }
 
-void SkiaOpenGL::init()
+void SkiaRenderView::init()
 {
     auto interface = GrGLMakeNativeInterface();
     
@@ -61,7 +61,7 @@ void SkiaOpenGL::init()
     }
 }
 
-void SkiaOpenGL::draw()
+void SkiaRenderView::render()
 {
     if (!m_surface) {
         return;
@@ -91,7 +91,12 @@ void SkiaOpenGL::draw()
     canvas->flush();
 }
 
-void SkiaOpenGL::cleanup()
+void SkiaRenderView::resize(int width, int height)
+{
+    //render();
+}
+
+void SkiaRenderView::cleanup()
 {
     // TODO?
 }

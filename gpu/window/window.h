@@ -7,11 +7,14 @@
 
 #include <tuple>
 #include <memory>
+#include <string>
 
 class Window;
 typedef std::shared_ptr<Window> WindowPtr;
 
-struct WindowEvents {
+struct WindowProperties {
+    Size size;
+    std::string title;
     std::shared_ptr<Observer<Size>> sizeChanged;
     std::shared_ptr<Observer<bool>> closeRequested;
 };
@@ -27,6 +30,8 @@ public:
     
     virtual void render() = 0;
     virtual void clear() = 0;
+
+    virtual void processEvents() = 0;
     
 };
 

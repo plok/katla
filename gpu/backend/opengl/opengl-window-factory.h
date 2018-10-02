@@ -10,11 +10,13 @@
 #include <memory>
 #include <string>
 
+class RenderView;
+
 class OpenGlWindowFactory : public WindowFactory {
 public:
     OpenGlWindowFactory();
 
-    std::tuple<WindowPtr, ErrorPtr> create(int x, int y, std::string title, std::shared_ptr<WindowEvents> events);
+    std::tuple<WindowPtr, ErrorPtr> create(std::shared_ptr<RenderView> renderView, std::shared_ptr<WindowProperties> properties);
 private:
 
 };

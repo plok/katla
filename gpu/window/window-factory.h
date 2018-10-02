@@ -7,11 +7,13 @@
 
 #include <tuple>
 
+class RenderView;
+
 class WindowFactory {
 public:
     virtual ~WindowFactory() = default;
 
-    virtual std::tuple<WindowPtr, ErrorPtr> create(int x, int y, std::string title, std::shared_ptr<WindowEvents> events) = 0;
+    virtual std::tuple<WindowPtr, ErrorPtr> create(std::shared_ptr<RenderView> renderView, std::shared_ptr<WindowProperties> properties) = 0;
 };
 
 #endif

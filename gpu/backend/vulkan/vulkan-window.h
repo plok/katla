@@ -1,7 +1,7 @@
 #ifndef VULKAN_WINDOW_H
 #define VULKAN_WINDOW_H
 
-#include "window/window.h"
+#include "gpu/window/window.h"
 #include "common/error.h"
 
 #include <vulkan/vulkan_core.h>
@@ -24,6 +24,8 @@ public:
     void render();
     void clear() {}
     void close() {}
+
+    void processEvents() {}
 
     VkSurfaceKHR vulkanSurface() {
         return m_surface;

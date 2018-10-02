@@ -1,6 +1,8 @@
 #include "vulkan-window-factory.h"
 #include "vulkan-window.h"
 
+#include "gpu/drawing/render-view.h"
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -8,10 +10,10 @@ VulkanWindowFactory::VulkanWindowFactory(VkInstance instance) :
     m_instance(instance)
 {}
 
-std::tuple<WindowPtr, ErrorPtr> VulkanWindowFactory::create(int x, int y, std::string title, std::shared_ptr<WindowEvents> events)
+std::tuple<WindowPtr, ErrorPtr> VulkanWindowFactory::create(std::shared_ptr<RenderView> renderView, std::shared_ptr<WindowProperties> properties)
 {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    GLFWwindow* window = glfwCreateWindow(x, y, title.c_str(), NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(properties->size.width, properties->size.height, properties->title.c_str(), NULL, NULL);
     if (!window) {
         return {std::shared_ptr<Window>(), Error::create("Error creating window")};
     }

@@ -8,12 +8,13 @@
 
 #include <memory>
 
+class RenderView;
 typedef struct GLFWwindow GLFWwindow;
 
 class OpenGlWindow : public Window {
 public:
     // Takes ownership of window
-    OpenGlWindow(GLFWwindow* window, std::shared_ptr<WindowEvents> events);
+    OpenGlWindow(GLFWwindow* window, std::shared_ptr<RenderView> renderView, std::shared_ptr<WindowProperties> properties);
     virtual ~OpenGlWindow();
 
     void init();
@@ -22,6 +23,8 @@ public:
     void render();
     void clear();
     void close();
+
+    void processEvents();
 
 private:
     static void windowSizeCallback(GLFWwindow *window, int width, int height);
@@ -35,11 +38,12 @@ private:
     static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
     void framebufferSize(int width, int height);
 
-    GLFWwindow* m_window;
+    GLFWwindow* _window;
 
-    bool m_closeRequested;
+    bool _closeRequested;
 
-    std::shared_ptr<WindowEvents> m_events;
+    std::shared_ptr<RenderView> _renderView;
+    std::shared_ptr<WindowProperties> _properties;
 };
 
 #endif
