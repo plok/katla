@@ -1,6 +1,6 @@
 #include "opengl-window.h"
 
-#include "gpu/drawing/render-view.h"
+#include "gpu/render/render-view.h"
 
 #include <GLFW/glfw3.h>
 

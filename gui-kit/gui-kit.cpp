@@ -6,7 +6,7 @@
 #include "gpu/backend/vulkan/vulkan.h"
 #include "gpu/window/window-factory.h"
 
-#include "gpu/drawing/skia-render-view.h"
+#include "gpu/render/render-view.h"
 
 #include <iostream>
 

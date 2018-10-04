@@ -7,7 +7,7 @@
 #include "window/window-factory.h"
 #include "common/error.h"
 
-#include "gpu/drawing/render-view.h"
+#include "gpu/render/render-view.h"
 
 #include <memory>
 #include <string>

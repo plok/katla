@@ -3,8 +3,6 @@
 
 #include <GLFW/glfw3.h>
 
-#include "gpu/drawing/render-view.h"
-
 OpenGlWindowFactory::OpenGlWindowFactory()
 {}
 

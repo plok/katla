@@ -1,8 +1,6 @@
 #include "vulkan-window-factory.h"
 #include "vulkan-window.h"
 
-#include "gpu/drawing/render-view.h"
-
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 

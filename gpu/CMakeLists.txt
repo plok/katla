@@ -27,7 +27,8 @@ set (skia_include_directories
 set(sources
     ../common/error.cpp
     
-    drawing/skia-render-view.cpp
+    render/skia-opengl-binder.cpp
+    render/skia-render-view.cpp
 
     backend/vulkan/vulkan.cpp
     backend/vulkan/vulkan-window.cpp

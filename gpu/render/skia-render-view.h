@@ -3,8 +3,7 @@
 
 #include "render-view.h"
 
-#include "core/SkSurface.h"
-#include "gpu/GrContext.h"
+#include "skia-opengl-binder.h"
 
 // TODO scene / context / canvas etc.... ?
 
@@ -20,9 +19,7 @@ public:
     void resize(int width, int height);
 
 private:
-    sk_sp<GrContext> m_context;
-    sk_sp<SkSurface> m_surface;
-
+    SkiaOpenGlBinder _skia;
 };
 
 #endif

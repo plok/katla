@@ -1,4 +1,4 @@
-#include "skia-render-view.h"
+#include "skia-opengl-binder.h"
 
 #include <GLFW/glfw3.h>
 
@@ -14,15 +14,15 @@
 
 #include "GrBackendSurface.h"
 
-SkiaRenderView::SkiaRenderView()
+SkiaOpenGlBinder::SkiaOpenGlBinder()
 {
 }
 
-void SkiaRenderView::init()
+void SkiaOpenGlBinder::init()
 {
     auto interface = GrGLMakeNativeInterface();
     
-    m_context = GrContext::MakeGL(interface);
+    _context = GrContext::MakeGL(interface);
     
     int width = 800;
     int height = 600;
@@ -48,56 +48,24 @@ void SkiaRenderView::init()
     SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
     
 
-    m_surface = sk_sp<SkSurface>(
-        SkSurface::MakeFromBackendRenderTarget(m_context.get(),
+    _surface = sk_sp<SkSurface>(
+        SkSurface::MakeFromBackendRenderTarget(_context.get(),
                                             target,
                                                kBottomLeft_GrSurfaceOrigin,
                                                colorType,
                                                nullptr,
                                                &props));
-    if (!m_surface) {
+    if (!_surface) {
         SkDebugf("SkSurface::MakeRenderTarget returned null\n");
         return;
     }
 }
 
-void SkiaRenderView::render()
+sk_sp<GrContext> SkiaOpenGlBinder::context()
 {
-    if (!m_surface) {
-        return;
-    }
-
-    int width = m_surface->width();
-    int height = m_surface->height();
-
-    SkCanvas* canvas = m_surface->getCanvas();
-    
-    canvas->clear(SK_ColorRED);
-
-    SkPaint paint;
-    paint.setColor(SK_ColorWHITE);
-    paint.setTextSize(64.0f);
-
-    SkRect rect {10,10, SkIntToScalar(width - 10), SkIntToScalar(height - 10)};
-    canvas->drawRect(rect, paint);
-
-    paint.setColor(SK_ColorRED);
-    paint.setTextSize(64.0f);
-
-    std::string message = "hoi!";
-    canvas->drawText(message.c_str(), strlen(message.c_str()), SkIntToScalar(width/2),
-                     SkIntToScalar(height/2), paint);
-
-    canvas->flush();
+    return _context;
 }
-
-void SkiaRenderView::resize(int width, int height)
+sk_sp<SkSurface> SkiaOpenGlBinder::surface()
 {
-    //render();
+    return _surface;
 }
-
-void SkiaRenderView::cleanup()
-{
-    // TODO?
-}
-    
