@@ -10,9 +10,7 @@ CoreApplication::CoreApplication()
     _signalHandler = std::make_shared<UvSignalHandler>(_eventLoop);
 }
 
-CoreApplication::~CoreApplication() {
-
-}
+CoreApplication::~CoreApplication() = default;
 
 ErrorPtr CoreApplication::init()
 {

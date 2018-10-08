@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-UvTimer::UvTimer(std::shared_ptr<UvEventLoop> eventLoop)
+UvTimer::UvTimer(const std::shared_ptr<UvEventLoop>& eventLoop)
 {
-    _eventLoop = eventLoop->uvEventLoop();
+    _eventLoop = eventLoop;
     _timer = new uv_timer_t();
     _timer->data = this;
 }
@@ -16,7 +16,8 @@ UvTimer::~UvTimer() {
 
 void UvTimer::init()
 {
-    auto result = uv_timer_init(_eventLoop, _timer);
+    auto uvEventLoop = _eventLoop->uvEventLoop();
+    auto result = uv_timer_init(uvEventLoop, _timer);
     if (result != 0) {
         // TODO
     }

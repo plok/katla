@@ -4,23 +4,22 @@
 #include "vulkan-function-table.h"
 
 #include <sstream>
+#include <utility>
 
 PhysicalDeviceFactory::PhysicalDeviceFactory(std::shared_ptr<VulkanFunctionTable> vft, const VkInstance& instance) :
-    m_functionTable(vft),
+    m_functionTable(std::move(vft)),
     m_instance(instance)
 {
 }
 
-PhysicalDeviceFactory::~PhysicalDeviceFactory()
-{
-}
+PhysicalDeviceFactory::~PhysicalDeviceFactory() = default;
 
 std::tuple<std::vector<VulkanPhysicalDevicePtr>, ErrorPtr> PhysicalDeviceFactory::getPhysicalDevices()
 {
     uint32_t count = 0;
 
     // Get number of devices
-    VkResult result = m_functionTable->EnumeratePhysicalDevices(m_instance, &count, NULL);
+    VkResult result = m_functionTable->EnumeratePhysicalDevices(m_instance, &count, nullptr);
 
     std::vector<VulkanPhysicalDevicePtr> physicalDevices;
 

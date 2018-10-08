@@ -1,12 +1,14 @@
+#include <utility>
+
 #include "error.h"
 
 Error::Error(std::string message) :
-    message(message)
+    message(std::move(message))
 {}
 
 Error::Error(std::string name, std::string message) :
-    name(name),
-    message(message)
+    name(std::move(name)),
+    message(std::move(message))
 {}
 
 ErrorPtr Error::create(std::string message)

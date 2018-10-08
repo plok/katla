@@ -5,20 +5,18 @@
 
 #include <GLFW/glfw3.h>
 
-#include "string.h"
+#include <cstring>
 #include <iostream>
 #include <vector>
 
 #include <sstream>
 
-void glfw_opengl_error_callback(int error, const char* description)
+void glfw_opengl_error_callback(int /*error*/, const char* description)
 {
     std::cout << description << std::endl;
 }
 
-OpenGl::OpenGl()
-{
-}
+OpenGl::OpenGl() = default;
 
 OpenGl::~OpenGl()
 {

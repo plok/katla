@@ -4,16 +4,15 @@
 #include "vulkan-function-table.h"
 
 #include <sstream>
+#include <utility>
 
 VulkanPhysicalDevice::VulkanPhysicalDevice(std::shared_ptr<VulkanFunctionTable> functionTable, VkPhysicalDevice physicalDevice) :
-    m_functionTable(functionTable),
+    m_functionTable(std::move(functionTable)),
     m_physicalDevice(physicalDevice)
 {
 }
 
-VulkanPhysicalDevice::~VulkanPhysicalDevice()
-{
-}
+VulkanPhysicalDevice::~VulkanPhysicalDevice() = default;
 
 void VulkanPhysicalDevice::printInfo()
 {
@@ -28,7 +27,7 @@ void VulkanPhysicalDevice::printInfo()
     uint32_t minorVersion = VK_VERSION_MINOR( deviceProperties.apiVersion );
     uint32_t patchVersion = VK_VERSION_PATCH( deviceProperties.apiVersion );
 
-    std::cout << "Found device: " << deviceProperties.deviceID << " - " << deviceProperties.deviceType << " - " << deviceProperties.deviceName << std::endl;
+    std::cout << "Found device: " << deviceProperties.deviceID << " - " << deviceProperties.deviceType << " - " << static_cast<char*>(deviceProperties.deviceName) << std::endl;
     std::cout << "Supporting api: " << majorVersion << "." << minorVersion << "." << patchVersion << std::endl;
 }
 

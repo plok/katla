@@ -14,9 +14,7 @@
 
 #include "GrBackendSurface.h"
 
-SkiaRenderView::SkiaRenderView()
-{
-}
+SkiaRenderView::SkiaRenderView() = default;
 
 void SkiaRenderView::init()
 {
@@ -54,7 +52,7 @@ void SkiaRenderView::render()
     canvas->flush();
 }
 
-void SkiaRenderView::resize(int width, int height)
+void SkiaRenderView::resize(int /*width*/, int /*height*/)
 {
     //render();
 }

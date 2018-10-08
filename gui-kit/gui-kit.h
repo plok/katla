@@ -12,7 +12,7 @@ class RenderView;
 
 class GuiKit {
 public:
-    GuiKit(CoreApplication& coreApp);
+    explicit GuiKit(CoreApplication& coreApp);
     virtual ~GuiKit();
 
     ErrorPtr init();

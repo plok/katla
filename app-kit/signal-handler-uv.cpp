@@ -9,9 +9,9 @@ void uv_signal_handler_callback(uv_signal_t* handle, int signum)
     static_cast<UvSignalHandler*>(handle->data)->callback(signum);
 }
 
-UvSignalHandler::UvSignalHandler(std::shared_ptr<UvEventLoop> eventLoop)
+UvSignalHandler::UvSignalHandler(const std::shared_ptr<UvEventLoop>& eventLoop)
 {
-    _eventLoop = eventLoop->uvEventLoop();
+    _eventLoop = eventLoop;
     _signalHandler = new uv_signal_t();
     _signalHandler->data = this;
 }
@@ -23,7 +23,8 @@ UvSignalHandler::~UvSignalHandler() {
 
 ErrorPtr UvSignalHandler::init()
 {
-    auto result = uv_signal_init(_eventLoop, _signalHandler);
+    auto uvEventLoop = _eventLoop->uvEventLoop();
+    auto result = uv_signal_init(uvEventLoop, _signalHandler);
     if (result != 0) {
         return Error::create( uv_err_name(result), uv_strerror(result) );
     }

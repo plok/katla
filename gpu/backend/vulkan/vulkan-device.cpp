@@ -4,18 +4,17 @@
 #include "vulkan-function-table.h"
 
 #include <sstream>
+#include <utility>
 
 VulkanDevice::VulkanDevice(
         std::shared_ptr<VulkanFunctionTable> functionTable,
         VkDevice device) :
-    m_functionTable(functionTable),
+    m_functionTable(std::move(functionTable)),
     m_device(device)
 {
 }
 
-VulkanDevice::~VulkanDevice()
-{
-}
+VulkanDevice::~VulkanDevice() = default;
 
 ErrorPtr VulkanDevice::initQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
 {

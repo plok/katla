@@ -15,13 +15,14 @@
 
 #include <vulkan/vulkan.h>
 
-#include "string.h"
+#include <cstring>
 #include <iostream>
+#include <utility>
 #include <vector>
 
 #include <sstream>
 
-void glfw_vulkan_error_callback(int error, const char* description)
+void glfw_vulkan_error_callback(int  /*error*/, const char* description)
 {
     std::cout << description << std::endl;
 }
@@ -32,9 +33,7 @@ Vulkan::Vulkan() :
 {
 }
 
-Vulkan::~Vulkan()
-{
-}
+Vulkan::~Vulkan() = default;
 
 ErrorPtr Vulkan::init()
 {
@@ -53,7 +52,7 @@ ErrorPtr Vulkan::init()
     uint32_t count;
     const char** extensions = glfwGetRequiredInstanceExtensions(&count);
 
-    for (int i=0; i<count; i++)
+    for (uint32_t i=0; i<count; i++)
         std::cout << "glfw required: " << extensions[i] << std::endl;
 
     std::cout << count << " extensions supported" << std::endl;
@@ -76,12 +75,11 @@ ErrorPtr Vulkan::init()
 
     VkResult res;
 
-    res = m_functionTable->CreateInstance(&instanceInfo, NULL, &m_instance);
+    res = m_functionTable->CreateInstance(&instanceInfo, nullptr, &m_instance);
     if (res == VK_ERROR_INCOMPATIBLE_DRIVER) {
-
         return Error::create("cannot find a compatible Vulkan ICD");
-
-    } else if (res) {
+    }
+    if (res) {
         return Error::create("unknown error");
     }
 
@@ -91,7 +89,7 @@ ErrorPtr Vulkan::init()
 void Vulkan::cleanup()
 {
     if (m_instance) {
-        m_functionTable->DestroyInstance(m_instance, NULL);
+        m_functionTable->DestroyInstance(m_instance, nullptr);
         m_instance = nullptr;
     }
 
@@ -125,7 +123,7 @@ std::tuple<VulkanPhysicalDevicePtr, ErrorPtr> Vulkan::selectDevice()
     }
 
     VulkanPhysicalDevicePtr selectedPhysicalDevice;
-    for (auto physicalDevice : physicalDevices) {
+    for (const auto& physicalDevice : physicalDevices) {
         
         // TODO score devices;
 
@@ -138,7 +136,7 @@ std::tuple<VulkanPhysicalDevicePtr, ErrorPtr> Vulkan::selectDevice()
 
         auto [deviceExtensions, getDeviceExtensionsError] = physicalDevice->getExtensions();        
         for (auto ext: deviceExtensions) {
-            std::cout << "Supported device extensions: " << ext.extensionName << std::endl;
+            std::cout << "Supported device extensions: " << static_cast<char*>(ext.extensionName) << std::endl;
         }
 
         auto queueFamilyProperties = physicalDevice->getQueueFamilies();

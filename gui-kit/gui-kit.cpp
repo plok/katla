@@ -9,15 +9,14 @@
 #include "gpu/render/render-view.h"
 
 #include <iostream>
+#include <utility>
 
 GuiKit::GuiKit(CoreApplication& coreApplication) :
     _coreApp(&coreApplication)
 {
 }
 
-GuiKit::~GuiKit() {
-
-}
+GuiKit::~GuiKit() = default;
 
 ErrorPtr GuiKit::init()
 {
@@ -72,7 +71,7 @@ WindowPtr GuiKit::createWindow(std::shared_ptr<WindowProperties> windowPropertie
     // before we can create a surface we need to create a window
     auto windowFactory = _graphicsBackend->windowFactory();
 
-    auto [window, createError] = windowFactory->create(renderView, windowProperties);
+    auto [window, createError] = windowFactory->create(renderView, std::move(windowProperties));
     if (createError) {
         std::cout << "Failed creating window" << createError->message;
         return std::shared_ptr<Window>();

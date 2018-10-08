@@ -12,7 +12,7 @@ class UvEventLoop;
 
 class UvSignalHandler : public SignalHandler {
 public:
-    UvSignalHandler(std::shared_ptr<UvEventLoop> eventLoop);
+    UvSignalHandler(const std::shared_ptr<UvEventLoop>& eventLoop);
     virtual ~UvSignalHandler();
 
     ErrorPtr init();
@@ -21,7 +21,8 @@ public:
 
     void callback(int signum);
 private:
-    uv_loop_t* _eventLoop;
+    std::shared_ptr<UvEventLoop> _eventLoop;
+
     uv_signal_t* _signalHandler;
 
     std::function<void(Signal)> _function;

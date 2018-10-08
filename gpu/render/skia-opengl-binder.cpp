@@ -14,9 +14,7 @@
 
 #include "GrBackendSurface.h"
 
-SkiaOpenGlBinder::SkiaOpenGlBinder()
-{
-}
+SkiaOpenGlBinder::SkiaOpenGlBinder() = default;
 
 void SkiaOpenGlBinder::init()
 {

@@ -11,7 +11,7 @@ typedef std::shared_ptr<Error> ErrorPtr;
 class Error
 {
 public:
-    Error(std::string message);
+    explicit Error(std::string message);
     Error(std::string name, std::string message);
 
     static ErrorPtr create(std::string message);

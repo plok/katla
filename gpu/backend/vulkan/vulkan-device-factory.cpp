@@ -3,17 +3,16 @@
 #include "vulkan.h"
 #include "vulkan-function-table.h"
 
-#include "string.h"
+#include <cstring>
 #include <sstream>
+#include <utility>
 
 DeviceFactory::DeviceFactory(std::shared_ptr<VulkanFunctionTable> vft) :
-    m_functionTable(vft)
+    m_functionTable(std::move(vft))
 {
 }
 
-DeviceFactory::~DeviceFactory()
-{
-}
+DeviceFactory::~DeviceFactory() = default;
 
 std::tuple<VulkanDevicePtr, ErrorPtr> DeviceFactory::create(VulkanPhysicalDevicePtr physicalDevice)
 {
@@ -37,22 +36,22 @@ std::tuple<VulkanDevicePtr, ErrorPtr> DeviceFactory::create(VulkanPhysicalDevice
     VkDeviceQueueCreateInfo createQueueInfo;
     memset(&createQueueInfo, 0, sizeof(createQueueInfo));
     createQueueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    createQueueInfo.pNext = NULL;
+    createQueueInfo.pNext = nullptr;
     createQueueInfo.flags = 0;
 
     float priorities[] = {0.0f};
     createQueueInfo.queueFamilyIndex = queueFamilyIndex;
     createQueueInfo.queueCount = 1;
-    createQueueInfo.pQueuePriorities = priorities;
+    createQueueInfo.pQueuePriorities = static_cast<const float*>(priorities);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos({createQueueInfo});
     VkDeviceCreateInfo deviceCreateInfo;
     memset(&deviceCreateInfo, 0, sizeof(deviceCreateInfo));
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    deviceCreateInfo.pNext = NULL;
+    deviceCreateInfo.pNext = nullptr;
     deviceCreateInfo.queueCreateInfoCount = 1;
     deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
-    deviceCreateInfo.pEnabledFeatures = NULL;
+    deviceCreateInfo.pEnabledFeatures = nullptr;
     deviceCreateInfo.enabledExtensionCount = 0;
 
     VkDevice vkDevice;

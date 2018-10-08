@@ -5,14 +5,15 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <utility>
 
 OpenGlWindow::OpenGlWindow(
         GLFWwindow* window,
         std::shared_ptr<RenderView> renderView, 
         std::shared_ptr<WindowProperties> properties) :
     _window(window),
-    _renderView(renderView),
-    _properties(properties),
+    _renderView(std::move(renderView)),
+    _properties(std::move(properties)),
     _closeRequested(false)
 {
 }
@@ -120,7 +121,7 @@ void OpenGlWindow::windowSizeChanged(int width, int height)
     // }
 }
 
-void OpenGlWindow::windowFocusCallback(GLFWwindow *window)
+void OpenGlWindow::windowFocusCallback(GLFWwindow * /*window*/)
 {
     std::cout << "focus" << std::endl;
 
