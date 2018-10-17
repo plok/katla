@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 include(FindPkgConfig)
 pkg_check_modules(GL REQUIRED gl)
+pkg_check_modules(glew REQUIRED glew)
 
 find_package(glfw3 3.2.0 REQUIRED)
 
@@ -28,7 +29,15 @@ set(sources
     ../common/error.cpp
     
     render/skia-opengl-binder.cpp
-    render/skia-render-view.cpp
+
+        ../external/imgui/imgui.cpp
+        ../external/imgui/imgui_widgets.cpp
+        ../external/imgui/imgui_draw.cpp
+        render/imgui/imgui_impl_glfw.cpp
+        render/imgui/imgui_impl_opengl3.cpp
+        render/imgui-glfw-binder.cpp
+        ../../../imgui-scene.cpp
+
 
     backend/vulkan/vulkan.cpp
     backend/vulkan/vulkan-window.cpp
@@ -42,7 +51,9 @@ set(sources
     backend/opengl/opengl.cpp
     backend/opengl/opengl-window.cpp
     backend/opengl/opengl-window-factory.cpp
-)
+    backend/opengl/opengl-renderer-binders.cpp
+    render/render-view.cpp 
+    render/render-stats.cpp)
 
 add_library(katla-gpu SHARED ${sources})
 
@@ -50,8 +61,9 @@ target_include_directories(katla-gpu PRIVATE
     .
     ..
     ../external/
+        ../external/imgui
     ../app-kit/
     ../gui-kit/
     ${skia_include_directories})
 
-target_link_libraries(katla-gpu glfw ${GL_LIBRARIES} ${skia})
+target_link_libraries(katla-gpu glfw ${glew_LIBRARIES} ${GL_LIBRARIES} ${skia} )

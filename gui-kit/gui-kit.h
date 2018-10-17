@@ -2,6 +2,8 @@
 #define GUI_APPLICATION_H
 
 #include "gpu/backend/graphics-backend.h"
+#include "gpu/backend/graphics-configuration.h"
+
 #include "gpu/window/window.h"
 
 #include "common/error.h"
@@ -16,7 +18,7 @@ public:
     virtual ~GuiKit();
 
     ErrorPtr init();
-    std::tuple<std::shared_ptr<GraphicsBackend>, ErrorPtr> initializeGraphicsBackend(bool useOpenGL);
+    std::tuple<std::shared_ptr<GraphicsBackend>, ErrorPtr> initializeGraphicsBackend(const GraphicsConfiguration& openGlConfiguration);
 
     ErrorPtr run();
     ErrorPtr close();

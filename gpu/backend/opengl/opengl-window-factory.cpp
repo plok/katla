@@ -3,7 +3,9 @@
 
 #include <GLFW/glfw3.h>
 
-OpenGlWindowFactory::OpenGlWindowFactory() = default;
+OpenGlWindowFactory::OpenGlWindowFactory(const GraphicsConfiguration& configuration) :
+    _configuration(configuration)
+{}
 
 std::tuple<WindowPtr, ErrorPtr> OpenGlWindowFactory::create(std::shared_ptr<RenderView> renderView, std::shared_ptr<WindowProperties> properties)
 {
@@ -14,7 +16,14 @@ std::tuple<WindowPtr, ErrorPtr> OpenGlWindowFactory::create(std::shared_ptr<Rend
 
     glfwMakeContextCurrent(window);
 
+    // TODO setting?
+    glfwSwapInterval(1); // Enable vsync
+
     // TODO load extensions?
+
+    if (_configuration.useImGui) {
+        _binders.init(OpenGlRenderer::ImGuiGlfwOpengl, window);
+    }
 
     auto openglWindow = std::make_shared<OpenGlWindow>(window, renderView, properties);
 

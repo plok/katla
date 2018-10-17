@@ -2,6 +2,8 @@
 
 #include "app-kit/core-application.h"
 
+#include "gpu/backend/graphics-configuration.h"
+
 #include "gpu/backend/opengl/opengl.h"
 #include "gpu/backend/vulkan/vulkan.h"
 #include "gpu/window/window-factory.h"
@@ -20,7 +22,12 @@ GuiKit::~GuiKit() = default;
 
 ErrorPtr GuiKit::init()
 {
-    auto [graphicsBackend, backendError] = initializeGraphicsBackend(true);
+    GraphicsConfiguration configuration;
+    configuration.graphicsBackend = GraphicsBackends::OpenGl;
+    configuration.useSkia = true;
+    configuration.useImGui = true;
+
+    auto [graphicsBackend, backendError] = initializeGraphicsBackend(configuration);
     if (backendError) {
         std::cout << "Failed initializing graphics backend" << backendError->message;
         return backendError;
@@ -42,12 +49,12 @@ ErrorPtr GuiKit::close()
     return Error::none();
 }
 
-std::tuple<std::shared_ptr<GraphicsBackend>, ErrorPtr> GuiKit::initializeGraphicsBackend(bool useOpenGL) {
-    if (useOpenGL) {
+std::tuple<std::shared_ptr<GraphicsBackend>, ErrorPtr> GuiKit::initializeGraphicsBackend(const GraphicsConfiguration& configuration) {
+    if (configuration.graphicsBackend == GraphicsBackends::OpenGl) {
         std::cout << "Creating opengl backend!" << std::endl;
         
         auto opengl = std::make_unique<OpenGl>();
-        auto error = opengl->init();
+        auto error = opengl->init(configuration);
         if (error) {
             return {std::unique_ptr<GraphicsBackend>(), Error::create("Failed initializing opengl backend: " + error->message)};
         }

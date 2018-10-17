@@ -7,6 +7,7 @@
 #include "common/subject.h"
 
 #include <memory>
+#include <functional>
 
 class RenderView;
 typedef struct GLFWwindow GLFWwindow;

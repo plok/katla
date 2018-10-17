@@ -15,6 +15,8 @@ typedef std::shared_ptr<Window> WindowPtr;
 struct WindowProperties {
     Size size;
     std::string title;
+
+    // TODO remove
     std::shared_ptr<Observer<Size>> sizeChanged;
     std::shared_ptr<Observer<bool>> closeRequested;
 };

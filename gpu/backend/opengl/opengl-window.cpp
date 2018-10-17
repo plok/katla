@@ -124,7 +124,6 @@ void OpenGlWindow::windowSizeChanged(int width, int height)
 void OpenGlWindow::windowFocusCallback(GLFWwindow * /*window*/)
 {
     std::cout << "focus" << std::endl;
-
 }
 
 void OpenGlWindow::windowCloseCallback(GLFWwindow *window)

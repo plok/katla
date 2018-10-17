@@ -5,6 +5,8 @@
 #include "gpu/backend/physical-device.h"
 #include "gpu/backend/device.h"
 
+#include "gpu/backend/graphics-configuration.h"
+
 #include "common/error.h"
 
 #include <vulkan/vulkan_core.h>
@@ -19,7 +21,7 @@ public:
     OpenGl();
     virtual ~OpenGl();
 
-    ErrorPtr init();
+    ErrorPtr init(const GraphicsConfiguration& openGlConfiguration);
     void cleanup();
 
     ErrorPtr initDevice() {
@@ -29,7 +31,7 @@ public:
     std::unique_ptr<WindowFactory> windowFactory();
     
 private:
-
+    GraphicsConfiguration _openGlConfiguration;
 };
 
 #endif

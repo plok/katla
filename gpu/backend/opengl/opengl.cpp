@@ -24,8 +24,10 @@ OpenGl::~OpenGl()
     glfwTerminate();
 }
 
-ErrorPtr OpenGl::init()
+ErrorPtr OpenGl::init(const GraphicsConfiguration& openGlConfiguration)
 {
+    _openGlConfiguration = openGlConfiguration;
+
     if (!glfwInit()) {
         return Error::create("Failed initializing GLFW!");
     }
@@ -43,5 +45,5 @@ void OpenGl::cleanup()
 
 std::unique_ptr<WindowFactory> OpenGl::windowFactory()
 {
-    return std::make_unique<OpenGlWindowFactory>();
+    return std::make_unique<OpenGlWindowFactory>(_openGlConfiguration);
 }

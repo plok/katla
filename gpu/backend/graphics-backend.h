@@ -15,12 +15,12 @@ public:
     GraphicsBackend() = default;
     virtual ~GraphicsBackend() = default;
 
-    virtual ErrorPtr init() = 0;
     virtual void cleanup() = 0;
 
     virtual ErrorPtr initDevice() = 0;
 
     // TODO seperate from GraphicsBackend?
+    // TODO use createWindow() instead
     virtual std::unique_ptr<WindowFactory> windowFactory() = 0;
 };
 
