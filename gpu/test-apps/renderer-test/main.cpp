@@ -1,9 +1,12 @@
-#include "gpu/vulkan/vulkan.h"
-#include "gpu/opengl/opengl.h"
+#include "gpu/backend/vulkan/vulkan.h"
+#include "gpu/backend/opengl/opengl.h"
 
-#include "window/window-factory.h"
+#include "gpu/window/window-factory.h"
+#include "gpu/render/render-view.h"
 
-#include "drawing/skia-opengl.h"
+// #include "gpu/renderer/skia-opengl.h"
+
+#include "app-kit/core-application.h"
 
 #include "string.h"
 #include <iostream>
@@ -12,6 +15,33 @@
 // TODO remove
 #include <GLFW/glfw3.h>
 
+std::tuple<std::shared_ptr<GraphicsBackend>, ErrorPtr> initializeGraphicsBackend(bool useOpenGL) {
+    if (useOpenGL) {
+        std::cout << "Creating opengl backend!" << std::endl;
+        
+        GraphicsConfiguration config;
+        config.useImGui = false;
+        config.useSkia = true;
+    
+        auto opengl = std::make_unique<OpenGl>();
+        auto error = opengl->init(config);
+        if (error) {
+            return {std::unique_ptr<GraphicsBackend>(), Error::create("Failed initializing opengl backend: " + error->message)};
+        }
+    
+        return {std::unique_ptr<GraphicsBackend>(std::move(opengl)), Error::none()};
+    }
+
+    std::cout << "Creating vulkan backend!" << std::endl;
+
+    auto vulkan = std::make_unique<Vulkan>();
+    auto error = vulkan->init();
+    if (error) {
+        return {std::unique_ptr<GraphicsBackend>(), Error::create("Failed initializing vulkan backend: " + error->message)};
+    }
+
+    return {std::unique_ptr<GraphicsBackend>(std::move(vulkan)), Error::none()};
+}
 
 
 int main(int argc, char* argv[])
@@ -29,16 +59,27 @@ int main(int argc, char* argv[])
             useOpenGL = true;
         }
     }
-        
+
+    CoreApplication app;
+    auto appError = app.init();
+    if (appError) {
+        std::cout << appError->name << " " << appError->message << std::endl << std::flush;
+        return -1;
+    }
+
     auto [graphicsBackend, error] = initializeGraphicsBackend(useOpenGL);
     if (error) {
         std::cout << "Failed initializing graphics backend" << error->message;
         return -1;
     }
 
+    auto renderView = std::make_shared<RenderView>();
+    auto windowProperties = std::make_shared<WindowProperties>();
+    windowProperties->size = Size {800, 600};
+
     // before we can create a sufrace we need to create a window
     auto windowFactory = graphicsBackend->windowFactory();
-    auto [window, createError] = windowFactory->create(800, 600, "Hello!");
+    auto [window, createError] = windowFactory->create(renderView, windowProperties);
     if (createError) {
         std::cout << "Failed creating window" << createError->message;
         return -1;
@@ -48,12 +89,15 @@ int main(int argc, char* argv[])
 
     window->show();
 
-    SkiaOpenGL skia;
-    skia.init();
-    skia.draw();
+    //SkiaOpenGL skia;
+    //skia.init();
+    //skia.draw();
 
-    window->render();
-    window->waitForClose();
+    appError = app.run();
+    if (appError) {
+        std::cout << appError->name << " " << appError->message << std::endl;
+        return -1;
+    }
 
     graphicsBackend->cleanup();
 

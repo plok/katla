@@ -9,20 +9,15 @@ pkg_check_modules(glew REQUIRED glew)
 
 find_package(glfw3 3.2.0 REQUIRED)
 
-set (skia_path ${PROJECT_SOURCE_DIR}/../external/skia)
-
-set (skia_output_path ${skia_path}/out/Shared/)
-set (skia_include_base_path ${skia_path}/include)
-
-find_library(skia skia ${skia_output_path})
+include(${PROJECT_SOURCE_DIR}/../external/skia/skia-config.cmake)
 
 set (skia_include_directories
-    ${skia_include_base_path}
-    ${skia_include_base_path}/core
-    ${skia_include_base_path}/config
-    ${skia_include_base_path}/gpu
-    ${skia_include_base_path}/utils
-    ${skia_include_base_path}/private
+    ${SKIA_INCLUDE_DIR}
+    ${SKIA_INCLUDE_DIR}/core
+    ${SKIA_INCLUDE_DIR}/config
+    ${SKIA_INCLUDE_DIR}/gpu
+    ${SKIA_INCLUDE_DIR}/utils
+    ${SKIA_INCLUDE_DIR}/private
 )
 
 set(sources
@@ -30,14 +25,12 @@ set(sources
     
     render/skia-opengl-binder.cpp
 
-        ../external/imgui/imgui.cpp
-        ../external/imgui/imgui_widgets.cpp
-        ../external/imgui/imgui_draw.cpp
-        render/imgui/imgui_impl_glfw.cpp
-        render/imgui/imgui_impl_opengl3.cpp
-        render/imgui-glfw-binder.cpp
-        ../../../imgui-scene.cpp
-
+    ../external/imgui/imgui.cpp
+    ../external/imgui/imgui_widgets.cpp
+    ../external/imgui/imgui_draw.cpp
+    render/imgui/imgui_impl_glfw.cpp
+    render/imgui/imgui_impl_opengl3.cpp
+    render/imgui-glfw-binder.cpp
 
     backend/vulkan/vulkan.cpp
     backend/vulkan/vulkan-window.cpp
@@ -66,4 +59,4 @@ target_include_directories(katla-gpu PRIVATE
     ../gui-kit/
     ${skia_include_directories})
 
-target_link_libraries(katla-gpu glfw ${glew_LIBRARIES} ${GL_LIBRARIES} ${skia} )
+target_link_libraries(katla-gpu glfw ${glew_LIBRARIES} ${GL_LIBRARIES} skia)
