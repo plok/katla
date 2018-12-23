@@ -1,9 +1,12 @@
 [submodule "external/kmsxx"]
 	path = external/kmsxx
 	url = https://github.com/tomba/kmsxx
-[submodule "external/skia"]
-	path = external/skia
+[submodule "external/skia/skia"]
+	path = external/skia/skia
 	url = https://github.com/google/skia.git
 [submodule "external/imgui"]
 	path = external/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "external/skia/depot_tools"]
+	path = external/skia/depot_tools
+	url = https://chromium.googlesource.com/chromium/tools/depot_tools.git

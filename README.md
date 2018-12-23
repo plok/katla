@@ -31,6 +31,8 @@ $ python tools/git-sync-deps
 
 Build Skia
 
+- add <unicode/unistr.h> include to "third_part/externals/sfntly/cpp/src/sample/chromium/subsetter_impl.cc"
+
 $ ./bin/gn gen out/Shared --args='is_official_build=true is_component_build=true skia_use_icu=false skia_use_sfntly=false extra_cflags_cc=["-Wno-error"]'
 $ cd out/Shared
 $ ninja
