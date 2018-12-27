@@ -11,15 +11,6 @@ find_package(glfw3 3.2.0 REQUIRED)
 
 include(${PROJECT_SOURCE_DIR}/../external/skia/skia-config.cmake)
 
-set (skia_include_directories
-    ${SKIA_INCLUDE_DIR}
-    ${SKIA_INCLUDE_DIR}/core
-    ${SKIA_INCLUDE_DIR}/config
-    ${SKIA_INCLUDE_DIR}/gpu
-    ${SKIA_INCLUDE_DIR}/utils
-    ${SKIA_INCLUDE_DIR}/private
-)
-
 set(sources
     ../common/error.cpp
     
@@ -54,9 +45,9 @@ target_include_directories(katla-gpu PRIVATE
     .
     ..
     ../external/
-        ../external/imgui
+    ../external/imgui
     ../app-kit/
     ../gui-kit/
-    ${skia_include_directories})
+    )
 
 target_link_libraries(katla-gpu glfw ${glew_LIBRARIES} ${GL_LIBRARIES} skia)
