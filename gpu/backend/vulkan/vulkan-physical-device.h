@@ -21,6 +21,7 @@ public:
     virtual ~VulkanPhysicalDevice();
     
     void printInfo();
+    std::string name();
 
     ErrorPtr validateForGraphics();
 

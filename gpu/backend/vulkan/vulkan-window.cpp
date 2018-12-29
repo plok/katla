@@ -3,9 +3,17 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-VulkanWindow::VulkanWindow(GLFWwindow* window, VkSurfaceKHR surface) :
+VulkanWindow::VulkanWindow(
+        std::shared_ptr<VulkanFunctionTable> functionTable,
+        VulkanDevicePtr device,
+        GLFWwindow* window,
+        VkSurfaceKHR surface,
+        VkSwapchainKHR swapChain) :
+    m_functionTable(functionTable),
+    m_device(device),
     m_window(window),
-    m_surface(surface)
+    m_surface(surface),
+    m_swapChain(swapChain)
 {}
 
 VulkanWindow::~VulkanWindow() {
@@ -13,10 +21,18 @@ VulkanWindow::~VulkanWindow() {
         glfwDestroyWindow(m_window);
         m_window = nullptr;
     }
+
+    // TODO: or when destroying the device?
+    m_functionTable->DestroySwapchainKHR(m_device->vulkanHandle(), m_swapChain, nullptr);
+}
+
+void VulkanWindow::init()
+{
 }
 
 void VulkanWindow::show()
 {
+    
 }
 
 void VulkanWindow::render()

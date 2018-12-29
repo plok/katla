@@ -29,7 +29,7 @@ public:
     ErrorPtr initDevice();
 
     std::tuple<VulkanPhysicalDevicePtr, ErrorPtr> selectDevice();
-    std::tuple<DevicePtr, ErrorPtr> initDevice(VulkanPhysicalDevicePtr physicalDevice);
+    std::tuple<VulkanDevicePtr, ErrorPtr> initDevice(VulkanPhysicalDevicePtr physicalDevice);
 
     std::unique_ptr<WindowFactory> windowFactory();
     
@@ -37,6 +37,11 @@ private:
     VkInstance m_instance;
 
     std::shared_ptr<VulkanFunctionTable> m_functionTable;
+
+    VulkanPhysicalDevicePtr m_physicalDevice;
+    VulkanDevicePtr m_device;
+
+    // std::vector<VulkanWindow> m_windows;
 };
 
 #endif

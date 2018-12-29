@@ -31,6 +31,18 @@ void VulkanPhysicalDevice::printInfo()
     std::cout << "Supporting api: " << majorVersion << "." << minorVersion << "." << patchVersion << std::endl;
 }
 
+std::string VulkanPhysicalDevice::name()
+{
+    VkPhysicalDeviceProperties deviceProperties;
+
+    m_functionTable->GetPhysicalDeviceProperties( m_physicalDevice, &deviceProperties );
+
+    std::stringstream sstream;
+    sstream << deviceProperties.deviceID << " - " << deviceProperties.deviceType << " - " << static_cast<char*>(deviceProperties.deviceName);
+
+    return sstream.str();
+}
+
 ErrorPtr VulkanPhysicalDevice::validateForGraphics()
 {
     // Return info from device
@@ -64,7 +76,7 @@ ErrorPtr VulkanPhysicalDevice::validateForGraphics()
         return Error::create("Could not find device with graphics capability!");
     }
 
-    // TODO validate device if it supports the surface
+    // TODO validate device if it supports the surface -> UPDATE: now done with glfw in vulkan-device-factory
 
 //    bool hasSurfaceSupport = false;
 //    for (auto i = 0; i< queueFamilies.size(); i++) {

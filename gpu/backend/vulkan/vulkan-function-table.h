@@ -47,9 +47,15 @@ public:
     DEFINE_VFO(GetPhysicalDeviceFeatures)
     DEFINE_VFO(GetPhysicalDeviceQueueFamilyProperties)
     DEFINE_VFO(GetPhysicalDeviceSurfaceSupportKHR)
+    DEFINE_VFO(GetPhysicalDeviceSurfaceFormatsKHR)
+    DEFINE_VFO(GetPhysicalDeviceSurfacePresentModesKHR)
+    DEFINE_VFO(GetPhysicalDeviceSurfaceCapabilitiesKHR)
 
     DEFINE_VFO(CreateDevice)
     DEFINE_VFO(GetDeviceQueue)
+
+    DEFINE_VFO(CreateSwapchainKHR)
+    DEFINE_VFO(DestroySwapchainKHR)
 };
 
 #endif

@@ -73,6 +73,14 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    auto initDeviceError = graphicsBackend->initDevice();
+    if (initDeviceError) {
+        std::cout << "Failed initializing graphics backend" << initDeviceError->message;
+        return -1;
+    }
+
+    std::cout << "device initialized!" << std::endl;
+
     auto renderView = std::make_shared<RenderView>();
     auto windowProperties = std::make_shared<WindowProperties>();
     windowProperties->size = Size {800, 600};
@@ -84,8 +92,6 @@ int main(int argc, char* argv[])
         std::cout << "Failed creating window" << createError->message;
         return -1;
     }
-
-    auto initDeviceError = graphicsBackend->initDevice();
 
     window->show();
 

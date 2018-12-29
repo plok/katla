@@ -24,6 +24,9 @@ public:
     
     ErrorPtr initQueue(uint32_t queueFamilyIndex, uint32_t queueIndex);
 
+    VkDevice vulkanHandle() {
+        return m_device;
+    }
 private:
     std::shared_ptr<VulkanFunctionTable> m_functionTable;
 

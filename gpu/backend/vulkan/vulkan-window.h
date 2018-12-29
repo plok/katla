@@ -4,7 +4,9 @@
 #include "gpu/window/window.h"
 #include "common/error.h"
 
-#include <vulkan/vulkan_core.h>
+#include "gpu/backend/vulkan/vulkan-device.h"
+#include "gpu/backend/vulkan/vulkan-function-table.h"
+#include <vulkan/vulkan.h>
 
 #include <memory>
 
@@ -16,10 +18,15 @@ typedef std::shared_ptr<VulkanWindow> VulkanWindowPtr;
 class VulkanWindow : public Window {
 public:
     // Takes ownership of window
-    VulkanWindow(GLFWwindow* window, VkSurfaceKHR surface);
+    VulkanWindow(
+        std::shared_ptr<VulkanFunctionTable> functionTable,
+        VulkanDevicePtr device,
+        GLFWwindow* window,
+        VkSurfaceKHR surface,
+        VkSwapchainKHR swapChain);
     virtual ~VulkanWindow();
 
-    void init() {};
+    void init();
     void show();
     void render();
     void clear() {}
@@ -38,8 +45,12 @@ public:
     }
 
 private:
+    std::shared_ptr<VulkanFunctionTable> m_functionTable;
+    VulkanDevicePtr m_device;
+
     GLFWwindow* m_window;
     VkSurfaceKHR m_surface;
+    VkSwapchainKHR m_swapChain;
 
     std::shared_ptr<Subject<bool>> m_closeSubject;
 };

@@ -21,6 +21,8 @@ std::tuple<std::vector<VulkanPhysicalDevicePtr>, ErrorPtr> PhysicalDeviceFactory
     // Get number of devices
     VkResult result = m_functionTable->EnumeratePhysicalDevices(m_instance, &count, nullptr);
 
+    std::cout << "EnumeratePhysicalDevices" << result << ":" << count << std::endl;
+
     std::vector<VulkanPhysicalDevicePtr> physicalDevices;
 
     if (result) {
