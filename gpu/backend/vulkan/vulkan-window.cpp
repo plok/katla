@@ -8,12 +8,12 @@ VulkanWindow::VulkanWindow(
         VulkanDevicePtr device,
         GLFWwindow* window,
         VkSurfaceKHR surface,
-        VkSwapchainKHR swapChain) :
+        SwapChainResources swapChainResources) :
     m_functionTable(functionTable),
     m_device(device),
     m_window(window),
     m_surface(surface),
-    m_swapChain(swapChain)
+    m_swapChainResources(swapChainResources)
 {}
 
 VulkanWindow::~VulkanWindow() {
@@ -22,8 +22,12 @@ VulkanWindow::~VulkanWindow() {
         m_window = nullptr;
     }
 
+
     // TODO: or when destroying the device?
-    m_functionTable->DestroySwapchainKHR(m_device->vulkanHandle(), m_swapChain, nullptr);
+    for (auto imageView : m_swapChainResources.swapChainImageViews) {
+        m_functionTable->DestroyImageView(m_device->vulkanHandle(), imageView, nullptr);
+    }
+    m_functionTable->DestroySwapchainKHR(m_device->vulkanHandle(), m_swapChainResources.swapChain, nullptr);
 }
 
 void VulkanWindow::init()

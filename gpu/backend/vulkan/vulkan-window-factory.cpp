@@ -46,7 +46,7 @@ std::tuple<WindowPtr, ErrorPtr> VulkanWindowFactory::create(std::shared_ptr<Rend
 //     std::vector<VkPresentModeKHR> presentModes;
 // };
 
-VkSwapchainKHR VulkanWindowFactory::createSwapChain(VkSurfaceKHR surface, std::shared_ptr<WindowProperties> properties)
+SwapChainResources VulkanWindowFactory::createSwapChain(VkSurfaceKHR surface, std::shared_ptr<WindowProperties> properties)
 {
     // SwapChainSupportDetails details;
 
@@ -120,7 +120,48 @@ VkSwapchainKHR VulkanWindowFactory::createSwapChain(VkSurfaceKHR surface, std::s
         throw std::runtime_error("failed to create swap chain!");
     }
 
-    return swapChain;
+    std::vector<VkImage> swapChainImages;
+    m_functionTable->GetSwapchainImagesKHR(m_device->vulkanHandle(), swapChain, &imageCount, nullptr);
+    swapChainImages.resize(imageCount);
+    m_functionTable->GetSwapchainImagesKHR(m_device->vulkanHandle(), swapChain, &imageCount, swapChainImages.data());
+
+
+    std::vector<VkImageView> swapChainImageViews;
+    swapChainImageViews.resize(swapChainImages.size());
+
+    for (size_t i = 0; i < swapChainImages.size(); i++)
+    {
+        VkImageViewCreateInfo createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        createInfo.image = swapChainImages[i];
+        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        createInfo.format = surfaceFormat.format;
+
+        createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+        createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        createInfo.subresourceRange.baseMipLevel = 0;
+        createInfo.subresourceRange.levelCount = 1;
+        createInfo.subresourceRange.baseArrayLayer = 0;
+        createInfo.subresourceRange.layerCount = 1;
+
+        if (m_functionTable->CreateImageView(m_device->vulkanHandle(), &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create image views!");
+        }
+
+    }
+
+    SwapChainResources resources;
+    resources.swapChain = swapChain;
+    resources.surfaceFormat = surfaceFormat;
+    resources.presentMode = swapPresentMode;
+    resources.extent = extent;
+    resources.swapChainImageViews = swapChainImageViews;
+
+    return resources;
 }
 
 VkSurfaceFormatKHR VulkanWindowFactory::chooseSurfaceFormat(VkSurfaceKHR surface)

@@ -12,6 +12,16 @@
 
 typedef struct GLFWwindow GLFWwindow;
 
+struct SwapChainResources
+{
+    VkSwapchainKHR swapChain;
+    VkSurfaceFormatKHR surfaceFormat;
+    VkPresentModeKHR presentMode;
+    VkExtent2D extent;
+
+    std::vector<VkImageView> swapChainImageViews;
+};
+
 class VulkanWindow;
 typedef std::shared_ptr<VulkanWindow> VulkanWindowPtr;
 
@@ -23,7 +33,7 @@ public:
         VulkanDevicePtr device,
         GLFWwindow* window,
         VkSurfaceKHR surface,
-        VkSwapchainKHR swapChain);
+        SwapChainResources swapChainResources);
     virtual ~VulkanWindow();
 
     void init();
@@ -50,7 +60,7 @@ private:
 
     GLFWwindow* m_window;
     VkSurfaceKHR m_surface;
-    VkSwapchainKHR m_swapChain;
+    SwapChainResources m_swapChainResources;
 
     std::shared_ptr<Subject<bool>> m_closeSubject;
 };

@@ -56,6 +56,11 @@ public:
 
     DEFINE_VFO(CreateSwapchainKHR)
     DEFINE_VFO(DestroySwapchainKHR)
+
+    DEFINE_VFO(GetSwapchainImagesKHR)
+
+    DEFINE_VFO(CreateImageView)
+    DEFINE_VFO(DestroyImageView)
 };
 
 #endif

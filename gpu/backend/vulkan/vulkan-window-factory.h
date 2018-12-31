@@ -25,7 +25,8 @@ public:
     std::tuple<WindowPtr, ErrorPtr> create(std::shared_ptr<RenderView> renderView, std::shared_ptr<WindowProperties> properties);
 
 private:
-    VkSwapchainKHR createSwapChain(VkSurfaceKHR surface, std::shared_ptr<WindowProperties> properties);
+    SwapChainResources createSwapChain(VkSurfaceKHR surface, std::shared_ptr<WindowProperties> properties);
+
     VkSurfaceFormatKHR chooseSurfaceFormat(VkSurfaceKHR surface);
     VkPresentModeKHR chooseSwapPresentMode(VkSurfaceKHR surface);
     VkExtent2D chooseSwapExtent(VkSurfaceKHR surface, const VkSurfaceCapabilitiesKHR& capabilities, std::shared_ptr<WindowProperties> properties);
