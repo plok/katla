@@ -8,12 +8,14 @@ VulkanWindow::VulkanWindow(
         VulkanDevicePtr device,
         GLFWwindow* window,
         VkSurfaceKHR surface,
-        SwapChainResources swapChainResources) :
+        SwapChainResources swapChainResources,
+        GraphicsPipelinePtr graphicsPipeline) :
     m_functionTable(functionTable),
     m_device(device),
     m_window(window),
     m_surface(surface),
-    m_swapChainResources(swapChainResources)
+    m_swapChainResources(swapChainResources),
+    m_graphicsPipeline(graphicsPipeline)
 {}
 
 VulkanWindow::~VulkanWindow() {

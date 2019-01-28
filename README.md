@@ -8,7 +8,9 @@ Dependencies
 - gawk (only for skia build script)
 
 Dependencies (Arch Linux):
-- pacman -S vulkan-devel [glfw-x11 | glfw-wayland] glm
+- pacman -S vulkan-devel [glfw-x11 | glfw-wayland] glm 
+
+For building shaders in arch: glslang
 
 # build
 

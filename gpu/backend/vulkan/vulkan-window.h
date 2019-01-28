@@ -6,21 +6,15 @@
 
 #include "gpu/backend/vulkan/vulkan-device.h"
 #include "gpu/backend/vulkan/vulkan-function-table.h"
+#include "gpu/backend/vulkan/vulkan-graphics-pipeline.h"
+
+#include "gpu/backend/vulkan/vulkan-swapchain-resources.h"
+
 #include <vulkan/vulkan.h>
 
 #include <memory>
 
 typedef struct GLFWwindow GLFWwindow;
-
-struct SwapChainResources
-{
-    VkSwapchainKHR swapChain;
-    VkSurfaceFormatKHR surfaceFormat;
-    VkPresentModeKHR presentMode;
-    VkExtent2D extent;
-
-    std::vector<VkImageView> swapChainImageViews;
-};
 
 class VulkanWindow;
 typedef std::shared_ptr<VulkanWindow> VulkanWindowPtr;
@@ -33,7 +27,8 @@ public:
         VulkanDevicePtr device,
         GLFWwindow* window,
         VkSurfaceKHR surface,
-        SwapChainResources swapChainResources);
+        SwapChainResources swapChainResources,
+        GraphicsPipelinePtr graphicsPipeline);
     virtual ~VulkanWindow();
 
     void init();
@@ -61,6 +56,8 @@ private:
     GLFWwindow* m_window;
     VkSurfaceKHR m_surface;
     SwapChainResources m_swapChainResources;
+    GraphicsPipelinePtr m_graphicsPipeline;
+    VulkanRenderPassPtr m_renderPass;
 
     std::shared_ptr<Subject<bool>> m_closeSubject;
 };

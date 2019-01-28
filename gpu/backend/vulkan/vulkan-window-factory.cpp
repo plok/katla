@@ -1,6 +1,11 @@
 #include "vulkan-window-factory.h"
 #include "vulkan-window.h"
 
+#include "vulkan-graphics-pipeline.h"
+#include "vulkan-render-pass.h"
+#include "vulkan-framebuffer.h"
+
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -35,7 +40,23 @@ std::tuple<WindowPtr, ErrorPtr> VulkanWindowFactory::create(std::shared_ptr<Rend
 
     auto swapChain = createSwapChain(surface, properties);
 
-    auto vulkanWindow = std::make_shared<VulkanWindow>(m_functionTable, m_device, window, surface, swapChain);
+    auto graphicsPipeline = std::make_shared<GraphicsPipeline>(m_functionTable, m_device, swapChain);
+    auto pipelineError = graphicsPipeline->init();
+    if (pipelineError) {
+        return {std::shared_ptr<Window>(), pipelineError};
+    }
+
+    // TODO is this the best place to create the framebuffers?
+
+
+
+    auto vulkanWindow = std::make_shared<VulkanWindow>(
+        m_functionTable,
+        m_device,
+        window,
+        surface,
+        swapChain,
+        graphicsPipeline);
 
     return {vulkanWindow, Error::none()};    
 }

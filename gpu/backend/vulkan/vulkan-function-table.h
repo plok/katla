@@ -61,6 +61,20 @@ public:
 
     DEFINE_VFO(CreateImageView)
     DEFINE_VFO(DestroyImageView)
+
+    DEFINE_VFO(CreatePipelineLayout)
+    DEFINE_VFO(DestroyPipelineLayout)
+    DEFINE_VFO(CreateRenderPass)
+    DEFINE_VFO(DestroyRenderPass)
+
+    DEFINE_VFO(CreateGraphicsPipelines)
+    DEFINE_VFO(DestroyPipeline)
+
+    DEFINE_VFO(CreateShaderModule)
+    DEFINE_VFO(DestroyShaderModule)
+
+    DEFINE_VFO(CreateFramebuffer)
+    DEFINE_VFO(DestroyFramebuffer)
 };
 
 #endif
