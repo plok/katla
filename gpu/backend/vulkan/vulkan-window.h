@@ -7,8 +7,8 @@
 #include "gpu/backend/vulkan/vulkan-device.h"
 #include "gpu/backend/vulkan/vulkan-function-table.h"
 #include "gpu/backend/vulkan/vulkan-graphics-pipeline.h"
-
 #include "gpu/backend/vulkan/vulkan-swapchain-resources.h"
+#include "gpu/backend/vulkan/vulkan-engine.h"
 
 #include <vulkan/vulkan.h>
 
@@ -28,7 +28,8 @@ public:
         GLFWwindow* window,
         VkSurfaceKHR surface,
         SwapChainResources swapChainResources,
-        GraphicsPipelinePtr graphicsPipeline);
+        GraphicsPipelinePtr graphicsPipeline,
+        VulkanEnginePtr vulkanEngine);
     virtual ~VulkanWindow();
 
     void init();
@@ -57,7 +58,7 @@ private:
     VkSurfaceKHR m_surface;
     SwapChainResources m_swapChainResources;
     GraphicsPipelinePtr m_graphicsPipeline;
-    VulkanRenderPassPtr m_renderPass;
+    VulkanEnginePtr m_vulkanEngine;
 
     std::shared_ptr<Subject<bool>> m_closeSubject;
 };

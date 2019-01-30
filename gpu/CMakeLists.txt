@@ -35,7 +35,9 @@ set(sources
     backend/vulkan/vulkan-render-pass.cpp
     backend/vulkan/vulkan-shader.cpp
     backend/vulkan/vulkan-framebuffer.cpp
-
+    backend/vulkan/vulkan-engine.cpp
+    backend/vulkan/vulkan-command-pool.cpp
+    backend/vulkan/vulkan-semaphore.cpp
 
     backend/opengl/opengl.cpp
     backend/opengl/opengl-window.cpp

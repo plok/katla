@@ -75,6 +75,29 @@ public:
 
     DEFINE_VFO(CreateFramebuffer)
     DEFINE_VFO(DestroyFramebuffer)
+
+    DEFINE_VFO(CreateCommandPool)
+    DEFINE_VFO(DestroyCommandPool)
+
+    DEFINE_VFO(AllocateCommandBuffers)
+
+    DEFINE_VFO(BeginCommandBuffer)
+    DEFINE_VFO(EndCommandBuffer)
+
+    DEFINE_VFO(CmdBeginRenderPass)
+    DEFINE_VFO(CmdEndRenderPass)
+
+    DEFINE_VFO(CmdBindPipeline)
+
+    DEFINE_VFO(CmdDraw)
+
+    DEFINE_VFO(CreateSemaphore)
+    DEFINE_VFO(DestroySemaphore)
+
+    DEFINE_VFO(AcquireNextImageKHR)
+    DEFINE_VFO(QueueSubmit)
+
+    DEFINE_VFO(QueuePresentKHR)
 };
 
 #endif

@@ -25,6 +25,14 @@ public:
     
     ErrorPtr init();
 
+    VkPipeline vulkanHandle() {
+        return m_graphicsPipeline;
+    }
+
+    VulkanRenderPassPtr renderPass() {
+        return m_renderPass;
+    }
+
 private:
     std::shared_ptr<VulkanFunctionTable> m_functionTable;
     VulkanDevicePtr m_vulkanDevice;

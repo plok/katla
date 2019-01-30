@@ -5,9 +5,10 @@
 #include "vulkan.h"
 #include "vulkan-function-table.h"
 
-DeviceQueue::DeviceQueue(std::shared_ptr<VulkanFunctionTable> vft, VkQueue queue) :
+DeviceQueue::DeviceQueue(std::shared_ptr<VulkanFunctionTable> vft, VkQueue queue, int queueIndex) :
     m_functionTable(std::move(vft)),
-    m_queue(queue)
+    m_queue(queue),
+    m_queueIndex(queueIndex)
 {
 }
 

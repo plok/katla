@@ -9,13 +9,15 @@ VulkanWindow::VulkanWindow(
         GLFWwindow* window,
         VkSurfaceKHR surface,
         SwapChainResources swapChainResources,
-        GraphicsPipelinePtr graphicsPipeline) :
+        GraphicsPipelinePtr graphicsPipeline,
+        VulkanEnginePtr vulkanEngine) :
     m_functionTable(functionTable),
     m_device(device),
     m_window(window),
     m_surface(surface),
     m_swapChainResources(swapChainResources),
-    m_graphicsPipeline(graphicsPipeline)
+    m_graphicsPipeline(graphicsPipeline),
+    m_vulkanEngine(vulkanEngine)
 {}
 
 VulkanWindow::~VulkanWindow() {
@@ -38,11 +40,12 @@ void VulkanWindow::init()
 
 void VulkanWindow::show()
 {
-    
+    m_vulkanEngine->render();
 }
 
 void VulkanWindow::render()
 {
+    m_vulkanEngine->render();
 }
 
 void VulkanWindow::waitForClose()

@@ -9,7 +9,7 @@
 #include <fstream>
 #include <sstream>
 
-VulkanFramebuffer::VulkanFramebuffer(
+VulkanFrameBuffer::VulkanFrameBuffer(
         std::shared_ptr<VulkanFunctionTable> vft,
         VulkanDevicePtr vulkanDevice,
         VulkanRenderPassPtr renderPass, 
@@ -24,7 +24,7 @@ VulkanFramebuffer::VulkanFramebuffer(
 {
 }
 
-VulkanFramebuffer::~VulkanFramebuffer()
+VulkanFrameBuffer::~VulkanFrameBuffer()
 {
     // TODO look at vulkan handle?
     if (m_initialized) {
@@ -32,7 +32,7 @@ VulkanFramebuffer::~VulkanFramebuffer()
     }
 }
 
-ErrorPtr VulkanFramebuffer::init()
+ErrorPtr VulkanFrameBuffer::init()
 {
     VkImageView attachments[] = {
         m_swapChainImageView

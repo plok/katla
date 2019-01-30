@@ -16,12 +16,22 @@ VulkanDevice::VulkanDevice(
 
 VulkanDevice::~VulkanDevice() = default;
 
-ErrorPtr VulkanDevice::initQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
+ErrorPtr VulkanDevice::initGraphicsQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
 {
     VkQueue vkQueue;
     m_functionTable->GetDeviceQueue(m_device, queueFamilyIndex, queueIndex, &vkQueue);
 
-    m_queue = std::make_shared<DeviceQueue>(m_functionTable, vkQueue);
+    m_graphicsQueue = std::make_shared<DeviceQueue>(m_functionTable, vkQueue, queueIndex);
+
+    return Error::none();
+}
+
+ErrorPtr VulkanDevice::initPresentQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
+{
+    VkQueue vkQueue;
+    m_functionTable->GetDeviceQueue(m_device, queueFamilyIndex, queueIndex, &vkQueue);
+
+    m_presentQueue = std::make_shared<DeviceQueue>(m_functionTable, vkQueue, queueIndex);
 
     return Error::none();
 }

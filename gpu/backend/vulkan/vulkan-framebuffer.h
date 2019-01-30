@@ -14,24 +14,24 @@
 
 class VulkanFunctionTable;
 
-class VulkanFramebuffer;
-typedef std::shared_ptr<VulkanFramebuffer> VulkanFramebufferPtr;
+class VulkanFrameBuffer;
+typedef std::shared_ptr<VulkanFrameBuffer> VulkanFrameBufferPtr;
 
-class VulkanFramebuffer
+class VulkanFrameBuffer
 {
 public:
-    VulkanFramebuffer(
+    VulkanFrameBuffer(
         std::shared_ptr<VulkanFunctionTable> vft,
         VulkanDevicePtr vulkanDevice,
         VulkanRenderPassPtr renderPass,
         SwapChainResources swapChain,
         VkImageView swapChainImageView
         );
-    virtual ~VulkanFramebuffer();
+    virtual ~VulkanFrameBuffer();
     
     ErrorPtr init();
 
-    VkFramebuffer vulkanStructure() {
+    VkFramebuffer vulkanHandle() {
         return m_framebuffer;
     }
 

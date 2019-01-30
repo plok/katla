@@ -19,7 +19,7 @@ std::tuple<VulkanDevicePtr, ErrorPtr> DeviceFactory::create(VulkanPhysicalDevice
 {
     auto queueFamilies = physicalDevice->getQueueFamilies();
 
-    int queueFamilyIndex = 0;
+    int graphicsQueueFamilyIndex = 0;
     bool queueFound = false;
 
     int presentQueueFamilyIndex = 0;
@@ -29,14 +29,18 @@ std::tuple<VulkanDevicePtr, ErrorPtr> DeviceFactory::create(VulkanPhysicalDevice
         auto queue = queueFamilies[i];
         if (queue.queueCount > 0 && queue.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
             queueFound = true;
-            queueFamilyIndex = i;
+            graphicsQueueFamilyIndex = i;
+
+            std::cout << "Graphics queue: " << i << " - " << queue.queueCount << std::endl;
         }
 
         if (queue.queueCount > 0 > 0 &&
             glfwGetPhysicalDevicePresentationSupport(m_instance, physicalDevice->vulkanHandle(), i))
         {
-            presentQueueFound = i;
+            presentQueueFound = true;
             presentQueueFamilyIndex = i;
+
+            std::cout << "Present queue: " << i << " - " << queue.queueCount << " - " << presentQueueFound << std::endl;
         }
     }
 
@@ -52,7 +56,7 @@ std::tuple<VulkanDevicePtr, ErrorPtr> DeviceFactory::create(VulkanPhysicalDevice
     createQueueInfo.flags = 0;
 
     float priorities[] = {0.0f};
-    createQueueInfo.queueFamilyIndex = queueFamilyIndex;
+    createQueueInfo.queueFamilyIndex = graphicsQueueFamilyIndex;
     createQueueInfo.queueCount = 1;
     createQueueInfo.pQueuePriorities = static_cast<const float*>(priorities);
 
@@ -63,7 +67,7 @@ std::tuple<VulkanDevicePtr, ErrorPtr> DeviceFactory::create(VulkanPhysicalDevice
 
     // Create present queue.
     // TODO: relation presentQueue <-> surface <-> device initialization
-    if (presentQueueFound && queueFamilyIndex != presentQueueFamilyIndex)
+    //if (presentQueueFound /* && graphicsQueueFamilyIndex != presentQueueFamilyIndex*/)
     {
         VkDeviceQueueCreateInfo createPresentQueueInfo;
         memset(&createPresentQueueInfo, 0, sizeof(createPresentQueueInfo));
@@ -83,7 +87,7 @@ std::tuple<VulkanDevicePtr, ErrorPtr> DeviceFactory::create(VulkanPhysicalDevice
     memset(&deviceCreateInfo, 0, sizeof(deviceCreateInfo));
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     deviceCreateInfo.pNext = nullptr;
-    deviceCreateInfo.queueCreateInfoCount = 1;
+    deviceCreateInfo.queueCreateInfoCount = queueCreateInfos.size();
     deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
     deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
 
@@ -106,7 +110,8 @@ std::tuple<VulkanDevicePtr, ErrorPtr> DeviceFactory::create(VulkanPhysicalDevice
 
     auto device = std::make_shared<VulkanDevice>(m_functionTable, vkDevice);
 
-    device->initQueue(queueFamilyIndex, 0);
+    device->initGraphicsQueue(graphicsQueueFamilyIndex, 0);
+    device->initPresentQueue(presentQueueFamilyIndex, 0);
 
     return {device, Error::none()};
 }
