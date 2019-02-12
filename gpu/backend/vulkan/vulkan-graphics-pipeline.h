@@ -14,40 +14,43 @@
 
 class VulkanFunctionTable;
 
-class GraphicsPipeline;
-typedef std::shared_ptr<GraphicsPipeline> GraphicsPipelinePtr;
+class VulkanGraphicsPipeline;
+typedef std::shared_ptr<VulkanGraphicsPipeline> VulkanGraphicsPipelinePtr;
 
-class GraphicsPipeline
+class VulkanGraphicsPipeline
 {
 public:
-    GraphicsPipeline(std::shared_ptr<VulkanFunctionTable> vft, VulkanDevicePtr vulkanDevice, SwapChainResources swapChain);
-    virtual ~GraphicsPipeline();
+    VulkanGraphicsPipeline(
+        VulkanFunctionTable& vk,
+        VulkanDevice& vulkanDevice,
+        SwapChainResources& swapChain);
+    virtual ~VulkanGraphicsPipeline();
     
     ErrorPtr init();
 
-    VkPipeline vulkanHandle() {
-        return m_graphicsPipeline;
+    VkPipeline handle() {
+        return _graphicsPipeline;
     }
 
     VulkanRenderPassPtr renderPass() {
-        return m_renderPass;
+        return _renderPass;
     }
 
 private:
-    std::shared_ptr<VulkanFunctionTable> m_functionTable;
-    VulkanDevicePtr m_vulkanDevice;
+    VulkanFunctionTable& _vk;
+    VulkanDevice& _device;
 
-    SwapChainResources m_swapChain;
-    VkPipelineLayout m_pipelineLayout;
+    SwapChainResources& _swapChain;
+    VkPipelineLayout _pipelineLayout;
 
-    VulkanRenderPassPtr m_renderPass;
+    VulkanRenderPassPtr _renderPass;
 
-    VkPipeline m_graphicsPipeline;
+    VkPipeline _graphicsPipeline;
 
-    VulkanShaderPtr m_vertShader;
-    VulkanShaderPtr m_fragShader;
+    VulkanShaderPtr _vertShader;
+    VulkanShaderPtr _fragShader;
 
-    bool m_initialized;
+    bool _initialized;
 };
 
 #endif

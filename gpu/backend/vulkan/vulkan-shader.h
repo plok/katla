@@ -19,7 +19,10 @@ typedef std::shared_ptr<VulkanShader> VulkanShaderPtr;
 class VulkanShader
 {
 public:
-    VulkanShader(std::shared_ptr<VulkanFunctionTable> vft, VulkanDevicePtr vulkanDevice, std::string fileName);
+    VulkanShader(
+        VulkanFunctionTable& vk,
+        VulkanDevice& device,
+        std::string fileName);
     virtual ~VulkanShader();
     
     ErrorPtr init();
@@ -32,8 +35,8 @@ private:
     static std::vector<uint8_t> readFile(const std::string& filename);
     std::tuple<VkShaderModule, ErrorPtr> createShaderModule(const std::vector<uint8_t>& code);
 
-    std::shared_ptr<VulkanFunctionTable> m_functionTable;
-    VulkanDevicePtr m_vulkanDevice;
+    VulkanFunctionTable& _vk;
+    VulkanDevice& _device;
     std::string m_fileName;
 
     VkShaderModule m_shaderModule;

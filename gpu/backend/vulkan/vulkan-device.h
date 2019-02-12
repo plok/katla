@@ -19,14 +19,16 @@ typedef std::shared_ptr<VulkanDevice> VulkanDevicePtr;
 class VulkanDevice : public Device
 {
 public:
-    VulkanDevice(std::shared_ptr<VulkanFunctionTable> functionTable, VkDevice device);
+    VulkanDevice(
+        VulkanFunctionTable& vk,
+        VkDevice device);
     virtual ~VulkanDevice();
     
     ErrorPtr initGraphicsQueue(uint32_t queueFamilyIndex, uint32_t queueIndex);
     ErrorPtr initPresentQueue(uint32_t queueFamilyIndex, uint32_t queueIndex);
 
-    VkDevice vulkanHandle() {
-        return m_device;
+    VkDevice handle() {
+        return _device;
     }
 
     DeviceQueuePtr graphicsQueue() {
@@ -37,8 +39,8 @@ public:
         return m_presentQueue;
     }
 private:
-    std::shared_ptr<VulkanFunctionTable> m_functionTable;
-    VkDevice m_device;
+    VulkanFunctionTable& _vk;
+    VkDevice _device;
 
     DeviceQueuePtr m_graphicsQueue;
     DeviceQueuePtr m_presentQueue;

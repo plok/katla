@@ -5,37 +5,40 @@
 #include "vulkan.h"
 #include "vulkan-function-table.h"
 
-GraphicsPipeline::GraphicsPipeline(std::shared_ptr<VulkanFunctionTable> vft, VulkanDevicePtr vulkanDevice, SwapChainResources swapChain) :
-    m_functionTable(std::move(vft)),
-    m_vulkanDevice(vulkanDevice),
-    m_swapChain(swapChain),
-    m_pipelineLayout(nullptr),
-    m_graphicsPipeline(nullptr),
-    m_initialized(false)
+VulkanGraphicsPipeline::VulkanGraphicsPipeline(
+        VulkanFunctionTable& vk,
+        VulkanDevice& vulkanDevice,
+        SwapChainResources& swapChain) :
+    _vk(vk),
+    _device(vulkanDevice),
+    _swapChain(swapChain),
+    _pipelineLayout(nullptr),
+    _graphicsPipeline(nullptr),
+    _initialized(false)
 {
 }
 
-GraphicsPipeline::~GraphicsPipeline()
+VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
 {
     // TODO look at vulkan handle?
-    if (m_initialized) {
-        m_functionTable->DestroyPipeline(m_vulkanDevice->vulkanHandle(), m_graphicsPipeline, nullptr);
-        m_functionTable->DestroyPipelineLayout(m_vulkanDevice->vulkanHandle(), m_pipelineLayout, nullptr);
+    if (_initialized) {
+        _vk.DestroyPipeline(_device.handle(), _graphicsPipeline, nullptr);
+        _vk.DestroyPipelineLayout(_device.handle(), _pipelineLayout, nullptr);
     }
 }
 
-ErrorPtr GraphicsPipeline::init()
+ErrorPtr VulkanGraphicsPipeline::init()
 {
     std::cout << "starting pipeline init" << std::endl;
 
-    m_vertShader = std::make_shared<VulkanShader>(m_functionTable, m_vulkanDevice, "shaders/vert.spv");
-    auto vertShaderError = m_vertShader->init();
+    _vertShader = std::make_shared<VulkanShader>(_vk, _device, "shaders/vert.spv");
+    auto vertShaderError = _vertShader->init();
     if (vertShaderError) {
         return vertShaderError;
     }
 
-    m_fragShader = std::make_shared<VulkanShader>(m_functionTable, m_vulkanDevice, "shaders/frag.spv");
-    auto fragShaderError = m_fragShader->init();
+    _fragShader = std::make_shared<VulkanShader>(_vk, _device, "shaders/frag.spv");
+    auto fragShaderError = _fragShader->init();
      if (fragShaderError) {
         return fragShaderError;
     }
@@ -44,13 +47,13 @@ ErrorPtr GraphicsPipeline::init()
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
 
-    vertShaderStageInfo.module = m_vertShader->vulkanStructure();
+    vertShaderStageInfo.module = _vertShader->vulkanStructure();
     vertShaderStageInfo.pName = "main";
 
     VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
     fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    fragShaderStageInfo.module = m_fragShader->vulkanStructure();
+    fragShaderStageInfo.module = _fragShader->vulkanStructure();
     fragShaderStageInfo.pName = "main";
 
     VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
@@ -70,14 +73,14 @@ ErrorPtr GraphicsPipeline::init()
     VkViewport viewport = {};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = (float) m_swapChain.extent.width;
-    viewport.height = (float) m_swapChain.extent.height;
+    viewport.width = (float) _swapChain.extent.width;
+    viewport.height = (float) _swapChain.extent.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor = {};
     scissor.offset = {0, 0};
-    scissor.extent = m_swapChain.extent;
+    scissor.extent = _swapChain.extent;
 
     VkPipelineViewportStateCreateInfo viewportState = {};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -155,14 +158,14 @@ ErrorPtr GraphicsPipeline::init()
     pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-    if (m_functionTable->CreatePipelineLayout(m_vulkanDevice->vulkanHandle(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
+    if (_vk.CreatePipelineLayout(_device.handle(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS) {
         return Error::create("Error creating graphics pipeline");
     }
 
     std::cout << "pipeline created" << std::endl;
 
-    m_renderPass = std::make_shared<VulkanRenderPass>(m_functionTable, m_vulkanDevice, m_swapChain, m_pipelineLayout);
-    auto renderPassError = m_renderPass->init();
+    _renderPass = std::make_shared<VulkanRenderPass>(_vk, _device, _swapChain, _pipelineLayout);
+    auto renderPassError = _renderPass->init();
     if (renderPassError) {
         return renderPassError;
     }
@@ -183,20 +186,20 @@ ErrorPtr GraphicsPipeline::init()
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = nullptr; // Optional
 
-    pipelineInfo.layout = m_pipelineLayout;
-    pipelineInfo.renderPass = m_renderPass->vulkanHandle();
+    pipelineInfo.layout = _pipelineLayout;
+    pipelineInfo.renderPass = _renderPass->handle();
     pipelineInfo.subpass = 0;
 
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
     pipelineInfo.basePipelineIndex = -1; // Optional
 
-    std::cout << "Pipeline create!!" << m_vulkanDevice->vulkanHandle()  << std::endl;
+    std::cout << "Pipeline create!!" << _device.handle()  << std::endl;
 
-    if (m_functionTable->CreateGraphicsPipelines(m_vulkanDevice->vulkanHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS) {
+    if (_vk.CreateGraphicsPipelines(_device.handle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_graphicsPipeline) != VK_SUCCESS) {
         return Error::create("failed to create graphics pipeline!");
     }
 
-    m_initialized = true;
+    _initialized = true;
 
     std::cout << "Pipeline created!!" << std::endl;
 

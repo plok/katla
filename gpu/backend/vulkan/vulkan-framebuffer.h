@@ -21,8 +21,8 @@ class VulkanFrameBuffer
 {
 public:
     VulkanFrameBuffer(
-        std::shared_ptr<VulkanFunctionTable> vft,
-        VulkanDevicePtr vulkanDevice,
+        VulkanFunctionTable& vk,
+        VulkanDevice& vulkanDevice,
         VulkanRenderPassPtr renderPass,
         SwapChainResources swapChain,
         VkImageView swapChainImageView
@@ -31,22 +31,22 @@ public:
     
     ErrorPtr init();
 
-    VkFramebuffer vulkanHandle() {
-        return m_framebuffer;
+    VkFramebuffer handle() {
+        return _framebuffer;
     }
 
 private:
-    std::shared_ptr<VulkanFunctionTable> m_functionTable;
-    VulkanDevicePtr m_vulkanDevice;
+    VulkanFunctionTable& _vk;
+    VulkanDevice& _device;
 
-    VulkanRenderPassPtr m_renderPass;
-    SwapChainResources m_swapChain;
-    VkImageView m_swapChainImageView;
+    VulkanRenderPassPtr _renderPass;
+    SwapChainResources _swapChain;
+    VkImageView _swapChainImageView;
     
-    VkFramebuffer m_framebuffer;
+    VkFramebuffer _framebuffer;
 
 
-    bool m_initialized;
+    bool _initialized;
 };
 
 #endif

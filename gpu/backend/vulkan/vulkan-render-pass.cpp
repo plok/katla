@@ -6,12 +6,12 @@
 #include "vulkan-function-table.h"
 
 VulkanRenderPass::VulkanRenderPass(
-        std::shared_ptr<VulkanFunctionTable> vft,
-        VulkanDevicePtr vulkanDevice,
+        VulkanFunctionTable& vk,
+        VulkanDevice& vulkanDevice,
         SwapChainResources swapChain,
         VkPipelineLayout pipeline) :
-    m_functionTable(std::move(vft)),
-    m_vulkanDevice(vulkanDevice),
+    _vk(vk),
+    _device(vulkanDevice),
     m_swapChain(swapChain),
     m_pipeline(pipeline),
     m_initialized(false)
@@ -22,7 +22,7 @@ VulkanRenderPass::~VulkanRenderPass()
 {
     // TODO look at vulkan handle?
     if (m_initialized) {
-        m_functionTable->DestroyRenderPass(m_vulkanDevice->vulkanHandle(), m_renderPass, nullptr);
+        _vk.DestroyRenderPass(_device.handle(), m_renderPass, nullptr);
     }
 }
 
@@ -64,7 +64,7 @@ ErrorPtr VulkanRenderPass::init()
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    if (m_functionTable->CreateRenderPass(m_vulkanDevice->vulkanHandle(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
+    if (_vk.CreateRenderPass(_device.handle(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
         return Error::create("failed to create render pass!");
     }
 

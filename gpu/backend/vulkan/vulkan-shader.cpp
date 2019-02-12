@@ -10,11 +10,11 @@
 #include <sstream>
 
 VulkanShader::VulkanShader(
-        std::shared_ptr<VulkanFunctionTable> vft,
-        VulkanDevicePtr vulkanDevice,
+        VulkanFunctionTable& vk,
+        VulkanDevice& device,
         std::string fileName) :
-    m_functionTable(std::move(vft)),
-    m_vulkanDevice(vulkanDevice),
+    _vk(vk),
+    _device(device),
     m_fileName(fileName),
     m_initialized(false)
 {
@@ -24,7 +24,7 @@ VulkanShader::~VulkanShader()
 {
     // TODO look at vulkan handle?
     if (m_initialized) {
-        m_functionTable->DestroyShaderModule(m_vulkanDevice->vulkanHandle(), m_shaderModule, nullptr);
+        _vk.DestroyShaderModule(_device.handle(), m_shaderModule, nullptr);
     }
 }
 
@@ -71,7 +71,7 @@ std::tuple<VkShaderModule, ErrorPtr> VulkanShader::createShaderModule(const std:
     createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
     VkShaderModule shaderModule;
-    if (m_functionTable->CreateShaderModule(m_vulkanDevice->vulkanHandle(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+    if (_vk.CreateShaderModule(_device.handle(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
         return {shaderModule, Error::create("failed to create shader module!")};
     }
 

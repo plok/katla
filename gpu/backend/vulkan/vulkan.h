@@ -34,12 +34,12 @@ public:
     std::unique_ptr<WindowFactory> windowFactory();
     
 private:
-    VkInstance m_instance;
+    std::shared_ptr<VulkanFunctionTable> _vk;
 
-    std::shared_ptr<VulkanFunctionTable> m_functionTable;
+    VkInstance _instance;
 
-    VulkanPhysicalDevicePtr m_physicalDevice;
-    VulkanDevicePtr m_device;
+    VulkanPhysicalDevicePtr _physicalDevice;
+    VulkanDevicePtr _device;
 
     // std::vector<VulkanWindow> m_windows;
 };

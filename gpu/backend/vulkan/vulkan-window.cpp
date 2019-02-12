@@ -4,15 +4,15 @@
 #include <GLFW/glfw3.h>
 
 VulkanWindow::VulkanWindow(
-        std::shared_ptr<VulkanFunctionTable> functionTable,
-        VulkanDevicePtr device,
+        VulkanFunctionTable& vk,
+        VulkanDevice& device,
         GLFWwindow* window,
         VkSurfaceKHR surface,
         SwapChainResources swapChainResources,
-        GraphicsPipelinePtr graphicsPipeline,
+        VulkanGraphicsPipelinePtr graphicsPipeline,
         VulkanEnginePtr vulkanEngine) :
-    m_functionTable(functionTable),
-    m_device(device),
+    _vk(vk),
+    _device(device),
     m_window(window),
     m_surface(surface),
     m_swapChainResources(swapChainResources),
@@ -29,9 +29,9 @@ VulkanWindow::~VulkanWindow() {
 
     // TODO: or when destroying the device?
     for (auto imageView : m_swapChainResources.swapChainImageViews) {
-        m_functionTable->DestroyImageView(m_device->vulkanHandle(), imageView, nullptr);
+        _vk.DestroyImageView(_device.handle(), imageView, nullptr);
     }
-    m_functionTable->DestroySwapchainKHR(m_device->vulkanHandle(), m_swapChainResources.swapChain, nullptr);
+    _vk.DestroySwapchainKHR(_device.handle(), m_swapChainResources.swapChain, nullptr);
 }
 
 void VulkanWindow::init()

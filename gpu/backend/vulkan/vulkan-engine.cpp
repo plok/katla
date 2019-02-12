@@ -8,11 +8,11 @@
 #include <string>
 
 VulkanEngine::VulkanEngine(
-        std::shared_ptr<VulkanFunctionTable> vft,
-        VulkanDevicePtr vulkanDevice,
+        VulkanFunctionTable& vk,
+        VulkanDevice& vulkanDevice,
         SwapChainResources swapChain,
-        GraphicsPipelinePtr graphicsPipeline) :
-    _functionTable(std::move(vft)),
+        VulkanGraphicsPipelinePtr graphicsPipeline) :
+    _vk(vk),
     _device(vulkanDevice),
     _swapChain(swapChain),
     _graphicsPipeline(graphicsPipeline),
@@ -35,7 +35,7 @@ ErrorPtr VulkanEngine::init()
         return error;
     }
 
-    _commandPool = std::make_shared<VulkanCommandPool>(_functionTable, _device);
+    _commandPool = std::make_shared<VulkanCommandPool>(_vk, _device);
     _commandPool->init();
 
     error = initCommandBuffers();
@@ -58,7 +58,7 @@ ErrorPtr VulkanEngine::initFrameBuffers()
     for(auto& imageView : _swapChain.swapChainImageViews)
     {
         auto framebuffer = std::make_shared<VulkanFrameBuffer>(
-            _functionTable,
+            _vk,
             _device,
             _graphicsPipeline->renderPass(),
             _swapChain,
@@ -84,13 +84,13 @@ ErrorPtr VulkanEngine::initCommandBuffers()
 
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = _commandPool->vulkanHandle();
+    allocInfo.commandPool = _commandPool->handle();
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = (uint32_t) _commandBuffers.size();
 
     std::cout << "initialize command buffers!" << std::endl;
 
-    if (_functionTable->AllocateCommandBuffers(_device->vulkanHandle(), &allocInfo, _commandBuffers.data()) != VK_SUCCESS) {
+    if (_vk.AllocateCommandBuffers(_device.handle(), &allocInfo, _commandBuffers.data()) != VK_SUCCESS) {
         return Error::create("failed to allocate command buffers!");
     }
 
@@ -105,7 +105,7 @@ ErrorPtr VulkanEngine::initCommandBuffers()
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
         beginInfo.pInheritanceInfo = nullptr; // Optional
 
-        if (_functionTable->BeginCommandBuffer(_commandBuffers[i], &beginInfo) != VK_SUCCESS) {
+        if (_vk.BeginCommandBuffer(_commandBuffers[i], &beginInfo) != VK_SUCCESS) {
             return Error::create("failed to begin recording command buffer!");
         }
 
@@ -113,8 +113,8 @@ ErrorPtr VulkanEngine::initCommandBuffers()
 
         VkRenderPassBeginInfo renderPassInfo = {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = _graphicsPipeline->renderPass()->vulkanHandle();
-        renderPassInfo.framebuffer = _swapChainFrameBuffers[i]->vulkanHandle();
+        renderPassInfo.renderPass = _graphicsPipeline->renderPass()->handle();
+        renderPassInfo.framebuffer = _swapChainFrameBuffers[i]->handle();
 
         std::cout << "command buffer: offset" << i << " " << renderPassInfo.renderPass << " " << renderPassInfo.framebuffer << std::endl;
 
@@ -127,19 +127,19 @@ ErrorPtr VulkanEngine::initCommandBuffers()
 
         std::cout << "command buffer: begin render" << i << std::endl;
 
-        _functionTable->CmdBeginRenderPass(_commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        _vk.CmdBeginRenderPass(_commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
         std::cout << "command buffer: bind" << i << std::endl;
 
-        _functionTable->CmdBindPipeline(_commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline->vulkanHandle());
+        _vk.CmdBindPipeline(_commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline->handle());
 
         std::cout << "command buffer: draw" << i << std::endl;
 
-        _functionTable->CmdDraw(_commandBuffers[i], 3, 1, 0, 0);
+        _vk.CmdDraw(_commandBuffers[i], 3, 1, 0, 0);
 
-        _functionTable->CmdEndRenderPass(_commandBuffers[i]);
+        _vk.CmdEndRenderPass(_commandBuffers[i]);
 
-        if (_functionTable->EndCommandBuffer(_commandBuffers[i]) != VK_SUCCESS) {
+        if (_vk.EndCommandBuffer(_commandBuffers[i]) != VK_SUCCESS) {
             return Error::create("failed to record command buffer!");
         }
 
@@ -151,13 +151,13 @@ ErrorPtr VulkanEngine::initCommandBuffers()
 
 ErrorPtr VulkanEngine::initSemaphores()
 {
-    _imageAvailableSemaphore = std::make_shared<VulkanSemaphore>(_functionTable, _device);
+    _imageAvailableSemaphore = std::make_shared<VulkanSemaphore>(_vk, _device);
     auto error = _imageAvailableSemaphore->init();
     if (error) {
         return error;
     }
 
-    _renderFinishedSemaphore = std::make_shared<VulkanSemaphore>(_functionTable, _device);
+    _renderFinishedSemaphore = std::make_shared<VulkanSemaphore>(_vk, _device);
     error = _renderFinishedSemaphore->init();
     if (error) {
         return error;
@@ -171,12 +171,12 @@ ErrorPtr VulkanEngine::render()
     std::cout << "render" << std::endl;
 
     uint32_t imageIndex;
-    _functionTable->AcquireNextImageKHR(_device->vulkanHandle(), _swapChain.swapChain, std::numeric_limits<uint64_t>::max(), _imageAvailableSemaphore->vulkanHandle(), VK_NULL_HANDLE, &imageIndex);
+    _vk.AcquireNextImageKHR(_device.handle(), _swapChain.swapChain, std::numeric_limits<uint64_t>::max(), _imageAvailableSemaphore->handle(), VK_NULL_HANDLE, &imageIndex);
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore waitSemaphores[] = {_imageAvailableSemaphore->vulkanHandle()};
+    VkSemaphore waitSemaphores[] = {_imageAvailableSemaphore->handle()};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
@@ -185,11 +185,11 @@ ErrorPtr VulkanEngine::render()
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &_commandBuffers[imageIndex];
 
-    VkSemaphore signalSemaphores[] = {_renderFinishedSemaphore->vulkanHandle()};
+    VkSemaphore signalSemaphores[] = {_renderFinishedSemaphore->handle()};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (_functionTable->QueueSubmit(_device->graphicsQueue()->vulkanHandle(), 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+    if (_vk.QueueSubmit(_device.graphicsQueue()->handle(), 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
         return Error::create("failed to submit draw command buffer!");
     }
 
@@ -205,7 +205,7 @@ ErrorPtr VulkanEngine::render()
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr; // Optional
 
-    _functionTable->QueuePresentKHR(_device->presentQueue()->vulkanHandle(), &presentInfo);
+    _vk.QueuePresentKHR(_device.presentQueue()->handle(), &presentInfo);
 
     std::cout << "present" << std::endl;
 

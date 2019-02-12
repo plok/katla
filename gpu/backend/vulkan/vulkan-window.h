@@ -23,12 +23,12 @@ class VulkanWindow : public Window {
 public:
     // Takes ownership of window
     VulkanWindow(
-        std::shared_ptr<VulkanFunctionTable> functionTable,
-        VulkanDevicePtr device,
+        VulkanFunctionTable& vk,
+        VulkanDevice& device,
         GLFWwindow* window,
         VkSurfaceKHR surface,
         SwapChainResources swapChainResources,
-        GraphicsPipelinePtr graphicsPipeline,
+        VulkanGraphicsPipelinePtr graphicsPipeline,
         VulkanEnginePtr vulkanEngine);
     virtual ~VulkanWindow();
 
@@ -51,13 +51,13 @@ public:
     }
 
 private:
-    std::shared_ptr<VulkanFunctionTable> m_functionTable;
-    VulkanDevicePtr m_device;
+    VulkanFunctionTable& _vk;
+    VulkanDevice& _device;
 
     GLFWwindow* m_window;
     VkSurfaceKHR m_surface;
     SwapChainResources m_swapChainResources;
-    GraphicsPipelinePtr m_graphicsPipeline;
+    VulkanGraphicsPipelinePtr m_graphicsPipeline;
     VulkanEnginePtr m_vulkanEngine;
 
     std::shared_ptr<Subject<bool>> m_closeSubject;

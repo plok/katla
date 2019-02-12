@@ -22,19 +22,19 @@ class VulkanCommandPool
 {
 public:
     VulkanCommandPool(
-        std::shared_ptr<VulkanFunctionTable> vft,
-        VulkanDevicePtr vulkanDevice);
+        VulkanFunctionTable& vk,
+        VulkanDevice& device);
     virtual ~VulkanCommandPool();
     
     ErrorPtr init();
 
-    VkCommandPool vulkanHandle() {
+    VkCommandPool handle() {
         return _commandPool;
     }
 
 private:
-    std::shared_ptr<VulkanFunctionTable> _functionTable;
-    VulkanDevicePtr _vulkanDevice;
+    VulkanFunctionTable& _vk;
+    VulkanDevice& _device;
 
     VkCommandPool _commandPool;
 

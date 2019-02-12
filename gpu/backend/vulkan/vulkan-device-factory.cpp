@@ -7,9 +7,11 @@
 #include <sstream>
 #include <utility>
 
-DeviceFactory::DeviceFactory(const VkInstance& instance, std::shared_ptr<VulkanFunctionTable> vft) :
-    m_instance(instance),
-    m_functionTable(std::move(vft))
+DeviceFactory::DeviceFactory(
+        VulkanFunctionTable& vk,
+        const VkInstance& instance) :
+    _vk(vk),
+    m_instance(instance)
 {
 }
 
@@ -35,7 +37,7 @@ std::tuple<VulkanDevicePtr, ErrorPtr> DeviceFactory::create(VulkanPhysicalDevice
         }
 
         if (queue.queueCount > 0 > 0 &&
-            glfwGetPhysicalDevicePresentationSupport(m_instance, physicalDevice->vulkanHandle(), i))
+            glfwGetPhysicalDevicePresentationSupport(m_instance, physicalDevice->handle(), i))
         {
             presentQueueFound = true;
             presentQueueFamilyIndex = i;
@@ -100,7 +102,7 @@ std::tuple<VulkanDevicePtr, ErrorPtr> DeviceFactory::create(VulkanPhysicalDevice
     deviceCreateInfo.ppEnabledExtensionNames = device_extension_names.data();
 
     VkDevice vkDevice;
-    auto result = m_functionTable->CreateDevice(physicalDevice->vulkanHandle(), &deviceCreateInfo, nullptr, &vkDevice);
+    auto result = _vk.CreateDevice(physicalDevice->handle(), &deviceCreateInfo, nullptr, &vkDevice);
 
     if (result) {
         std::stringstream message;
@@ -108,7 +110,7 @@ std::tuple<VulkanDevicePtr, ErrorPtr> DeviceFactory::create(VulkanPhysicalDevice
         return {std::shared_ptr<VulkanDevice>(), Error::create(message.str())};
     }
 
-    auto device = std::make_shared<VulkanDevice>(m_functionTable, vkDevice);
+    auto device = std::make_shared<VulkanDevice>(_vk, vkDevice);
 
     device->initGraphicsQueue(graphicsQueueFamilyIndex, 0);
     device->initPresentQueue(presentQueueFamilyIndex, 0);

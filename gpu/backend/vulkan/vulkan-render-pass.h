@@ -18,18 +18,22 @@ typedef std::shared_ptr<VulkanRenderPass> VulkanRenderPassPtr;
 class VulkanRenderPass
 {
 public:
-    VulkanRenderPass(std::shared_ptr<VulkanFunctionTable> vft, VulkanDevicePtr vulkanDevice, SwapChainResources swapChain, VkPipelineLayout pipeline);
+    VulkanRenderPass(
+        VulkanFunctionTable& vk,
+        VulkanDevice& vulkanDevice,
+        SwapChainResources swapChain,
+        VkPipelineLayout pipeline);
     virtual ~VulkanRenderPass();
     
     ErrorPtr init();
 
-    VkRenderPass vulkanHandle() {
+    VkRenderPass handle() {
         return m_renderPass;
     }
 
 private:
-    std::shared_ptr<VulkanFunctionTable> m_functionTable;
-    VulkanDevicePtr m_vulkanDevice;
+    VulkanFunctionTable& _vk;
+    VulkanDevice& _device;
 
     SwapChainResources m_swapChain;
     VkPipelineLayout m_pipeline;

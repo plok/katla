@@ -8,10 +8,10 @@
 #include <string>
 
 VulkanSemaphore::VulkanSemaphore(
-        std::shared_ptr<VulkanFunctionTable> vft,
-        VulkanDevicePtr vulkanDevice) :
-    _functionTable(std::move(vft)),
-    _device(vulkanDevice),
+        VulkanFunctionTable& vk,
+        VulkanDevice& device) :
+    _vk(vk),
+    _device(device),
     _initialized(false)
 {
 }
@@ -20,7 +20,7 @@ VulkanSemaphore::~VulkanSemaphore()
 {
     // TODO look at vulkan handle?
     if (_initialized) {
-       _functionTable->DestroySemaphore(_device->vulkanHandle(), _semaphore, nullptr);
+       _vk.DestroySemaphore(_device.handle(), _semaphore, nullptr);
     }
 }
 
@@ -29,7 +29,7 @@ ErrorPtr VulkanSemaphore::init()
     VkSemaphoreCreateInfo semaphoreInfo = {};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    if (_functionTable->CreateSemaphore(_device->vulkanHandle(), &semaphoreInfo, nullptr, &_semaphore) != VK_SUCCESS) {
+    if (_vk.CreateSemaphore(_device.handle(), &semaphoreInfo, nullptr, &_semaphore) != VK_SUCCESS) {
         return Error::create("failed to create semaphore!");
     }
 

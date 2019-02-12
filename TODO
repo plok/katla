@@ -4,9 +4,4 @@
 - move glfw to client specific part
 - destroy VkSurfaceKHR
 - destroy VkDevice?
-- m_ -> _
-- GraphicsPipeline -> VulkanGraphicsPipeline
-- something better for VulkanFunctionTable, at least for DI
 -> RenderPass -> integrate in GraphicsPipeline?
-- extend -> extent
-- reduce shared pointers

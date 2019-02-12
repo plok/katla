@@ -25,10 +25,10 @@ class VulkanEngine
 {
 public:
     VulkanEngine(
-        std::shared_ptr<VulkanFunctionTable> vft,
-        VulkanDevicePtr vulkanDevice,
+        VulkanFunctionTable& vk,
+        VulkanDevice& vulkanDevice,
         SwapChainResources swapChain,
-        GraphicsPipelinePtr graphicsPipeline);
+        VulkanGraphicsPipelinePtr graphicsPipeline);
     virtual ~VulkanEngine();
     
     ErrorPtr init();
@@ -40,11 +40,11 @@ private:
     ErrorPtr initCommandBuffers();
     ErrorPtr initSemaphores();
 
-    std::shared_ptr<VulkanFunctionTable> _functionTable;
-    VulkanDevicePtr _device;
+    VulkanFunctionTable& _vk;
+    VulkanDevice& _device;
 
     SwapChainResources _swapChain;
-    GraphicsPipelinePtr _graphicsPipeline;
+    VulkanGraphicsPipelinePtr _graphicsPipeline;
 
     VulkanCommandPoolPtr _commandPool;
 

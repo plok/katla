@@ -24,20 +24,19 @@ class VulkanSemaphore
 {
 public:
     VulkanSemaphore(
-        std::shared_ptr<VulkanFunctionTable> vft,
-        VulkanDevicePtr vulkanDevice);
+        VulkanFunctionTable& vk,
+        VulkanDevice& device);
     virtual ~VulkanSemaphore();
     
     ErrorPtr init();
 
-    VkSemaphore vulkanHandle() {
+    VkSemaphore handle() {
         return _semaphore;
     }
 
 private:
-
-    std::shared_ptr<VulkanFunctionTable> _functionTable;
-    VulkanDevicePtr _device;
+    VulkanFunctionTable& _vk;
+    VulkanDevice& _device;
 
     VkSemaphore _semaphore;
 

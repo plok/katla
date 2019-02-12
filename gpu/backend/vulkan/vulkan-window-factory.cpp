@@ -15,11 +15,15 @@
 
 #include "vulkan-function-table.h"
 
-VulkanWindowFactory::VulkanWindowFactory(std::shared_ptr<VulkanFunctionTable> functionTable, VkInstance instance, VulkanPhysicalDevicePtr physicalDevice, VulkanDevicePtr device) :
-    m_functionTable(functionTable),
-    m_instance(instance),
-    m_physicalDevice(physicalDevice),
-    m_device(device)
+VulkanWindowFactory::VulkanWindowFactory(
+        VulkanFunctionTable& vk,
+        VkInstance& instance,
+        VulkanDevice& device,
+        VulkanPhysicalDevice& physicalDevice) :
+    _vk(vk),
+    _instance(instance),
+    _physicalDevice(physicalDevice),
+    _device(device)
 {}
 
 std::tuple<WindowPtr, ErrorPtr> VulkanWindowFactory::create(std::shared_ptr<RenderView>  /*renderView*/, std::shared_ptr<WindowProperties> properties)
@@ -31,7 +35,7 @@ std::tuple<WindowPtr, ErrorPtr> VulkanWindowFactory::create(std::shared_ptr<Rend
     }
 
     VkSurfaceKHR surface;
-    VkResult err = glfwCreateWindowSurface(m_instance, window, nullptr, &surface);
+    VkResult err = glfwCreateWindowSurface(_instance, window, nullptr, &surface);
     if (err)
     {
         glfwDestroyWindow(window);
@@ -44,21 +48,21 @@ std::tuple<WindowPtr, ErrorPtr> VulkanWindowFactory::create(std::shared_ptr<Rend
 
     VulkanRenderPassPtr m_renderPass;
 
-    auto graphicsPipeline = std::make_shared<GraphicsPipeline>(m_functionTable, m_device, swapChain);
+    auto graphicsPipeline = std::make_shared<VulkanGraphicsPipeline>(_vk, _device, swapChain);
     auto pipelineError = graphicsPipeline->init();
     if (pipelineError) {
         return {std::shared_ptr<Window>(), pipelineError};
     }
 
-    auto vulkanEngine = std::make_shared<VulkanEngine>(m_functionTable, m_device, swapChain, graphicsPipeline);
+    auto vulkanEngine = std::make_shared<VulkanEngine>(_vk, _device, swapChain, graphicsPipeline);
     auto engineError = vulkanEngine->init();
     if (engineError) {
         return {std::shared_ptr<Window>(), engineError};
     }
 
     auto vulkanWindow = std::make_shared<VulkanWindow>(
-        m_functionTable,
-        m_device,
+        _vk,
+        _device,
         window,
         surface,
         swapChain,
@@ -97,7 +101,7 @@ SwapChainResources VulkanWindowFactory::createSwapChain(VkSurfaceKHR surface, st
     auto surfaceFormat = chooseSurfaceFormat(surface);
 
     VkSurfaceCapabilitiesKHR capabilities;
-    m_functionTable->GetPhysicalDeviceSurfaceCapabilitiesKHR(m_physicalDevice->vulkanHandle(), surface, &capabilities);
+    _vk.GetPhysicalDeviceSurfaceCapabilitiesKHR(_physicalDevice.handle(), surface, &capabilities);
 
     auto extent = chooseSwapExtent(surface, capabilities, properties);
 
@@ -144,14 +148,14 @@ SwapChainResources VulkanWindowFactory::createSwapChain(VkSurfaceKHR surface, st
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
     VkSwapchainKHR swapChain;
-    if (m_functionTable->CreateSwapchainKHR(m_device->vulkanHandle(), &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
+    if (_vk.CreateSwapchainKHR(_device.handle(), &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
         throw std::runtime_error("failed to create swap chain!");
     }
 
     std::vector<VkImage> swapChainImages;
-    m_functionTable->GetSwapchainImagesKHR(m_device->vulkanHandle(), swapChain, &imageCount, nullptr);
+    _vk.GetSwapchainImagesKHR(_device.handle(), swapChain, &imageCount, nullptr);
     swapChainImages.resize(imageCount);
-    m_functionTable->GetSwapchainImagesKHR(m_device->vulkanHandle(), swapChain, &imageCount, swapChainImages.data());
+    _vk.GetSwapchainImagesKHR(_device.handle(), swapChain, &imageCount, swapChainImages.data());
 
 
     std::vector<VkImageView> swapChainImageViews;
@@ -176,7 +180,7 @@ SwapChainResources VulkanWindowFactory::createSwapChain(VkSurfaceKHR surface, st
         createInfo.subresourceRange.baseArrayLayer = 0;
         createInfo.subresourceRange.layerCount = 1;
 
-        if (m_functionTable->CreateImageView(m_device->vulkanHandle(), &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
+        if (_vk.CreateImageView(_device.handle(), &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to create image views!");
         }
 
@@ -199,11 +203,11 @@ VkSurfaceFormatKHR VulkanWindowFactory::chooseSurfaceFormat(VkSurfaceKHR surface
     // TODO check for surface formats when selecting device and dont do it twice
 
     uint32_t formatCount;
-    m_functionTable->GetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice->vulkanHandle(), surface, &formatCount, nullptr);
+    _vk.GetPhysicalDeviceSurfaceFormatsKHR(_physicalDevice.handle(), surface, &formatCount, nullptr);
 
     if (formatCount != 0) {
         formats.resize(formatCount);
-        m_functionTable->GetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice->vulkanHandle(), surface, &formatCount, formats.data());
+        _vk.GetPhysicalDeviceSurfaceFormatsKHR(_physicalDevice.handle(), surface, &formatCount, formats.data());
     }
 
     if (formats.size() == 1 && formats[0].format == VK_FORMAT_UNDEFINED) {
@@ -225,11 +229,11 @@ VkPresentModeKHR VulkanWindowFactory::chooseSwapPresentMode(VkSurfaceKHR surface
     VkPresentModeKHR bestMode = VK_PRESENT_MODE_FIFO_KHR;
 
     uint32_t presentModeCount;
-    m_functionTable->GetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice->vulkanHandle(), surface, &presentModeCount, nullptr);
+    _vk.GetPhysicalDeviceSurfacePresentModesKHR(_physicalDevice.handle(), surface, &presentModeCount, nullptr);
 
     if (presentModeCount != 0) {
         presentModes.resize(presentModeCount);
-        m_functionTable->GetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice->vulkanHandle(), surface, &presentModeCount, presentModes.data());
+        _vk.GetPhysicalDeviceSurfacePresentModesKHR(_physicalDevice.handle(), surface, &presentModeCount, presentModes.data());
     }
 
     for (const auto& availablePresentMode : presentModes) {

@@ -20,7 +20,12 @@ class WindowScene;
 class VulkanWindowFactory : public WindowFactory {
 public:
     // Takes ownership
-    VulkanWindowFactory(std::shared_ptr<VulkanFunctionTable> functionTable, VkInstance instance, VulkanPhysicalDevicePtr physicalDevice, VulkanDevicePtr device);
+    VulkanWindowFactory(
+        VulkanFunctionTable& vk,
+        VkInstance& instance,
+        VulkanDevice& device,
+        VulkanPhysicalDevice& physicalDevice
+        );
 
     std::tuple<WindowPtr, ErrorPtr> create(std::shared_ptr<RenderView> renderView, std::shared_ptr<WindowProperties> properties);
 
@@ -31,12 +36,12 @@ private:
     VkPresentModeKHR chooseSwapPresentMode(VkSurfaceKHR surface);
     VkExtent2D chooseSwapExtent(VkSurfaceKHR surface, const VkSurfaceCapabilitiesKHR& capabilities, std::shared_ptr<WindowProperties> properties);
 
-    VkInstance m_instance;
-    std::shared_ptr<VulkanFunctionTable> m_functionTable;
+    VulkanFunctionTable& _vk;
+    VkInstance& _instance;
 
     // TODO: move to window?, as there doesn't have to be a single device for all windows
-    VulkanPhysicalDevicePtr m_physicalDevice;
-    VulkanDevicePtr m_device;
+    VulkanPhysicalDevice& _physicalDevice;
+    VulkanDevice& _device;
 };
 
 #endif
