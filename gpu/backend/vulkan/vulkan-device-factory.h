@@ -15,14 +15,16 @@ class VulkanFunctionTable;
 class DeviceFactory
 {
 public:
-    DeviceFactory(std::shared_ptr<VulkanFunctionTable> vft);
+    DeviceFactory(
+        VulkanFunctionTable& vk,
+        const VkInstance& instance);
     virtual ~DeviceFactory();
     
     std::tuple<VulkanDevicePtr, ErrorPtr> create(VulkanPhysicalDevicePtr physicalDevice);
 
 private:
-
-    std::shared_ptr<VulkanFunctionTable> m_functionTable;
+    VkInstance m_instance;
+    VulkanFunctionTable& _vk;
 };
 
 #endif

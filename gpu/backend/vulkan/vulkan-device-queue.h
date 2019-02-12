@@ -16,15 +16,28 @@ typedef std::shared_ptr<DeviceQueue> DeviceQueuePtr;
 class DeviceQueue
 {
 public:
-    DeviceQueue(std::shared_ptr<VulkanFunctionTable> vft, VkQueue queue);
+    DeviceQueue(
+        VulkanFunctionTable& vk,
+        VkQueue queue,
+        int queueIndex);
     virtual ~DeviceQueue();
     
     std::vector<VkQueueFamilyProperties> enumerateQueueFamilyProperties(VkPhysicalDevice physicalDevice);
     
+    VkQueue handle() {
+        return m_queue;
+    }
+
+    int index() {
+        return m_queueIndex;
+    }
+
 private:
     VkQueue m_queue;
 
-    std::shared_ptr<VulkanFunctionTable> m_functionTable;
+    VulkanFunctionTable& _vk;
+
+    int m_queueIndex;
 };
 
 #endif

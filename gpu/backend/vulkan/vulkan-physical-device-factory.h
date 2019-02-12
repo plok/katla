@@ -14,7 +14,9 @@ class VulkanFunctionTable;
 class PhysicalDeviceFactory
 {
 public:
-    PhysicalDeviceFactory(std::shared_ptr<VulkanFunctionTable> vft, const VkInstance& instance);
+    PhysicalDeviceFactory(
+        VulkanFunctionTable& vk,
+        const VkInstance& instance);
     virtual ~PhysicalDeviceFactory();
     
     std::tuple<std::vector<VulkanPhysicalDevicePtr>, ErrorPtr> getPhysicalDevices();
@@ -22,7 +24,7 @@ public:
 private:
     const VkInstance m_instance;
 
-    std::shared_ptr<VulkanFunctionTable> m_functionTable;
+    VulkanFunctionTable& _vk;
 };
 
 #endif

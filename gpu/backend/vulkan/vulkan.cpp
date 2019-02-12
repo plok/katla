@@ -15,6 +15,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include <set>
 #include <cstring>
 #include <iostream>
 #include <utility>
@@ -28,8 +29,9 @@ void glfw_vulkan_error_callback(int  /*error*/, const char* description)
 }
 
 Vulkan::Vulkan() :
-    m_instance(nullptr),
-    m_functionTable(nullptr)
+    _vk(nullptr),
+    _instance(nullptr),
+    _device(nullptr)
 {
 }
 
@@ -47,7 +49,7 @@ ErrorPtr Vulkan::init()
         return Error::create("No vulkan supported!");
     }
 
-    m_functionTable = std::make_shared<VulkanFunctionTable>();
+    _vk = std::make_shared<VulkanFunctionTable>();
 
     uint32_t count;
     const char** extensions = glfwGetRequiredInstanceExtensions(&count);
@@ -75,7 +77,7 @@ ErrorPtr Vulkan::init()
 
     VkResult res;
 
-    res = m_functionTable->CreateInstance(&instanceInfo, nullptr, &m_instance);
+    res = _vk->CreateInstance(&instanceInfo, nullptr, &_instance);
     if (res == VK_ERROR_INCOMPATIBLE_DRIVER) {
         return Error::create("cannot find a compatible Vulkan ICD");
     }
@@ -88,9 +90,9 @@ ErrorPtr Vulkan::init()
 
 void Vulkan::cleanup()
 {
-    if (m_instance) {
-        m_functionTable->DestroyInstance(m_instance, nullptr);
-        m_instance = nullptr;
+    if (_instance) {
+        _vk->DestroyInstance(_instance, nullptr);
+        _instance = nullptr;
     }
 
     glfwTerminate();
@@ -100,22 +102,26 @@ ErrorPtr Vulkan::initDevice()
 {
     auto [physicalDevice, selectError] = selectDevice();
 
+    std::cout << "Selected device: " << physicalDevice->name() << std::endl;
+
     if (selectError) {
         return selectError;
     }
+    _physicalDevice = physicalDevice;
 
-    auto [device, initError] = initDevice(physicalDevice);
+    auto [device, initError] = initDevice(_physicalDevice);
 
     if (initError) {
         return initError;
     }
+    _device = device;
 
     return Error::none();
 }
 
 std::tuple<VulkanPhysicalDevicePtr, ErrorPtr> Vulkan::selectDevice()
 {
-    PhysicalDeviceFactory physicalDeviceFactory(m_functionTable, m_instance);
+    PhysicalDeviceFactory physicalDeviceFactory(*_vk, _instance);
     auto [physicalDevices, getDeviceError] = physicalDeviceFactory.getPhysicalDevices();
 
     if (getDeviceError) {
@@ -129,14 +135,27 @@ std::tuple<VulkanPhysicalDevicePtr, ErrorPtr> Vulkan::selectDevice()
 
         physicalDevice->printInfo();
 
-        // TODO Look for device extensions
-        // std::vector<const char *> device_extension_names(
-        //     {VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, VK_KHR_SWAPCHAIN_EXTENSION_NAME}
-        // );
-
         auto [deviceExtensions, getDeviceExtensionsError] = physicalDevice->getExtensions();        
         for (auto ext: deviceExtensions) {
             std::cout << "Supported device extensions: " << static_cast<char*>(ext.extensionName) << std::endl;
+        }
+
+        // TODO: create single default value somewhere and allow user to change
+        std::set<std::string> device_extension_names(
+            {VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, VK_KHR_SWAPCHAIN_EXTENSION_NAME}
+        );
+
+        for (const auto& extension : deviceExtensions) {
+            device_extension_names.erase(std::string(extension.extensionName));
+        }
+
+        if (!device_extension_names.empty())
+        {
+            std::cout << " Missing extensions: ";
+            for (const auto& extension : device_extension_names) {
+                std::cout << extension << ",";
+            }
+            std::cout << std::endl;
         }
 
         auto queueFamilyProperties = physicalDevice->getQueueFamilies();
@@ -145,7 +164,7 @@ std::tuple<VulkanPhysicalDevicePtr, ErrorPtr> Vulkan::selectDevice()
         // TODO validate if device can output to surface?
 //        auto error = physicalDevice->validateForGraphics(surface);
 //        if (!error) {
-//            selectedPhysicalDevice = physicalDevice;
+           selectedPhysicalDevice = physicalDevice;
 //        }
     }
 
@@ -156,13 +175,14 @@ std::tuple<VulkanPhysicalDevicePtr, ErrorPtr> Vulkan::selectDevice()
     return {selectedPhysicalDevice, Error::none()};
 }
 
-std::tuple<DevicePtr, ErrorPtr> Vulkan::initDevice(VulkanPhysicalDevicePtr physicalDevice)
+std::tuple<VulkanDevicePtr, ErrorPtr> Vulkan::initDevice(VulkanPhysicalDevicePtr physicalDevice)
 {
-    DeviceFactory deviceFactory(m_functionTable);
+    DeviceFactory deviceFactory(*_vk, _instance);
     return deviceFactory.create(physicalDevice);
 }
 
 std::unique_ptr<WindowFactory> Vulkan::windowFactory()
 {
-    return std::make_unique<VulkanWindowFactory>(m_instance);
+    // TODO possible segfault because of uninitialized devices
+    return std::make_unique<VulkanWindowFactory>(*_vk, _instance, *_device, *_physicalDevice);
 }

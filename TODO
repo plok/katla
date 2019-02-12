@@ -4,3 +4,4 @@
 - move glfw to client specific part
 - destroy VkSurfaceKHR
 - destroy VkDevice?
+-> RenderPass -> integrate in GraphicsPipeline?

@@ -17,10 +17,13 @@ typedef std::shared_ptr<VulkanPhysicalDevice> VulkanPhysicalDevicePtr;
 class VulkanPhysicalDevice : public PhysicalDevice
 {
 public:
-    VulkanPhysicalDevice(std::shared_ptr<VulkanFunctionTable> functionTable, VkPhysicalDevice physicalDevice);
+    VulkanPhysicalDevice(
+        VulkanFunctionTable& vk,
+        VkPhysicalDevice physicalDevice);
     virtual ~VulkanPhysicalDevice();
     
     void printInfo();
+    std::string name();
 
     ErrorPtr validateForGraphics();
 
@@ -29,11 +32,11 @@ public:
     std::vector<VkQueueFamilyProperties> getQueueFamilies();
     void queueFamilyProperties(std::vector<VkQueueFamilyProperties> queueFamilyProperties);
 
-    VkPhysicalDevice vulkanHandle() {
+    VkPhysicalDevice handle() {
         return m_physicalDevice;
     }
 private:
-    std::shared_ptr<VulkanFunctionTable> m_functionTable;
+    VulkanFunctionTable& _vk;
 
     VkPhysicalDevice m_physicalDevice;
 

@@ -6,8 +6,10 @@
 #include <sstream>
 #include <utility>
 
-VulkanPhysicalDevice::VulkanPhysicalDevice(std::shared_ptr<VulkanFunctionTable> functionTable, VkPhysicalDevice physicalDevice) :
-    m_functionTable(std::move(functionTable)),
+VulkanPhysicalDevice::VulkanPhysicalDevice(
+        VulkanFunctionTable& vk,
+        VkPhysicalDevice physicalDevice) :
+    _vk(vk),
     m_physicalDevice(physicalDevice)
 {
 }
@@ -20,8 +22,8 @@ void VulkanPhysicalDevice::printInfo()
     VkPhysicalDeviceProperties deviceProperties;
     VkPhysicalDeviceFeatures   deviceFeatures;
 
-    m_functionTable->GetPhysicalDeviceProperties( m_physicalDevice, &deviceProperties );
-    m_functionTable->GetPhysicalDeviceFeatures( m_physicalDevice, &deviceFeatures );
+    _vk.GetPhysicalDeviceProperties( m_physicalDevice, &deviceProperties );
+    _vk.GetPhysicalDeviceFeatures( m_physicalDevice, &deviceFeatures );
     
     uint32_t majorVersion = VK_VERSION_MAJOR( deviceProperties.apiVersion );
     uint32_t minorVersion = VK_VERSION_MINOR( deviceProperties.apiVersion );
@@ -31,14 +33,26 @@ void VulkanPhysicalDevice::printInfo()
     std::cout << "Supporting api: " << majorVersion << "." << minorVersion << "." << patchVersion << std::endl;
 }
 
+std::string VulkanPhysicalDevice::name()
+{
+    VkPhysicalDeviceProperties deviceProperties;
+
+    _vk.GetPhysicalDeviceProperties( m_physicalDevice, &deviceProperties );
+
+    std::stringstream sstream;
+    sstream << deviceProperties.deviceID << " - " << deviceProperties.deviceType << " - " << static_cast<char*>(deviceProperties.deviceName);
+
+    return sstream.str();
+}
+
 ErrorPtr VulkanPhysicalDevice::validateForGraphics()
 {
     // Return info from device
     VkPhysicalDeviceProperties deviceProperties;
     VkPhysicalDeviceFeatures   deviceFeatures;
 
-    m_functionTable->GetPhysicalDeviceProperties( m_physicalDevice, &deviceProperties );
-    m_functionTable->GetPhysicalDeviceFeatures( m_physicalDevice, &deviceFeatures );
+    _vk.GetPhysicalDeviceProperties( m_physicalDevice, &deviceProperties );
+    _vk.GetPhysicalDeviceFeatures( m_physicalDevice, &deviceFeatures );
 
     uint32_t majorVersion = VK_VERSION_MAJOR( deviceProperties.apiVersion );
     uint32_t minorVersion = VK_VERSION_MINOR( deviceProperties.apiVersion );
@@ -64,12 +78,12 @@ ErrorPtr VulkanPhysicalDevice::validateForGraphics()
         return Error::create("Could not find device with graphics capability!");
     }
 
-    // TODO validate device if it supports the surface
+    // TODO validate device if it supports the surface -> UPDATE: now done with glfw in vulkan-device-factory
 
 //    bool hasSurfaceSupport = false;
 //    for (auto i = 0; i< queueFamilies.size(); i++) {
 //        VkBool32 presentSupport = false;
-//        m_functionTable->GetPhysicalDeviceSurfaceSupportKHR(m_physicalDevice, i, surface, &presentSupport);
+//        _vk.GetPhysicalDeviceSurfaceSupportKHR(m_physicalDevice, i, surface, &presentSupport);
 
 //        if (presentSupport) {
 //            hasSurfaceSupport = true;
@@ -88,7 +102,7 @@ std::tuple<std::vector<VkExtensionProperties>, ErrorPtr> VulkanPhysicalDevice::g
 {
     // Print device extensions
     uint32_t count = 0;
-    VkResult result = m_functionTable->EnumerateDeviceExtensionProperties(m_physicalDevice, nullptr, &count, nullptr);
+    VkResult result = _vk.EnumerateDeviceExtensionProperties(m_physicalDevice, nullptr, &count, nullptr);
 
     if (result != VK_SUCCESS) {
         std::stringstream message; // ugly
@@ -108,7 +122,7 @@ std::tuple<std::vector<VkExtensionProperties>, ErrorPtr> VulkanPhysicalDevice::g
     }
 
     std::vector<VkExtensionProperties> extensionProperties(count);
-    m_functionTable->EnumerateDeviceExtensionProperties(m_physicalDevice, nullptr, &count, extensionProperties.data());
+    _vk.EnumerateDeviceExtensionProperties(m_physicalDevice, nullptr, &count, extensionProperties.data());
 
     return {extensionProperties, Error::none()};
 }
@@ -117,12 +131,12 @@ std::vector<VkQueueFamilyProperties> VulkanPhysicalDevice::getQueueFamilies()
 {
     uint32_t count = 0;
     
-    m_functionTable->GetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &count, nullptr);
+    _vk.GetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &count, nullptr);
     
     std::vector<VkQueueFamilyProperties> queueFamilyProperties(count);
 
     if (count) {
-        m_functionTable->GetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &count, queueFamilyProperties.data());
+        _vk.GetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &count, queueFamilyProperties.data());
     }
 
     return queueFamilyProperties;

@@ -31,6 +31,13 @@ set(sources
     backend/vulkan/vulkan-device.cpp
     backend/vulkan/vulkan-device-factory.cpp
     backend/vulkan/vulkan-device-queue.cpp
+    backend/vulkan/vulkan-graphics-pipeline.cpp
+    backend/vulkan/vulkan-render-pass.cpp
+    backend/vulkan/vulkan-shader.cpp
+    backend/vulkan/vulkan-framebuffer.cpp
+    backend/vulkan/vulkan-engine.cpp
+    backend/vulkan/vulkan-command-pool.cpp
+    backend/vulkan/vulkan-semaphore.cpp
 
     backend/opengl/opengl.cpp
     backend/opengl/opengl-window.cpp
@@ -51,3 +58,17 @@ target_include_directories(katla-gpu PRIVATE
     )
 
 target_link_libraries(katla-gpu glfw ${glew_LIBRARIES} ${GL_LIBRARIES} skia)
+
+add_custom_command(TARGET katla-gpu POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+            ${CMAKE_BINARY_DIR}/shaders/)
+
+add_custom_command(TARGET katla-gpu POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_SOURCE_DIR}/shaders/vert.spv
+            ${CMAKE_BINARY_DIR}/shaders/vert.spv)
+
+add_custom_command(TARGET katla-gpu POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_SOURCE_DIR}/shaders/frag.spv
+            ${CMAKE_BINARY_DIR}/shaders/frag.spv)

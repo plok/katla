@@ -6,8 +6,10 @@
 #include <sstream>
 #include <utility>
 
-PhysicalDeviceFactory::PhysicalDeviceFactory(std::shared_ptr<VulkanFunctionTable> vft, const VkInstance& instance) :
-    m_functionTable(std::move(vft)),
+PhysicalDeviceFactory::PhysicalDeviceFactory(
+        VulkanFunctionTable& vk,
+        const VkInstance& instance) :
+    _vk(vk),
     m_instance(instance)
 {
 }
@@ -19,7 +21,9 @@ std::tuple<std::vector<VulkanPhysicalDevicePtr>, ErrorPtr> PhysicalDeviceFactory
     uint32_t count = 0;
 
     // Get number of devices
-    VkResult result = m_functionTable->EnumeratePhysicalDevices(m_instance, &count, nullptr);
+    VkResult result = _vk.EnumeratePhysicalDevices(m_instance, &count, nullptr);
+
+    std::cout << "EnumeratePhysicalDevices" << result << ":" << count << std::endl;
 
     std::vector<VulkanPhysicalDevicePtr> physicalDevices;
 
@@ -34,10 +38,10 @@ std::tuple<std::vector<VulkanPhysicalDevicePtr>, ErrorPtr> PhysicalDeviceFactory
     }
 
     std::vector<VkPhysicalDevice> vulkanPhysicalDevices (count);
-    result = m_functionTable->EnumeratePhysicalDevices(m_instance, &count, vulkanPhysicalDevices.data());
+    result = _vk.EnumeratePhysicalDevices(m_instance, &count, vulkanPhysicalDevices.data());
 
     for(auto vkPhysicalDevice : vulkanPhysicalDevices) {
-        physicalDevices.push_back( std::make_shared<VulkanPhysicalDevice>(m_functionTable, vkPhysicalDevice) );
+        physicalDevices.push_back( std::make_shared<VulkanPhysicalDevice>(_vk, vkPhysicalDevice) );
     }
 
     return {physicalDevices, Error::none()};

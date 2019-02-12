@@ -4,7 +4,13 @@
 #include "gpu/window/window.h"
 #include "common/error.h"
 
-#include <vulkan/vulkan_core.h>
+#include "gpu/backend/vulkan/vulkan-device.h"
+#include "gpu/backend/vulkan/vulkan-function-table.h"
+#include "gpu/backend/vulkan/vulkan-graphics-pipeline.h"
+#include "gpu/backend/vulkan/vulkan-swapchain-resources.h"
+#include "gpu/backend/vulkan/vulkan-engine.h"
+
+#include <vulkan/vulkan.h>
 
 #include <memory>
 
@@ -16,10 +22,17 @@ typedef std::shared_ptr<VulkanWindow> VulkanWindowPtr;
 class VulkanWindow : public Window {
 public:
     // Takes ownership of window
-    VulkanWindow(GLFWwindow* window, VkSurfaceKHR surface);
+    VulkanWindow(
+        VulkanFunctionTable& vk,
+        VulkanDevice& device,
+        GLFWwindow* window,
+        VkSurfaceKHR surface,
+        SwapChainResources swapChainResources,
+        VulkanGraphicsPipelinePtr graphicsPipeline,
+        VulkanEnginePtr vulkanEngine);
     virtual ~VulkanWindow();
 
-    void init() {};
+    void init();
     void show();
     void render();
     void clear() {}
@@ -38,8 +51,14 @@ public:
     }
 
 private:
+    VulkanFunctionTable& _vk;
+    VulkanDevice& _device;
+
     GLFWwindow* m_window;
     VkSurfaceKHR m_surface;
+    SwapChainResources m_swapChainResources;
+    VulkanGraphicsPipelinePtr m_graphicsPipeline;
+    VulkanEnginePtr m_vulkanEngine;
 
     std::shared_ptr<Subject<bool>> m_closeSubject;
 };
