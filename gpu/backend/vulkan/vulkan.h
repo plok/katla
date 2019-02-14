@@ -34,12 +34,16 @@ public:
     std::unique_ptr<WindowFactory> windowFactory();
     
 private:
+    void checkValidationLayerSupport(const std::vector<const char*>& requiredLayers);
+
     std::shared_ptr<VulkanFunctionTable> _vk;
 
     VkInstance _instance;
 
     VulkanPhysicalDevicePtr _physicalDevice;
     VulkanDevicePtr _device;
+
+    VkDebugReportCallbackEXT _callback;
 
     // std::vector<VulkanWindow> m_windows;
 };

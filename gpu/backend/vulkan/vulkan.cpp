@@ -28,6 +28,20 @@ void glfw_vulkan_error_callback(int  /*error*/, const char* description)
     std::cout << description << std::endl;
 }
 
+VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
+    VkDebugReportFlagsEXT       flags,
+    VkDebugReportObjectTypeEXT  objectType,
+    uint64_t                    object,
+    size_t                      location,
+    int32_t                     messageCode,
+    const char*                 pLayerPrefix,
+    const char*                 pMessage,
+    void*                       pUserData)
+{
+    std::cerr << pMessage << std::endl;
+    return VK_FALSE;
+}
+
 Vulkan::Vulkan() :
     _vk(nullptr),
     _instance(nullptr),
@@ -51,13 +65,26 @@ ErrorPtr Vulkan::init()
 
     _vk = std::make_shared<VulkanFunctionTable>();
 
-    uint32_t count;
-    const char** extensions = glfwGetRequiredInstanceExtensions(&count);
 
-    for (uint32_t i=0; i<count; i++)
-        std::cout << "glfw required: " << extensions[i] << std::endl;
+    std::vector<const char*> enabledInstanceLayers;
+    std::vector<const char*> enabledInstanceExtensions;
+
+#ifndef NDEBUG
+    enabledInstanceLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+    enabledInstanceExtensions.push_back("VK_EXT_debug_report");
+#endif
+
+    uint32_t count;
+    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&count);
+
+    for (uint32_t i=0; i<count; i++) {
+        enabledInstanceExtensions.push_back(glfwExtensions[i]);
+        std::cout << "glfw required: " << glfwExtensions[i] << std::endl;
+    }
 
     std::cout << count << " extensions supported" << std::endl;
+
+    checkValidationLayerSupport(enabledInstanceLayers);
 
     VkApplicationInfo appInfo;
     memset(&appInfo, 0, sizeof(appInfo));
@@ -71,8 +98,10 @@ ErrorPtr Vulkan::init()
     VkInstanceCreateInfo instanceInfo;
     memset(&instanceInfo, 0, sizeof(instanceInfo));
     instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    instanceInfo.enabledExtensionCount = count;
-    instanceInfo.ppEnabledExtensionNames = extensions;
+    instanceInfo.enabledLayerCount = static_cast<uint32_t>(enabledInstanceLayers.size());
+    instanceInfo.ppEnabledLayerNames = &enabledInstanceLayers[0];
+    instanceInfo.enabledExtensionCount = static_cast<uint32_t>(enabledInstanceExtensions.size());
+    instanceInfo.ppEnabledExtensionNames = &enabledInstanceExtensions[0];
     instanceInfo.pApplicationInfo = &appInfo;
 
     VkResult res;
@@ -85,7 +114,32 @@ ErrorPtr Vulkan::init()
         return Error::create("unknown error");
     }
 
-    return Error::none();
+#ifndef NDEBUG
+    VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
+    callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+    callbackCreateInfo.pNext = nullptr;
+    callbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT |
+                               VK_DEBUG_REPORT_WARNING_BIT_EXT |
+                               VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
+    callbackCreateInfo.pfnCallback = &DebugReportCallback;
+    callbackCreateInfo.pUserData = nullptr;
+
+    // #ifndef NDEBUG
+    //     DEFINE_VFO(CreateDebugReportCallbackEXT)
+    //     DEFINE_VFO(DebugReportMessageEXT)
+    //     DEFINE_VFO(DestroyDebugReportCallbackEXT)
+    // #endif
+
+    PFN_vkCreateDebugReportCallbackEXT createDebugReportCallbackEXT =
+        reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(
+            _vk->GetInstanceProcAddr(_instance,
+                                     "vkCreateDebugReportCallbackEXT"));
+
+    VkResult result = createDebugReportCallbackEXT(
+        _instance, &callbackCreateInfo, nullptr, &_callback);
+#endif
+
+     return Error::none();
 }
 
 void Vulkan::cleanup()
@@ -185,4 +239,29 @@ std::unique_ptr<WindowFactory> Vulkan::windowFactory()
 {
     // TODO possible segfault because of uninitialized devices
     return std::make_unique<VulkanWindowFactory>(*_vk, _instance, *_device, *_physicalDevice);
+}
+
+void Vulkan::checkValidationLayerSupport(const std::vector<const char*>& requiredLayers)
+{
+    uint32_t layerCount;
+    _vk->EnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+    std::vector<VkLayerProperties> availableLayers(layerCount);
+    _vk->EnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+    std::vector<std::string> layerSet(availableLayers.size());
+    for(auto layer : availableLayers) {
+        layerSet.push_back(layer.layerName);
+
+        std::cout << "AvailableLayers: " << layer.layerName << std::endl;
+    }
+
+    for(auto layer : requiredLayers)
+    {
+        auto found = std::find(layerSet.begin(), layerSet.end(), layer);
+        if (found == layerSet.end())
+        {
+            std::cerr << "Required layer not found: " << layer << std::endl;
+        }
+    }
 }

@@ -26,21 +26,24 @@ public:
         VFO_##name () : \
             m_functionPointer(nullptr) \
         { \
-            std::cout << "vk" #name << std::endl; \
             m_functionPointer = ( PFN_vk##name ) glfwGetInstanceProcAddress(NULL, "vk" #name); \
-            std::cout << m_functionPointer << std::endl; \
+            if (m_functionPointer == nullptr) { \
+                throw std::runtime_error("vk" #name " not found!"); \
+            } \
         } \
         operator PFN_vk##name() const { return m_functionPointer; } \
     private:    \
         PFN_vk##name m_functionPointer; \
     }; \
     VFO_##name name;
-    
     DEFINE_VFO(CreateInstance)
     DEFINE_VFO(DestroyInstance)
-
+    
+    DEFINE_VFO(GetInstanceProcAddr)
     DEFINE_VFO(GetDeviceProcAddr)
     DEFINE_VFO(EnumerateDeviceExtensionProperties)
+
+    DEFINE_VFO(EnumerateInstanceLayerProperties)
 
     DEFINE_VFO(EnumeratePhysicalDevices)
     DEFINE_VFO(GetPhysicalDeviceProperties)
