@@ -1,15 +1,13 @@
 #ifndef OPENGL_H
 #define OPENGL_H
 
-#include "gpu/backend/graphics-backend.h"
+#include "graphics/graphics-backend.h"
+#include "graphics/graphics-configuration.h"
+
 #include "gpu/backend/physical-device.h"
 #include "gpu/backend/device.h"
 
-#include "gpu/backend/graphics-configuration.h"
-
 #include "common/error.h"
-
-#include <vulkan/vulkan_core.h>
 
 #include <memory>
 

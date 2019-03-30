@@ -1,6 +1,8 @@
 #ifndef UV_SIGNAL_HANDLER_H
 #define UV_SIGNAL_HANDLER_H
 
+#include "katla-appkit.h"
+
 #include "signal-handler.h"
 #include "common/error.h"
 
@@ -10,7 +12,7 @@
 
 class UvEventLoop;
 
-class UvSignalHandler : public SignalHandler {
+class KATLA_APPKIT_DECLSPEC UvSignalHandler : public SignalHandler {
 public:
     UvSignalHandler(const std::shared_ptr<UvEventLoop>& eventLoop);
     virtual ~UvSignalHandler();

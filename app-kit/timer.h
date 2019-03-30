@@ -1,12 +1,14 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+#include "katla-appkit.h"
+
 #include "common/error.h"
 
 #include <memory>
 #include <functional>
 
-class Timer {
+class KATLA_APPKIT_DECLSPEC Timer {
 public:
     virtual void init() = 0;
 

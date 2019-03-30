@@ -1,6 +1,8 @@
 #ifndef KATLA_WINDOW_FACTORY_H
 #define KATLA_WINDOW_FACTORY_H
 
+#include "katla-window-management.h"
+
 #include "window.h"
 
 #include "common/error.h"
@@ -9,7 +11,7 @@
 
 class RenderView;
 
-class WindowFactory {
+class KATLA_WINDOW_MANAGEMENT_DECLSPEC WindowFactory {
 public:
     virtual ~WindowFactory() = default;
 

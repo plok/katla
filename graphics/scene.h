@@ -3,14 +3,14 @@
 
 #include "render-view.h"
 
-#include "skia-opengl-binder.h"
-
 // TODO scene / context / canvas etc.... ?
+
+#include <memory>
 
 class Scene;
 using ScenePtr = std::shared_ptr<Scene>;
 
-class Scene
+class KATLA_GRAPHICS_DECLSPEC Scene
 {
 public:
     Scene() = default;

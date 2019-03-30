@@ -4,11 +4,11 @@
 #include "gpu/backend/vulkan/vulkan-window.h"
 #include "gpu/backend/vulkan/vulkan-physical-device.h"
 
-#include "window/window.h"
-#include "window/window-factory.h"
+#include "window-management/window.h"
+#include "window-management/window-factory.h"
 #include "common/error.h"
 
-#include "gpu/render/render-view.h"
+#include "graphics/render-view.h"
 
 #include <memory>
 #include <string>

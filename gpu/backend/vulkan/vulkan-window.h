@@ -1,7 +1,7 @@
 #ifndef VULKAN_WINDOW_H
 #define VULKAN_WINDOW_H
 
-#include "gpu/window/window.h"
+#include "window-management/window.h"
 #include "common/error.h"
 
 #include "gpu/backend/vulkan/vulkan-device.h"

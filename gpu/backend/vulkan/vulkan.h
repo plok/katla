@@ -1,7 +1,7 @@
 #ifndef VULKAN_H
 #define VULKAN_H
 
-#include "gpu/backend/graphics-backend.h"
+#include "graphics/graphics-backend.h"
 #include "common/error.h"
 
 // TODO non-vulkan interfaces

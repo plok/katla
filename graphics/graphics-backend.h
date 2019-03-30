@@ -1,15 +1,15 @@
 #ifndef GRAPHICS_BACKEND_H
 #define GRAPHICS_BACKEND_H
 
+#include "katla-graphics.h"
+
 #include "common/error.h"
-#include "gpu/backend/physical-device.h"
-#include "gpu/backend/device.h"
 
 #include <memory>
 
 class WindowFactory;
 
-class GraphicsBackend
+class KATLA_GRAPHICS_DECLSPEC GraphicsBackend
 {
 public:
     GraphicsBackend() = default;

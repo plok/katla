@@ -1,10 +1,10 @@
 #ifndef GUI_APPLICATION_H
 #define GUI_APPLICATION_H
 
-#include "gpu/backend/graphics-backend.h"
-#include "gpu/backend/graphics-configuration.h"
+#include "graphics/graphics-backend.h"
+#include "graphics/graphics-configuration.h"
 
-#include "gpu/window/window.h"
+#include "window-management/window.h"
 
 #include "common/error.h"
 #include <memory>

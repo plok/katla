@@ -3,8 +3,7 @@ project(katla-guikit)
 
 set(CMAKE_CXX_STANDARD 17)
 
-include(FindPkgConfig)
-pkg_check_modules(LIBUV REQUIRED libuv)
+find_library(LIBUV_LIBRARIES NAMES uv)
 
 set(sources
     ../common/error.cpp
@@ -17,7 +16,6 @@ add_library(katla-guikit SHARED ${sources})
 target_include_directories(katla-guikit PRIVATE
     .
     ..
-    ../external/
-    ${skia_include_directories})
+    ../external/)
 
-target_link_libraries(katla-guikit katla-appkit skia ${LIBUV_LIBRARIES})
+target_link_libraries(katla-guikit katla-appkit katla-graphics ${LIBUV_LIBRARIES})

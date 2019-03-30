@@ -1,7 +1,10 @@
 #ifndef GRAPHICS_CONFIGURATION_H
 #define GRAPHICS_CONFIGURATION_H
 
-enum class GraphicsBackends {
+#include "katla-graphics.h"
+
+enum class KATLA_GRAPHICS_DECLSPEC GraphicsBackends {
+    Software,
     OpenGl,
     Vulkan
 };
@@ -9,6 +12,7 @@ enum class GraphicsBackends {
 struct GraphicsConfiguration
 {
     GraphicsBackends graphicsBackend = GraphicsBackends::OpenGl;
+
     bool useImGui = false;
     bool useSkia = false;
 };

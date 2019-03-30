@@ -1,6 +1,8 @@
 #ifndef SIGNAL_HANDLER_H
 #define SIGNAL_HANDLER_H
 
+#include "katla-appkit.h"
+
 #include "common/error.h"
 
 #include <memory>
@@ -8,7 +10,7 @@
 
 enum class Signal { Unknown, Interrupt, Hangup };
 
-class SignalHandler {
+class KATLA_APPKIT_DECLSPEC SignalHandler {
 public:
     virtual ErrorPtr init() = 0;
     virtual ErrorPtr start(std::function<void(Signal)>) = 0;

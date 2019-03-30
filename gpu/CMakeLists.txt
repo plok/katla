@@ -11,10 +11,8 @@ find_package(glfw3 3.2.0 REQUIRED)
 
 include(${PROJECT_SOURCE_DIR}/../external/skia/skia-config.cmake)
 
-set(sources
+set(SOURCES
     ../common/error.cpp
-    
-    render/skia-opengl-binder.cpp
 
     ../external/imgui/imgui.cpp
     ../external/imgui/imgui_widgets.cpp
@@ -42,11 +40,14 @@ set(sources
     backend/opengl/opengl.cpp
     backend/opengl/opengl-window.cpp
     backend/opengl/opengl-window-factory.cpp
-    backend/opengl/opengl-renderer-binders.cpp
-    render/render-view.cpp 
-    render/render-stats.cpp)
+    backend/opengl/opengl-renderer-binders.cpp)
 
-add_library(katla-gpu SHARED ${sources})
+if (SKIA_OPTION)
+    set(SKIA_SOURCES render/skia-opengl-binder.cpp)
+    set(SKIA_LIBS skia)
+endif()
+
+add_library(katla-gpu SHARED ${SOURCES} ${SKIA_SOURCES})
 
 target_include_directories(katla-gpu PRIVATE
     .
@@ -57,7 +58,9 @@ target_include_directories(katla-gpu PRIVATE
     ../gui-kit/
     )
 
-target_link_libraries(katla-gpu glfw ${glew_LIBRARIES} ${GL_LIBRARIES} skia)
+
+
+target_link_libraries(katla-gpu katla-graphics katla-wm glfw ${glew_LIBRARIES} ${GL_LIBRARIES} ${SKIA_LIBS})
 
 add_custom_command(TARGET katla-gpu POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory

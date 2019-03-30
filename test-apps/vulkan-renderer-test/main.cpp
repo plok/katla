@@ -1,10 +1,8 @@
 #include "gpu/backend/vulkan/vulkan.h"
 #include "gpu/backend/opengl/opengl.h"
 
-#include "gpu/window/window-factory.h"
-#include "gpu/render/render-view.h"
-
-// #include "gpu/renderer/skia-opengl.h"
+#include "window-management/window-factory.h"
+#include "graphics/render-view.h"
 
 #include "app-kit/core-application.h"
 
@@ -15,22 +13,7 @@
 // TODO remove
 #include <GLFW/glfw3.h>
 
-std::tuple<std::shared_ptr<GraphicsBackend>, ErrorPtr> initializeGraphicsBackend(bool useOpenGL) {
-    if (useOpenGL) {
-        std::cout << "Creating opengl backend!" << std::endl;
-        
-        GraphicsConfiguration config;
-        config.useImGui = false;
-        config.useSkia = true;
-    
-        auto opengl = std::make_unique<OpenGl>();
-        auto error = opengl->init(config);
-        if (error) {
-            return {std::unique_ptr<GraphicsBackend>(), Error::create("Failed initializing opengl backend: " + error->message)};
-        }
-    
-        return {std::unique_ptr<GraphicsBackend>(std::move(opengl)), Error::none()};
-    }
+std::tuple<std::shared_ptr<GraphicsBackend>, ErrorPtr> initializeGraphicsBackend() {
 
     std::cout << "Creating vulkan backend!" << std::endl;
 
@@ -46,18 +29,10 @@ std::tuple<std::shared_ptr<GraphicsBackend>, ErrorPtr> initializeGraphicsBackend
 
 int main(int argc, char* argv[])
 {
-    bool useOpenGL = false;
-
     std::vector<std::string> args;
     for (int i=0; i<argc; i++) {
         std::string arg = argv[i];
         args.push_back(arg);
-    }
-
-    for(auto arg : args) {
-        if (arg == "--opengl") {
-            useOpenGL = true;
-        }
     }
 
     CoreApplication app;
@@ -67,7 +42,7 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    auto [graphicsBackend, error] = initializeGraphicsBackend(useOpenGL);
+    auto [graphicsBackend, error] = initializeGraphicsBackend();
     if (error) {
         std::cout << "Failed initializing graphics backend" << error->message;
         return -1;
@@ -83,7 +58,7 @@ int main(int argc, char* argv[])
 
     auto renderView = std::make_shared<RenderView>();
     auto windowProperties = std::make_shared<WindowProperties>();
-    windowProperties->size = Size {800, 600};
+    windowProperties->size = Size_32s {800, 600};
 
     // before we can create a sufrace we need to create a window
     auto windowFactory = graphicsBackend->windowFactory();
@@ -94,10 +69,6 @@ int main(int argc, char* argv[])
     }
 
     window->show();
-
-    //SkiaOpenGL skia;
-    //skia.init();
-    //skia.draw();
 
     appError = app.run();
     if (appError) {

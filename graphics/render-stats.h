@@ -5,6 +5,8 @@
 #ifndef KATLA_RENDERSTATS_H
 #define KATLA_RENDERSTATS_H
 
+#include "katla-graphics.h"
+
 #include <chrono>
 #include <optional>
 #include <memory>
@@ -12,7 +14,7 @@
 class RenderStats;
 using RenderStatsPtr = std::shared_ptr<RenderStats>;
 
-class RenderStats {
+class KATLA_GRAPHICS_DECLSPEC RenderStats {
 public:
     struct Stats {
         Stats(long lastDuration, long lastRenderInterval) :

@@ -1,6 +1,8 @@
 #ifndef UV_EVENT_LOOP_H
 #define UV_EVENT_LOOP_H
 
+#include "katla-appkit.h"
+
 #include "event-loop.h"
 #include "common/error.h"
 
@@ -8,7 +10,7 @@
 
 #include <uv.h>
 
-class UvEventLoop : public EventLoop {
+class KATLA_APPKIT_DECLSPEC UvEventLoop : public EventLoop {
 public:
     UvEventLoop();
     virtual ~UvEventLoop();

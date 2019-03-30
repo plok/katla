@@ -1,6 +1,8 @@
 #ifndef KATLA_WINDOW_H
 #define KATLA_WINDOW_H
 
+#include "katla-window-management.h"
+
 #include "common/error.h"
 #include "common/subject.h"
 #include "common/size.h"
@@ -13,15 +15,15 @@ class Window;
 typedef std::shared_ptr<Window> WindowPtr;
 
 struct WindowProperties {
-    Size size;
+    Size_32s size;
     std::string title;
 
     // TODO remove
-    std::shared_ptr<Observer<Size>> sizeChanged;
+    std::shared_ptr<Observer<Size_32s>> sizeChanged;
     std::shared_ptr<Observer<bool>> closeRequested;
 };
 
-class Window {
+class KATLA_WINDOW_MANAGEMENT_DECLSPEC Window {
 public:
     virtual ~Window() = default;
 

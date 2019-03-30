@@ -3,8 +3,9 @@ project(katla-appkit)
 
 set(CMAKE_CXX_STANDARD 17)
 
-include(FindPkgConfig)
-pkg_check_modules(LIBUV REQUIRED libuv)
+find_library(LIBUV_LIBRARIES NAMES uv)
+
+add_definitions(-DKATLA_APPKIT_INDLL)
 
 set(sources
     ../common/error.cpp

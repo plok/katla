@@ -1,7 +1,7 @@
 #ifndef OPENGL_WINDOW_H
 #define OPENGL_WINDOW_H
 
-#include "window/window.h"
+#include "window-management/window.h"
 #include "common/error.h"
 
 #include "common/subject.h"

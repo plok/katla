@@ -1,6 +1,6 @@
 #include "vulkan.h"
 
-#include "window/window-factory.h"
+#include "window-management/window-factory.h"
 
 #include "gpu/backend/vulkan/vulkan-function-table.h"
 #include "gpu/backend/vulkan/vulkan-window-factory.h"

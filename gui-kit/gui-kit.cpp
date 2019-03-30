@@ -2,13 +2,10 @@
 
 #include "app-kit/core-application.h"
 
-#include "gpu/backend/graphics-configuration.h"
+#include "graphics/graphics-configuration.h"
+#include "graphics/render-view.h"
 
-#include "gpu/backend/opengl/opengl.h"
-#include "gpu/backend/vulkan/vulkan.h"
-#include "gpu/window/window-factory.h"
-
-#include "gpu/render/render-view.h"
+#include "window-management/window-factory.h"
 
 #include <iostream>
 #include <utility>
@@ -50,27 +47,29 @@ ErrorPtr GuiKit::close()
 }
 
 std::tuple<std::shared_ptr<GraphicsBackend>, ErrorPtr> GuiKit::initializeGraphicsBackend(const GraphicsConfiguration& configuration) {
-    if (configuration.graphicsBackend == GraphicsBackends::OpenGl) {
-        std::cout << "Creating opengl backend!" << std::endl;
+    // if (configuration.graphicsBackend == GraphicsBackends::OpenGl) {
+    //     std::cout << "Creating opengl backend!" << std::endl;
         
-        auto opengl = std::make_unique<OpenGl>();
-        auto error = opengl->init(configuration);
-        if (error) {
-            return {std::unique_ptr<GraphicsBackend>(), Error::create("Failed initializing opengl backend: " + error->message)};
-        }
+    //     auto opengl = std::make_unique<OpenGl>();
+    //     auto error = opengl->init(configuration);
+    //     if (error) {
+    //         return {std::unique_ptr<GraphicsBackend>(), Error::create("Failed initializing opengl backend: " + error->message)};
+    //     }
     
-        return {std::unique_ptr<GraphicsBackend>(std::move(opengl)), Error::none()};
-    }
+    //     return {std::unique_ptr<GraphicsBackend>(std::move(opengl)), Error::none()};
+    // }
 
-    std::cout << "Creating vulkan backend!" << std::endl;
+    // std::cout << "Creating vulkan backend!" << std::endl;
 
-    auto vulkan = std::make_unique<Vulkan>();
-    auto error = vulkan->init();
-    if (error) {
-        return {std::unique_ptr<GraphicsBackend>(), Error::create("Failed initializing vulkan backend: " + error->message)};
-    }
+    // auto vulkan = std::make_unique<Vulkan>();
+    // auto error = vulkan->init();
+    // if (error) {
+    //     return {std::unique_ptr<GraphicsBackend>(), Error::create("Failed initializing vulkan backend: " + error->message)};
+    // }
 
-    return {std::unique_ptr<GraphicsBackend>(std::move(vulkan)), Error::none()};
+    // return {std::unique_ptr<GraphicsBackend>(std::move(vulkan)), Error::none()};
+
+    return {std::shared_ptr<GraphicsBackend>(), Error::create("No backend found!")};
 }
 
 WindowPtr GuiKit::createWindow(std::shared_ptr<WindowProperties> windowProperties, std::shared_ptr<RenderView> renderView)

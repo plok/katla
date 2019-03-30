@@ -2,13 +2,14 @@
 #define OPENGL_WINDOW_FACTORY_H
 
 #include "gpu/backend/opengl/opengl-window.h"
-#include "gpu/render/render-view.h"
 
-#include "backend/graphics-configuration.h"
+#include "graphics/render-view.h"
+#include "graphics/graphics-configuration.h"
+
 #include "opengl-renderer-binders.h"
 
-#include "window/window.h"
-#include "window/window-factory.h"
+#include "window-management/window.h"
+#include "window-management/window-factory.h"
 #include "common/error.h"
 
 #include <memory>

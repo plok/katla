@@ -1,6 +1,8 @@
 #ifndef CORE_APPLICATION_H
 #define CORE_APPLICATION_H
 
+#include "katla-appkit.h"
+
 #include "event-loop-uv.h"
 #include "signal-handler-uv.h"
 
@@ -10,7 +12,7 @@
 
 #include <memory>
 
-class CoreApplication {
+class KATLA_APPKIT_DECLSPEC CoreApplication {
 public:
     CoreApplication();
     virtual ~CoreApplication();

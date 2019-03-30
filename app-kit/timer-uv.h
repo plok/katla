@@ -1,6 +1,8 @@
 #ifndef TIMER_UV_H
 #define TIMER_UV_H
 
+#include "katla-appkit.h"
+
 #include "timer.h"
 #include "common/error.h"
 
@@ -10,7 +12,7 @@
 
 #include "event-loop-uv.h"
 
-class UvTimer : public Timer {
+class KATLA_APPKIT_DECLSPEC UvTimer : public Timer {
 public:
     UvTimer(const std::shared_ptr<UvEventLoop>& eventLoop);
     virtual ~UvTimer();
