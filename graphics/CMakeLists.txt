@@ -14,7 +14,6 @@ set(sources
     render-stats.cpp
     image.cpp
     image-drawing-simple.cpp
-    text-software-rendering-freetype.cpp
     )
 
 add_library(katla-graphics SHARED ${sources})

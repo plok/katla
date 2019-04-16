@@ -4,11 +4,12 @@
 #include "image.h"
 #include "color.h"
 #include "common/primitives.h"
+#include "common/error.h"
 
 class TextRendering
 {
 public:
-    virtual void init() = 0;
+    virtual ErrorPtr init() = 0;
     virtual void drawText (const Image& image, const Point_32s& offset, const Color_8u_ARGB& color) = 0;
     
 private:

@@ -26,6 +26,8 @@ if (NOT WIN32)
         add_subdirectory(external/skia/skia-cmake)
     endif()
  
+    add_subdirectory(graphics-freetype)
+    
     add_subdirectory(gpu)
 
     if (VULKAN_OPTION)
@@ -39,6 +41,7 @@ if (NOT WIN32)
     if (WAYLAND_OPTION)
         add_subdirectory(compositor/wayland)
         add_subdirectory(test-apps/wayland-test-client)
+        add_subdirectory(test-apps/freetype-test)
     endif()
 endif()
 
