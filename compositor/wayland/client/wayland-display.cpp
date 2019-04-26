@@ -87,7 +87,7 @@ ErrorPtr WaylandDisplay::init()
 
 WaylandXdgShellSurfacePtr WaylandDisplay::createSurface()
 {
-    if (_compositor == nullptr || _shell == nullptr) {
+    if (_compositor == nullptr || _xdgShell == nullptr) {
         // TODO exceptions??
         throw std::runtime_error("Cannot create surface when compositor or shell is not initialized!");
     }
