@@ -37,11 +37,11 @@ ErrorPtr FontFaceFreeType::load(std::string fileName)
     return Error::none();
 }
 
-void FontFaceFreeType::drawGlyph(Image& image, Point_32s offset)
+void FontFaceFreeType::drawGlyph(Image& image, Point_32s offset, uint32_t character)
 {
     std::cout << "draw glyph" << std::endl;
 
-    auto index = FT_Get_Char_Index( _face, 0x0041 );
+    auto index = FT_Get_Char_Index( _face, character );
 
     auto error = FT_Load_Glyph(
             _face,   /* handle to face object */
@@ -72,6 +72,7 @@ void FontFaceFreeType::drawGlyph(Image& image, Point_32s offset)
     auto left = offset.x - _face->glyph->bitmap_left;
     auto top = offset.y - _face->glyph->bitmap_top;
 
+    // TODO -> dup channels
     for (int y = 0; y <= bitmapSize.height; y++)
     {
         int yDestOffset = (top + y) * step;

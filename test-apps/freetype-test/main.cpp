@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    face.drawGlyph(image, Point_32s {150, 150});
+    face.drawGlyph(image, Point_32s {150, 150}, 0x0041);
 
     // TODO use eventloop of appKit
     bool done = false;

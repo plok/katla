@@ -19,6 +19,7 @@ Image::Image(const Size_32s& size, int channels, int depth) :
 {
     m_step = size.width * channels * depth/8;
 
+    // TODO alignment?
     m_pixels = new uint8_t [size_t(size.height) * m_step];
 
     m_ref = new std::atomic<int>();

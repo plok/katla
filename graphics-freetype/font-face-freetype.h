@@ -18,7 +18,7 @@ public:
 
     ErrorPtr load(std::string fileName);
     
-    void drawGlyph(Image& image, Point_32s offset);
+    void drawGlyph(Image& image, Point_32s offset, uint32_t character);
 
 private:
     FT_Library _library;

@@ -15,4 +15,7 @@ struct Point_32f
     float y;
 };
 
+typedef Point_32s Vector_32s;
+typedef Point_32f Vector_32f;
+
 #endif
