@@ -12,6 +12,8 @@ set(sources
 
     text-rendering-freetype.cpp
     font-face-freetype.cpp
+    font-face-surface-writer.cpp
+    font-face-cache.cpp
     )
 
 add_library(katla-graphics-freetype SHARED ${sources})

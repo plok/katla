@@ -7,6 +7,9 @@ struct GlyphInfo
 {
     uint32_t character;
     
+    int left;
+    int top;
+
     Vector_32s advance;
 
     int32_t ascender;    /* ascender in 26.6 frac. pixels          */

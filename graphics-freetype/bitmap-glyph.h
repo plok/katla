@@ -1,12 +1,12 @@
-#ifndef PIXEL_GLYPH_H
-#define PIXEL_GLYPH_H
+#ifndef BITMAP_GLYPH_H
+#define BITMAP_GLYPH_H
 
 #include "graphics-freetype/glyph-info.h"
 #include "graphics/image.h"
 
 #include "common/primitives.h"
 
-struct PixelGlyph
+struct BitmapGlyph
 {
     GlyphInfo info;
     Image image;

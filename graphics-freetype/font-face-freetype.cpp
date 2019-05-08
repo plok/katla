@@ -37,7 +37,7 @@ ErrorPtr FontFaceFreeType::load(std::string fileName)
     return Error::none();
 }
 
-void FontFaceFreeType::drawGlyph(Image& image, Point_32s offset, uint32_t character)
+BitmapGlyph FontFaceFreeType::drawGlyph(Point_32s offset, uint32_t character)
 {
     std::cout << "draw glyph" << std::endl;
 
@@ -54,41 +54,52 @@ void FontFaceFreeType::drawGlyph(Image& image, Point_32s offset, uint32_t charac
                             FT_RENDER_MODE_NORMAL ); /* render mode */
     }
 
+    auto bitmap = _face->glyph->bitmap;
+    auto bitmapPixels = bitmap.buffer;
+    Size_32s bitmapSize = { bitmap.width, bitmap.rows };
+
+    Image image (bitmapSize, 1, 8);
+
     auto size = image.size();
     auto pixels = image.pixels();
     auto channels = image.channels();
     auto step = image.step();
 
-    auto bitmap = _face->glyph->bitmap;
-    auto bitmapPixels = bitmap.buffer;
-    Size_32s bitmapSize = { bitmap.width, bitmap.rows };
+    std::cout << "bitmap height: " << image.size().height << std::endl;
 
-    std::cout << "left" << _face->glyph->bitmap_left << std::endl;
-    std::cout << "top" << _face->glyph->bitmap_top << std::endl;
+    for (int y = 0; y < bitmapSize.height; y++)
+    {
+        int yOffset = y * bitmapSize.width;
+        for (auto x = 0; x < bitmapSize.width; x++)
+        {
+            int index = yOffset + x;
+            pixels[index] = bitmapPixels[index];
+        }
+    }
+
+    return {
+        {
+        /*character*/ character,
+        /* left */ _face->glyph->bitmap_left * -1,
+        /* top */ _face->glyph->bitmap_top * -1,
+        /* advance */ { _face->glyph->advance.x, _face->glyph->advance.y },
+        /* adcender */ _face->ascender,
+        /* descender */ _face->descender,
+        /* height */ _face->height
+        },
+        image
+    };
+
+    // std::cout << "left" << _face->glyph->bitmap_left << std::endl;
+    // std::cout << "top" << _face->glyph->bitmap_top << std::endl;
 
     //assert(bitmapSize.width + offset.x >= size.width);
     //assert(bitmapSize.height + offset.y >= size.width);
 
-    auto left = offset.x - _face->glyph->bitmap_left;
-    auto top = offset.y - _face->glyph->bitmap_top;
+    // auto left = offset.x - _face->glyph->bitmap_left;
+    // auto top = offset.y - _face->glyph->bitmap_top;
 
-    // TODO -> dup channels
-    for (int y = 0; y <= bitmapSize.height; y++)
-    {
-        int yDestOffset = (top + y) * step;
-        int ySrcOffset = y * bitmapSize.width;
-
-        for (auto x = 0; x <= bitmapSize.width; x++)
-        {
-            int srcIndex = ySrcOffset + x;
-            int destIndex = yDestOffset + (left + x) * channels;
-
-            pixels[destIndex+0] = bitmapPixels[srcIndex];
-            pixels[destIndex+1] = bitmapPixels[srcIndex];
-            pixels[destIndex+2] = bitmapPixels[srcIndex];
-            pixels[destIndex+3] = bitmapPixels[srcIndex];
-        }
-    }
+    
 }
 
 
