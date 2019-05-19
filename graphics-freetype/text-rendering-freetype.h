@@ -27,7 +27,7 @@ public:
         std::string fontFile,
         Image& image,
         const Point_32s& offset,
-        const Color_8u_ARGB& color);
+        const Color_8u_ARGB& color) override;
 
     FT_Library handle() {
         return _library;

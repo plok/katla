@@ -1,3 +1,5 @@
+import imagefilewriter;
+
 #include "font-face-surface-writer.h"
 
 #include <iostream>

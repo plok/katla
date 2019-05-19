@@ -16,6 +16,8 @@
 class FontFace
 {
 public:
+    virtual ~FontFace() = default;
+
     virtual ErrorPtr load(std::string fileName) = 0;
     
     virtual BitmapGlyph drawGlyph(Point_32s offset, uint32_t character) = 0;   

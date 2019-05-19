@@ -56,7 +56,7 @@ BitmapGlyph FontFaceFreeType::drawGlyph(Point_32s offset, uint32_t character)
 
     auto bitmap = _face->glyph->bitmap;
     auto bitmapPixels = bitmap.buffer;
-    Size_32s bitmapSize = { bitmap.width, bitmap.rows };
+    Size_32s bitmapSize = { static_cast<int>(bitmap.width), static_cast<int>(bitmap.rows) };
 
     Image image (bitmapSize, 1, 8);
 
@@ -82,7 +82,7 @@ BitmapGlyph FontFaceFreeType::drawGlyph(Point_32s offset, uint32_t character)
         /*character*/ character,
         /* left */ _face->glyph->bitmap_left * -1,
         /* top */ _face->glyph->bitmap_top * -1,
-        /* advance */ { _face->glyph->advance.x, _face->glyph->advance.y },
+        /* advance */ { static_cast<int32_t>(_face->glyph->advance.x), static_cast<int32_t>(_face->glyph->advance.y) },
         /* adcender */ _face->ascender,
         /* descender */ _face->descender,
         /* height */ _face->height
