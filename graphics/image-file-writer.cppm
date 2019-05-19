@@ -7,7 +7,7 @@
 export module imagefilewriter;
 
 //#include "image-file-writer.h"
-
+w
 
 
 export class KATLA_GRAPHICS_DECLSPEC ImageFileWriter
