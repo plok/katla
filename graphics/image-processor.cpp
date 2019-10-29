@@ -1,17 +1,20 @@
-#include "imageprocessing.h"
+#include "image-processor.h"
 
 #include <cmath>
+#include <exception>
+#include <stdexcept>
+#include <iostream>
 
 #ifdef OPENCV
 # include <opencv2/opencv.hpp>
 # include <opencv2/imgproc/imgproc.hpp>
 #endif
 
-ImageProcessing::ImageProcessing()
+ImageProcessor::ImageProcessor()
 {
 }
 
-void ImageProcessing::createHistogram (const Image& image, Histogram& histogram)
+void ImageProcessor::createHistogram (const Image& image, Histogram& histogram)
 {
     if (image.depth() == 8)
         createHistogram_8u (image, histogram);
@@ -19,11 +22,11 @@ void ImageProcessing::createHistogram (const Image& image, Histogram& histogram)
         createHistogram_16u (image, histogram);
 }
 
-void ImageProcessing::createHistogram_8u (const Image& image, Histogram& histogram)
+void ImageProcessor::createHistogram_8u (const Image& image, Histogram& histogram)
 {
     unsigned char* pixels = image.pixels();
 
-    QSize size = image.size();
+    Size_32s size = image.size();
     unsigned int step = image.step();
     unsigned int channels = image.channels();
 
@@ -31,8 +34,8 @@ void ImageProcessing::createHistogram_8u (const Image& image, Histogram& histogr
     unsigned int g = 0;
     unsigned int b = 0;
 
-    int height = size.height();
-    int width = size.width();
+    int height = size.height;
+    int width = size.width;
 
     int* red = histogram.red();
     int* green = histogram.green();
@@ -56,11 +59,11 @@ void ImageProcessing::createHistogram_8u (const Image& image, Histogram& histogr
     normalizeHistogram (histogram, 1 << histogram.depth());
 }
 
-void ImageProcessing::createHistogram_16u (const Image& image, Histogram& histogram)
+void ImageProcessor::createHistogram_16u (const Image& image, Histogram& histogram)
 {
     unsigned char* pixels = image.pixels();
 
-    QSize size = image.size();
+    Size_32s size = image.size();
     unsigned int step = image.step();
     unsigned int channels = image.channels();
 
@@ -68,8 +71,8 @@ void ImageProcessing::createHistogram_16u (const Image& image, Histogram& histog
     unsigned int g = 0;
     unsigned int b = 0;
 
-    int height = size.height();
-    int width = size.width();
+    int height = size.height;
+    int width = size.width;
 
     int* red = histogram.red();
     int* green = histogram.green();
@@ -93,7 +96,7 @@ void ImageProcessing::createHistogram_16u (const Image& image, Histogram& histog
     normalizeHistogram (histogram, 1 << histogram.depth());
 }
 
-void ImageProcessing::normalizeHistogram (Histogram& histogram, const int max_value)
+void ImageProcessor::normalizeHistogram (Histogram& histogram, const int max_value)
 {
     int* red = histogram.red();
     int* green = histogram.green();
@@ -127,7 +130,7 @@ void ImageProcessing::normalizeHistogram (Histogram& histogram, const int max_va
     }
 }
 
-void ImageProcessing::generateLut (float brightness, float contrast, float gamma, float wbRed, float wbGreen, float wbBlue, Lut& lut)
+void ImageProcessor::generateLut (float brightness, float contrast, float gamma, float wbRed, float wbGreen, float wbBlue, Lut& lut)
 {
     int* red = lut.red();
     int* green = lut.green();
@@ -167,7 +170,7 @@ void ImageProcessing::generateLut (float brightness, float contrast, float gamma
     }
 }
 
-void ImageProcessing::applyLut (const Image* src, Image* dest, const Lut& lut)
+void ImageProcessor::applyLut (const Image* src, Image* dest, const Lut& lut)
 {
     if (src->depth() == 8 && dest->depth() == 8)
         applyLut_8u( src, dest, lut);
@@ -175,18 +178,18 @@ void ImageProcessing::applyLut (const Image* src, Image* dest, const Lut& lut)
         applyLut_16u8u( src, dest, lut);
 }
 
-void ImageProcessing::applyLut_8u (const Image* src, Image* dest, const Lut& lut)
+void ImageProcessor::applyLut_8u (const Image* src, Image* dest, const Lut& lut)
 {
     unsigned char* src_pixels = src->pixels();
     unsigned char* dest_pixels = dest->pixels();
 
     // TODO assume image size and format are the same
-    QSize size = src->size();
+    Size_32s size = src->size();
     unsigned int step = src->step();
     unsigned int channels = src->channels();
 
-    int height = size.height();
-    int width = size.width();
+    int height = size.height;
+    int width = size.width;
 
     int* red = lut.red();
     int* green = lut.green();
@@ -205,13 +208,13 @@ void ImageProcessing::applyLut_8u (const Image* src, Image* dest, const Lut& lut
     }
 }
 
-void ImageProcessing::applyLut_16u8u (const Image* src, Image* dest, const Lut& lut)
+void ImageProcessor::applyLut_16u8u (const Image* src, Image* dest, const Lut& lut)
 {
     unsigned char* src_pixels = src->pixels();
     unsigned char* dest_pixels = dest->pixels();
 
     // TODO assume image size and format are the same
-    QSize size = src->size();
+    Size_32s size = src->size();
 
     unsigned int src_step = src->step();
     unsigned int dest_step = dest->step();
@@ -223,8 +226,8 @@ void ImageProcessing::applyLut_16u8u (const Image* src, Image* dest, const Lut& 
     int* green = lut.green();
     int* blue = lut.blue();
 
-    int height = size.height();
-    int width = size.width();
+    int height = size.height;
+    int width = size.width;
 
     for(int y=0; y < height; y++)
     {
@@ -241,13 +244,13 @@ void ImageProcessing::applyLut_16u8u (const Image* src, Image* dest, const Lut& 
     }
 }
 
-void ImageProcessing::applyGamma_16u (const Image* src, Image* dest)
+void ImageProcessor::applyGamma_16u (const Image* src, Image* dest)
 {
     unsigned char* src_pixels = src->pixels();
     unsigned char* dest_pixels = dest->pixels();
 
     // TODO assume image size and format are the same
-    QSize size = src->size();
+    Size_32s size = src->size();
 
     unsigned int src_step = src->step();
     unsigned int dest_step = dest->step();
@@ -255,8 +258,8 @@ void ImageProcessing::applyGamma_16u (const Image* src, Image* dest)
     unsigned int src_channels = src->channels();
     unsigned int dest_channels = dest->channels();
 
-    int height = size.height();
-    int width = size.width();
+    int height = size.height;
+    int width = size.width;
 
     float max_value_16b = (1 << 16);
     float max_value_12b = (1 << 12);
@@ -279,9 +282,9 @@ void ImageProcessing::applyGamma_16u (const Image* src, Image* dest)
     }
 }
 
-void ImageProcessing::applyCameraMatrix_16u (const Image* src, Image* dest)
+void ImageProcessor::applyCameraMatrix_16u (const Image* src, Image* dest)
 {
-    throw std::exception("Not implemented");
+    throw std::runtime_error("Not implemented");
 
 //    unsigned char* src_pixels = src->pixels();
 //    unsigned char* dest_pixels = dest->pixels();
@@ -363,185 +366,13 @@ void ImageProcessing::applyCameraMatrix_16u (const Image* src, Image* dest)
 //    }
 }
 
-Image ImageProcessing::autoCrop_8u (const Image* src)
+Image ImageProcessor::fastScale (const Image& image, Size_32s minimumSize)
 {
-    QSize src_size = src->size();
-
-    unsigned int src_step = src->step();
-    unsigned int src_channels = src->channels();
-    unsigned char* src_pixels = src->pixels();
-
-    int height = src_size.height();
-    int width = src_size.width();
-
-    int x_start = 0;
-    int x_end = 0;
-    int y_start = 0;
-    int y_end = 0;
-
-    for(int y=0; y < height; y++)
-    {
-        bool changed = false;
-
-        unsigned char r = src_pixels[y*src_step + 0];
-        unsigned char g = src_pixels[y*src_step + 1];
-        unsigned char b = src_pixels[y*src_step + 2];
-
-        for(int x=0; x < width; x++)
-        {
-            unsigned int src_index = (y*src_step) + (x*src_channels);
-
-            if (r != src_pixels[src_index] || g != src_pixels[src_index+1] || b != src_pixels[src_index+2])
-                changed = true;
-        }
-
-        if (changed == true)
-        {
-            if (y_start == 0)
-                y_start = y;
-            y_end = y;
-        }
-    }
-
-    for(int x=0; x < width; x++)
-    {
-        bool changed = false;
-
-        unsigned char r = src_pixels[x*src_channels + 0];
-        unsigned char g = src_pixels[x*src_channels + 1];
-        unsigned char b = src_pixels[x*src_channels + 2];
-
-        for(int y=0; y < height; y++)
-        {
-            unsigned int src_index = (y*src_step) + (x*src_channels);
-
-            if (r != src_pixels[src_index] || g != src_pixels[src_index+1] || b != src_pixels[src_index+2])
-                changed = true;
-        }
-
-        if (changed == true)
-        {
-            if (x_start == 0)
-                x_start = x;
-            x_end = x;
-        }
-    }
-
-    Image cropped_image;
-    QSize new_image_size (x_end - x_start, y_end - y_start);
-    if (new_image_size.width() > 0 && new_image_size.height() > 0)
-    {
-        QImage orig = src->toQImage();
-
-        QPoint start_point= QPoint(x_start, y_start);
-        QImage qt_cropped_image = orig.copy(QRect(start_point, new_image_size));
-
-        cropped_image = Image::fromQImage(qt_cropped_image);
-    }
-
-    return cropped_image;
-}
-
-Image ImageProcessing::cropHeaderFooter_8u(const Image *src, int amount)
-{
-    QSize src_size = src->size();
-
-    unsigned int src_step = src->step();
-    unsigned int src_channels = src->channels();
-    unsigned char* src_pixels = src->pixels();
-
-    int height = src_size.height();
-    int width = src_size.width();
-
-    int x_start = 0;
-    int x_end = width;
-    int y_start = amount;
-    int y_end = height - amount;
-
-    Image cropped_image;
-    QSize new_image_size (x_end - x_start, y_end - y_start);
-    if (new_image_size.width() > 0 && new_image_size.height() > 0)
-    {
-        QImage orig = src->toQImage();
-
-        QPoint start_point= QPoint(x_start, y_start);
-        QImage qt_cropped_image = orig.copy(QRect(start_point, new_image_size));
-
-        cropped_image = Image::fromQImage(qt_cropped_image);
-    }
-
-    return cropped_image;
-}
-
-Image ImageProcessing::cropHeader_8u(const Image *src, int amount)
-{
-    QSize src_size = src->size();
-
-    unsigned int src_step = src->step();
-    unsigned int src_channels = src->channels();
-    unsigned char* src_pixels = src->pixels();
-
-    int height = src_size.height();
-    int width = src_size.width();
-
-    int x_start = 0;
-    int x_end = width;
-    int y_start = amount;
-    int y_end = height;
-
-    Image cropped_image;
-    QSize new_image_size (x_end - x_start, y_end - y_start);
-    if (new_image_size.width() > 0 && new_image_size.height() > 0)
-    {
-        QImage orig = src->toQImage();
-
-        QPoint start_point= QPoint(x_start, y_start);
-        QImage qt_cropped_image = orig.copy(QRect(start_point, new_image_size));
-
-        cropped_image = Image::fromQImage(qt_cropped_image);
-    }
-
-    return cropped_image;
-}
-
-Image ImageProcessing::cropFooter_8u(const Image *src, int amount)
-{
-    QSize src_size = src->size();
-
-    unsigned int src_step = src->step();
-    unsigned int src_channels = src->channels();
-    unsigned char* src_pixels = src->pixels();
-
-    int height = src_size.height();
-    int width = src_size.width();
-
-    int x_start = 0;
-    int x_end = width;
-    int y_start = 0;
-    int y_end = height - amount;
-
-    Image cropped_image;
-    QSize new_image_size (x_end - x_start, y_end - y_start);
-    if (new_image_size.width() > 0 && new_image_size.height() > 0)
-    {
-        QImage orig = src->toQImage();
-
-        QPoint start_point= QPoint(x_start, y_start);
-        QImage qt_cropped_image = orig.copy(QRect(start_point, new_image_size));
-
-        cropped_image = Image::fromQImage(qt_cropped_image);
-    }
-
-    return cropped_image;
-}
-
-Image ImageProcessing::fastScale (const Image& image, QSize minimumSize)
-{
-    QSize image_size = image.size();
+    Size_32s image_size = image.size();
 
     int scale = 0;
     int i = 1;
-    while (((image_size.width() >> i) > minimumSize.width() ))
+    while (((image_size.width >> i) > minimumSize.width ))
     {
         i++;
         scale++;
@@ -549,17 +380,19 @@ Image ImageProcessing::fastScale (const Image& image, QSize minimumSize)
 
     Image scaled_image;
     if (image.depth() == 8)
-        scaled_image = ImageProcessing::fastScale_8u(image, scale);
+        scaled_image = ImageProcessor::fastScale_8u(image, scale);
     if (image.depth() == 16)
-        scaled_image = ImageProcessing::fastScale_16u(image, scale);
+        scaled_image = ImageProcessor::fastScale_16u(image, scale);
 
     return scaled_image;
 }
 
-Image ImageProcessing::fastScale_8u (const Image& image, int scale)
+Image ImageProcessor::fastScale_8u (const Image& image, int scale)
 {
-    QSize scaled_size( image.size().width() >> scale,
-                       image.size().height() >> scale);
+    Size_32s scaled_size {
+        image.size().width >> scale,
+        image.size().height >> scale
+    };
 
     Image dest_image (scaled_size, image.channels(), 8);
 
@@ -567,7 +400,7 @@ Image ImageProcessing::fastScale_8u (const Image& image, int scale)
     unsigned char* dest_pixels = dest_image.pixels();
 
     // TODO assume image size and format are the same
-    QSize src_size = image.size();
+    Size_32s src_size = image.size();
 
     unsigned int src_step = image.step();
     unsigned int dest_step = dest_image.step();
@@ -575,8 +408,8 @@ Image ImageProcessing::fastScale_8u (const Image& image, int scale)
     unsigned int src_channels = image.channels();
     unsigned int dest_channels = dest_image.channels();
 
-    int height = scaled_size.height();
-    int width = scaled_size.width();
+    int height = scaled_size.height;
+    int width = scaled_size.width;
 
     for(int y=0; y < height; y++)
     {
@@ -594,10 +427,12 @@ Image ImageProcessing::fastScale_8u (const Image& image, int scale)
     return dest_image;
 }
 
-Image ImageProcessing::fastScale_16u (const Image& image, int scale)
+Image ImageProcessor::fastScale_16u (const Image& image, int scale)
 {
-    QSize scaled_size( image.size().width() >> scale,
-                       image.size().height() >> scale);
+    Size_32s scaled_size {
+        image.size().width >> scale,
+        image.size().height >> scale
+    };
 
     Image dest_image (scaled_size, image.channels(), 16);
 
@@ -605,7 +440,7 @@ Image ImageProcessing::fastScale_16u (const Image& image, int scale)
     unsigned char* dest_pixels = dest_image.pixels();
 
     // TODO assume image size and format are the same
-    QSize src_size = image.size();
+    Size_32s src_size = image.size();
 
     unsigned int src_step = image.step();
     unsigned int dest_step = dest_image.step();
@@ -613,8 +448,8 @@ Image ImageProcessing::fastScale_16u (const Image& image, int scale)
     unsigned int src_channels = image.channels();
     unsigned int dest_channels = dest_image.channels();
 
-    int height = scaled_size.height();
-    int width = scaled_size.width();
+    int height = scaled_size.height;
+    int width = scaled_size.width;
 
     for(int y=0; y < height; y++)
     {
@@ -632,16 +467,16 @@ Image ImageProcessing::fastScale_16u (const Image& image, int scale)
     return dest_image;
 }
 
-void ImageProcessing::scale(const Image *src, Image *dest, QSize size)
+void ImageProcessor::scale(const Image *src, Image *dest, Size_32s size)
 {
 
     if (src->depth() == 8)
-        ImageProcessing::scale_8u(src, dest, size);
+        ImageProcessor::scale_8u(src, dest, size);
     //if (src->depth() == 16)
     //    ImageProcessing::scale_16u(src, dest, size);
 }
 
-void ImageProcessing::scale_8u(const Image *src, Image *dest, QSize size)
+void ImageProcessor::scale_8u(const Image *src, Image *dest, Size_32s size)
 {
 #ifdef OPENCV
     QSize qsize = src->size();
@@ -654,7 +489,7 @@ void ImageProcessing::scale_8u(const Image *src, Image *dest, QSize size)
 #endif
 }
 
-void ImageProcessing::fastDebayer_16u (const Image& src, Image& dest)
+void ImageProcessor::fastDebayer_16u (const Image& src, Image& dest)
 {
     // TODO for a fast half-size debayering, to a two pass method
     // TODO use second green
@@ -665,7 +500,7 @@ void ImageProcessing::fastDebayer_16u (const Image& src, Image& dest)
     unsigned char* dest_pixels = dest.pixels();
 
     // TODO assume image size and format are the same
-    QSize src_size = src.size();
+    Size_32s src_size = src.size();
 
     unsigned int src_step = src.step();
     unsigned int dest_step = dest.step();
@@ -673,8 +508,8 @@ void ImageProcessing::fastDebayer_16u (const Image& src, Image& dest)
     unsigned int src_channels = src.channels();
     unsigned int dest_channels = dest.channels();
 
-    int height = src_size.height() / 2;
-    int width = src_size.width() / 2;
+    int height = src_size.height / 2;
+    int width = src_size.width / 2;
 
     for(int y=0; y < height; y++)
     {
@@ -700,7 +535,7 @@ void ImageProcessing::fastDebayer_16u (const Image& src, Image& dest)
     }
 }
 
-void ImageProcessing::NLdenoise_8u (const Image& src, Image& dest, int h, int hColor, int templateWindow, int searchWindow)
+void ImageProcessor::NLdenoise_8u (const Image& src, Image& dest, int h, int hColor, int templateWindow, int searchWindow)
 {
     try
     {
@@ -725,7 +560,7 @@ void ImageProcessing::NLdenoise_8u (const Image& src, Image& dest, int h, int hC
     {}
 }
 
-void ImageProcessing::medianFilter_8u (const Image& src, Image& dest, int kernelSize)
+void ImageProcessor::medianFilter_8u (const Image& src, Image& dest, int kernelSize)
 {
 #ifdef OPENCV
     QSize qsize = src.size();
@@ -744,7 +579,7 @@ void ImageProcessing::medianFilter_8u (const Image& src, Image& dest, int kernel
 #endif
 }
 
-void ImageProcessing::medianFilter_16u (const Image& src, Image& dest, int kernelSize)
+void ImageProcessor::medianFilter_16u (const Image& src, Image& dest, int kernelSize)
 {
 #ifdef OPENCV
     QSize qsize = src.size();
@@ -761,7 +596,7 @@ void ImageProcessing::medianFilter_16u (const Image& src, Image& dest, int kerne
 #endif
 }
 
-void ImageProcessing::applyProperties (const Image* src, Image* dest, float brightness, float contrast, float gamma, float wbRed, float wbGreen, float wbBlue)
+void ImageProcessor::applyProperties (const Image* src, Image* dest, float brightness, float contrast, float gamma, float wbRed, float wbGreen, float wbBlue)
 {
     if (src->depth() == 8 && dest->depth() == 8)
         applyProperties_8u( src, dest, brightness, contrast, gamma, wbRed, wbGreen, wbBlue);
@@ -769,21 +604,21 @@ void ImageProcessing::applyProperties (const Image* src, Image* dest, float brig
         applyProperties_16u8u( src, dest, brightness, contrast, gamma, wbRed, wbGreen, wbBlue);
 }
 
-void ImageProcessing::applyProperties_8u (const Image* src, Image* dest, float brightness, float contrast, float gamma, float wbRed, float wbGreen, float wbBlue )
+void ImageProcessor::applyProperties_8u (const Image* src, Image* dest, float brightness, float contrast, float gamma, float wbRed, float wbGreen, float wbBlue )
 {
     unsigned char* src_pixels = src->pixels();
     unsigned char* dest_pixels = dest->pixels();
 
     // TODO assume image size and format are the same
-    QSize size = src->size();
+    Size_32s size = src->size();
 
     unsigned int src_step = src->step();
     unsigned int dest_step = dest->step();
 
     unsigned int channels = src->channels();
 
-    int height = size.height();
-    int width = size.width();
+    int height = size.height;
+    int width = size.width;
 
     const float norm_value = (1 << 8);
 
@@ -837,13 +672,53 @@ void ImageProcessing::applyProperties_8u (const Image* src, Image* dest, float b
     }
 }
 
-void ImageProcessing::applyProperties_16u8u (const Image* src, Image* dest, float brightness, float contrast, float gamma, float wbRed, float wbGreen, float wbBlue )
+void ImageProcessor::convertArgbToRgba(const Image& src, Image& dest)
+{
+    auto destSize = dest.size();
+    auto destPixels = dest.pixels();
+    auto destChannels = dest.channels();
+    auto destStep = dest.step();
+
+    auto srcSize = src.size();
+    auto srcPixels = src.pixels();
+    auto srcChannels = src.channels();
+    auto srcStep = src.step();
+
+    // check image sizes
+    if (src.size().width > dest.size().width) {
+        std::cout << "width > dest: " << src.size().width << "-" << dest.size().width << std::endl;
+        return;
+    }
+    if (src.size().height > dest.size().height) {
+        std::cout << "height > dest" << "-" << src.size().height << "-" << dest.size().height << std::endl;
+        return;
+    }
+
+    for (int y = 0; y <= srcSize.height; y++)
+    {
+        int yDestOffset = y * destStep;
+        int ySrcOffset = y * srcStep;
+
+        for (auto x = 0; x <= srcSize.width; x++)
+        {
+            int srcIndex = ySrcOffset + x * srcChannels;
+            int destIndex = yDestOffset + x * destChannels;
+
+            destPixels[destIndex+0] = srcPixels[srcIndex + 1];
+            destPixels[destIndex+1] = srcPixels[srcIndex + 2];
+            destPixels[destIndex+2] = srcPixels[srcIndex + 3];
+            destPixels[destIndex+3] = srcPixels[srcIndex + 0];
+        }
+    }
+}
+
+void ImageProcessor::applyProperties_16u8u (const Image* src, Image* dest, float brightness, float contrast, float gamma, float wbRed, float wbGreen, float wbBlue )
 {
     unsigned char* src_pixels = src->pixels();
     unsigned char* dest_pixels = dest->pixels();
 
     // TODO assume image size and format are the same
-    QSize size = src->size();
+    Size_32s size = src->size();
 
     unsigned int src_step = src->step();
     unsigned int dest_step = dest->step();
@@ -852,8 +727,8 @@ void ImageProcessing::applyProperties_16u8u (const Image* src, Image* dest, floa
 
     const float norm_value = (1 << 16);
 
-    int height = size.height();
-    int width = size.width();
+    int height = size.height;
+    int width = size.width;
 
     for(int y=0; y < height; y++)
     {
@@ -907,7 +782,7 @@ void ImageProcessing::applyProperties_16u8u (const Image* src, Image* dest, floa
     }
 }
 
-void ImageProcessing::convertRGBtoXYZ (float r, float g, float b, float& x, float& y, float& z)
+void ImageProcessor::convertRGBtoXYZ (float r, float g, float b, float& x, float& y, float& z)
 {
     if ( r > 0.04045 )
         r = powf( (( r + 0.055 ) / 1.055 ), 2.4);
@@ -934,7 +809,7 @@ void ImageProcessing::convertRGBtoXYZ (float r, float g, float b, float& x, floa
     z = r * 0.0193 + g * 0.1192 + b * 0.9505;
 }
 
-void ImageProcessing::convertXYZtoRGB (float x, float y, float z, float& r, float& g, float& b)
+void ImageProcessor::convertXYZtoRGB (float x, float y, float z, float& r, float& g, float& b)
 {
     x = x / 100.f;        //X from 0 to  95.047      (Observer = 2°, Illuminant = D65)
     y = y / 100.f;        //Y from 0 to 100.000
@@ -960,7 +835,7 @@ void ImageProcessing::convertXYZtoRGB (float x, float y, float z, float& r, floa
 //        b = 12.92 * b;
 }
 
-void ImageProcessing::convertLABtoXYZ (float l, float a, float b, float& x, float& y, float& z)
+void ImageProcessor::convertLABtoXYZ (float l, float a, float b, float& x, float& y, float& z)
 {
     y = ( l + 16.f ) / 116.f;
     x = (a / 500.f) + y;
@@ -986,7 +861,7 @@ void ImageProcessing::convertLABtoXYZ (float l, float a, float b, float& x, floa
     z = 108.883 * z;     //ref_Z =
 }
 
-void ImageProcessing::convertXYZtoLAB (float x, float y, float z, float& l, float& a, float& b)
+void ImageProcessor::convertXYZtoLAB (float x, float y, float z, float& l, float& a, float& b)
 {
     x = x / 95.047;          //ref_X =     Observer= 2°, Illuminant= D65
     y = y / 100.000;          //ref_Y =

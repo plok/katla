@@ -12,8 +12,8 @@ class WindowFactory;
 class KATLA_GRAPHICS_DECLSPEC GraphicsBackend
 {
 public:
-    GraphicsBackend() = default;
-    virtual ~GraphicsBackend() = default;
+    GraphicsBackend();
+    virtual ~GraphicsBackend();
 
     virtual void cleanup() = 0;
 

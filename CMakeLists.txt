@@ -8,7 +8,6 @@ if (NOT WIN32)
     pkg_check_modules(LIBUV REQUIRED libuv)
 endif()
 
-
 option(SKIA_OPTION "enable use of skia" FALSE)
 option(VULKAN_OPTION "enable use of vulkan" TRUE)
 option(OPENGL_OPTION "enable use of opengl" FALSE)
@@ -21,12 +20,14 @@ add_subdirectory(window-management)
 
 add_subdirectory(window-management-client-glfw)
 
+add_subdirectory(gpu)
+
 if (NOT WIN32)
     if (SKIA_OPTION)
         add_subdirectory(external/skia/skia-cmake)
     endif()
  
-    add_subdirectory(gpu)
+    add_subdirectory(graphics-freetype)
 
     if (VULKAN_OPTION)
         add_subdirectory(test-apps/vulkan-renderer-test)
@@ -39,6 +40,7 @@ if (NOT WIN32)
     if (WAYLAND_OPTION)
         add_subdirectory(compositor/wayland)
         add_subdirectory(test-apps/wayland-test-client)
+        add_subdirectory(test-apps/freetype-test)
     endif()
 endif()
 

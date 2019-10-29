@@ -1,6 +1,6 @@
-#include "image-drawing-simple.h"
+#include "simple-painter.h"
 
-void ImageDrawingSimple::drawRectangle (
+void SimplePainter::drawRectangle (
     const Image& image,
     const Rect_32s& rect,
     const Color_8u_ARGB& color)

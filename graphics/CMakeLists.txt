@@ -8,10 +8,13 @@ add_definitions(-DKATLA_GRAPHICS_INDLL)
 set(sources
     ../common/error.cpp
 
+    graphics-backend.cpp
+
     render-view.cpp 
     render-stats.cpp
     image.cpp
-    image-drawing-simple.cpp
+    image-processor.cpp
+    simple-painter.cpp
     )
 
 add_library(katla-graphics SHARED ${sources})

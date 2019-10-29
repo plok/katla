@@ -3,7 +3,7 @@
 #include "compositor/wayland/client/wayland-display.h"
 
 #include "graphics/image.h"
-#include "graphics/image-drawing-simple.h"
+#include "graphics/simple-painter.h"
 
 #include "string.h"
 #include <iostream>
@@ -37,8 +37,8 @@ int main(int argc, char* argv[])
 
     Size_32s size { 640, 480 };
     Image image(buffer->data(), size, 4, 640*4, 8);
-    ImageDrawingSimple imageDrawing;
-    imageDrawing.drawRectangle(image, Rect_32s {100, 100, 200, 200}, Color_8u_ARGB {0,255,0,0});
+    SimplePainter painter;
+    painter.drawRectangle(image, Rect_32s {100, 100, 200, 200}, Color_8u_ARGB {0,255,0,0});
 
     // TODO use eventloop of appKit
     bool done = false;
