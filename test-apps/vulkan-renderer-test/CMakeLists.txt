@@ -9,7 +9,7 @@ find_package(glfw3 3.2.0 REQUIRED)
 
 set(sources
     main.cpp
-    ../../../common/error.cpp
+    ../../common/error.cpp
 )
 
 add_executable(katla-vulkan-test-renderer ${sources})

@@ -32,21 +32,36 @@ void copyImage(Image& destImage, const Image& srcImage, const Point_32s& offset,
 
     // TODO -> dup channels
     // test performance: blend ivp if
-    for (int y = 0; y <= srcSize.height; y++)
+    for (int y = 0; y < srcSize.height; y++)
     {
         int yDestOffset = (offset.y + y) * destStep;
         int ySrcOffset = y * srcStep;
 
-        for (auto x = 0; x <= srcSize.width; x++)
+        for (auto x = 0; x < srcSize.width; x++)
         {
             int srcIndex = ySrcOffset + x;
             int destIndex = yDestOffset + (offset.x + x) * destChannels;
 
             if (srcPixels[srcIndex]) {
-                destPixels[destIndex+0] = color.a;
-                destPixels[destIndex+1] = color.r;
-                destPixels[destIndex+2] = color.g;
-                destPixels[destIndex+3] = color.b;
+                float destAlpha = static_cast<float>(destPixels[destIndex+0]) / 255.f;
+
+                // TODO support other depths
+                float srcAlpha = (static_cast<float>(color.a) / 255) * (static_cast<float>(srcPixels[srcIndex]) / 255);
+                float alpha = srcAlpha + (destAlpha * (1-srcAlpha));
+
+                float destR = static_cast<float>(destPixels[destIndex+1]) / 255;
+                float destG = static_cast<float>(destPixels[destIndex+2]) / 255;
+                float destB = static_cast<float>(destPixels[destIndex+3]) / 255;
+
+                float srcR = static_cast<float>(color.r) / 255;
+                float srcG = static_cast<float>(color.g) / 255;
+                float srcB = static_cast<float>(color.b) / 255;
+
+                // TODO premultiply alpha?
+                destPixels[destIndex+0] = static_cast<uint8_t>(alpha * 255);
+                destPixels[destIndex+1] = static_cast<uint8_t>(((destR * destAlpha * (1.f-srcAlpha)) + (srcR * srcAlpha)) * (255.f / alpha));
+                destPixels[destIndex+2] = static_cast<uint8_t>(((destG * destAlpha * (1.f-srcAlpha)) + (srcG * srcAlpha)) * (255.f / alpha));
+                destPixels[destIndex+3] = static_cast<uint8_t>(((destB * destAlpha * (1.f-srcAlpha)) + (srcB * srcAlpha)) * (255.f / alpha));
             }
         }
     }
