@@ -8,9 +8,12 @@ add_definitions(-DKATLA_GRAPHICS_INDLL)
 set(sources
     ../common/error.cpp
 
+    graphics-backend.cpp
+
     render-view.cpp 
     render-stats.cpp
     image.cpp
+    image-processing.cpp
     image-drawing-simple.cpp
     )
 

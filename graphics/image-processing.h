@@ -5,6 +5,8 @@
 
 #include "lut.h"
 
+#include "common/size.h"
+
 typedef Lut Histogram;
 
 class ImageProcessing
@@ -18,17 +20,12 @@ public:
     static void generateLut (float brightness, float contrast, float gamma, float wbRed, float wbGreen, float wbBlue, Lut& lut);
     static void applyLut (const Image* src, Image* dest, const Lut& lut);
 
-    static Image fastScale (const Image& image, QSize minimumSize);
-    static void scale (const Image* src, Image* dest, QSize size);
+    static Image fastScale (const Image& image, Size_32s minimumSize);
+    static void scale (const Image* src, Image* dest, Size_32s size);
 
     static void applyGamma_16u (const Image* src, Image* dest);
 
     static void applyCameraMatrix_16u (const Image* src, Image* dest);
-
-    static Image autoCrop_8u (const Image* src);
-    static Image cropHeaderFooter_8u (const Image* src, int amount);
-    static Image cropHeader_8u (const Image* src, int amount);
-    static Image cropFooter_8u (const Image* src, int amount);
 
     static void fastDebayer_16u (const Image& src, Image& dest);
 
@@ -38,6 +35,8 @@ public:
     static void medianFilter_16u (const Image& src, Image& dest, int kernelSize);
 
     static void applyProperties (const Image* src, Image* dest, float brightness, float contrast, float gamma, float wbRed, float wbGreen, float wbBlue);
+
+    static void convertArgbToRgba(const Image& src, Image& dest);
 
 private:
     static void createHistogram_8u (const Image& image, Histogram& histogram);
@@ -49,7 +48,7 @@ private:
     static Image fastScale_8u (const Image& image, int scale);
     static Image fastScale_16u (const Image& image, int scale);
 
-    static void scale_8u (const Image* src, Image* dest, QSize size);
+    static void scale_8u (const Image* src, Image* dest, Size_32s size);
 
     static void applyProperties_8u (const Image* src, Image* dest, float brightness, float contrast, float gamma, float wbRed, float wbGreen, float wbBlue);
     static void applyProperties_16u8u (const Image* src, Image* dest, float brightness, float contrast, float gamma, float wbRed, float wbGreen, float wbBlue);
