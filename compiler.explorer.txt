@@ -1,0 +1,52 @@
+#include <stdint.h>
+
+struct Size_32s
+{
+    int32_t width;
+    int32_t height;
+};
+
+struct Rect_32s {
+    int32_t top;
+    int32_t bottom;
+    int32_t left;
+    int32_t right;
+};
+
+struct alignas(64) Color_8u_ARGB
+{
+    uint8_t a;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+};
+
+struct Image
+{
+    alignas(64) uint32_t pixels[1000000];
+};
+
+void drawRectangle (
+    Image& __restrict__ image,
+    const Rect_32s& rect,
+    int channels,
+    int step,
+    const Color_8u_ARGB& __restrict__ color)
+{
+    uint32_t* pixels = &image.pixels[0]; 
+
+    //for (auto y = rect.top; y <= rect.bottom; y++)
+    //{
+    //    auto y_offset = y * step;
+        for (auto x = 0; x < 1000000; x+=channels)
+        {
+            int index = /*y_offset*/ 0 + x * channels;
+
+            pixels[index] = color.a;
+            pixels[index+1] = color.r;
+            pixels[index+2] = color.g;
+            pixels[index+3] = color.b;
+        }
+    //}
+
+}
