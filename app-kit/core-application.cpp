@@ -2,6 +2,9 @@
 
 #include "timer-uv.h"
 
+#include "event-loop-uv.h"
+#include "signal-handler-uv.h"
+
 #include <iostream>
 
 CoreApplication::CoreApplication()
@@ -52,4 +55,7 @@ std::shared_ptr<Timer> CoreApplication::createTimer()
     return timer;
 }
 
+std::shared_ptr<EventLoop> CoreApplication::eventLoop() {
+    return _eventLoop;
+}
 

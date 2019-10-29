@@ -25,6 +25,7 @@ struct WindowProperties {
 
 class KATLA_WINDOW_MANAGEMENT_DECLSPEC Window {
 public:
+    Window();
     virtual ~Window() = default;
 
     virtual void init() = 0;

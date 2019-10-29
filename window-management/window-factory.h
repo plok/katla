@@ -13,6 +13,7 @@ class RenderView;
 
 class KATLA_WINDOW_MANAGEMENT_DECLSPEC WindowFactory {
 public:
+    WindowFactory();
     virtual ~WindowFactory() = default;
 
     virtual std::tuple<WindowPtr, ErrorPtr> create(std::shared_ptr<RenderView> renderView, std::shared_ptr<WindowProperties> properties) = 0;

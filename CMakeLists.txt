@@ -9,8 +9,12 @@ if (NOT WIN32)
 endif()
 
 option(SKIA_OPTION "enable use of skia" FALSE)
+
+option(GLFW_OPTION "enable use of glfw" TRUE)
+
 option(VULKAN_OPTION "enable use of vulkan" TRUE)
 option(OPENGL_OPTION "enable use of opengl" FALSE)
+option(DIRECT2D_OPTION "enable use of Direct2D" FALSE)
 
 option(WAYLAND_OPTION "enable use of wayland" TRUE)
 
@@ -18,7 +22,9 @@ add_subdirectory(app-kit)
 add_subdirectory(graphics)
 add_subdirectory(window-management)
 
-add_subdirectory(window-management-client-glfw)
+if (GLFW_OPTION)
+    add_subdirectory(window-management-client-glfw)
+endif()
 
 add_subdirectory(gpu)
 
@@ -44,4 +50,12 @@ if (NOT WIN32)
     endif()
 endif()
 
+if (WIN32)
+    add_subdirectory(window-management-wincontrol)
+endif()
+
 add_subdirectory(gui-kit)
+
+if (WIN32)
+    add_subdirectory(test-apps/win32-gui-test)
+endif()

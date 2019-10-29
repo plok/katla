@@ -1,6 +1,8 @@
 #ifndef GUI_APPLICATION_H
 #define GUI_APPLICATION_H
 
+#include "katla-guikit.h"
+
 #include "graphics/graphics-backend.h"
 #include "graphics/graphics-configuration.h"
 
@@ -12,7 +14,7 @@
 class CoreApplication;
 class RenderView;
 
-class GuiKit {
+class KATLA_GUIKIT_DECLSPEC GuiKit {
 public:
     explicit GuiKit(CoreApplication& coreApp);
     virtual ~GuiKit();

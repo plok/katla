@@ -3,14 +3,17 @@
 
 #include "katla-appkit.h"
 
-#include "event-loop-uv.h"
-#include "signal-handler-uv.h"
+#include "event-loop.h"
+#include "signal-handler.h"
 
 #include "timer.h"
 
 #include "common/error.h"
 
 #include <memory>
+
+class UvEventLoop;
+class UvSignalHandler;
 
 class KATLA_APPKIT_DECLSPEC CoreApplication {
 public:
@@ -23,9 +26,7 @@ public:
 
     std::shared_ptr<Timer> createTimer();
 
-    std::shared_ptr<EventLoop> eventLoop() {
-        return _eventLoop;
-    }
+    std::shared_ptr<EventLoop> eventLoop();
 private:
     std::shared_ptr<UvEventLoop> _eventLoop;
     std::shared_ptr<UvSignalHandler> _signalHandler;

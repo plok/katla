@@ -6,7 +6,8 @@
 enum class KATLA_GRAPHICS_DECLSPEC GraphicsBackends {
     Software,
     OpenGl,
-    Vulkan
+    Vulkan,
+    Direct2D
 };
 
 struct GraphicsConfiguration

@@ -1,5 +1,7 @@
 #include "event-loop-uv.h"
 
+#include "uv.h"
+
 UvEventLoop::UvEventLoop()
 {
     _eventLoop = new uv_loop_t();

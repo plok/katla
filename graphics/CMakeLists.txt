@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(katla-graphics)
 
-set(CMAKE_CXX_STANDARD 17)
+include(../cmake/cmake-common.txt)
 
 add_definitions(-DKATLA_GRAPHICS_INDLL)
 

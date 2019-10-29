@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_library(GLFW_LIBRARIES NAMES glfw3 glfw)
 
-add_definitions(-DKATLA_WINDOW_MANAGEMENT_INDLL)
+add_definitions(-DKATLA_WINDOW_MANAGEMENT_CLIENT_GLFW_INDLL)
 
 set(sources
     ../common/error.cpp
