@@ -46,24 +46,11 @@ void Direct2D::cleanup()
     // glfwTerminate();
 }
 
-Direct2D_Surface Direct2D::createSurface(const WindowHandle& handle);
+std::unique_ptr<Direct2D_Surface> Direct2D::createSurface(const WindowHandle& handle)
 {
-    // Obtain the size of the drawing area.
-    RECT rc;
-    GetClientRect(hwnd, &rc);
+    Direct2D_SurfacePrivateDeps deps {handle, _d->factory};
 
-    // Create a Direct2D render target
-    ID2D1HwndRenderTarget* pRT = NULL;
-    HRESULT hr = _d->factory->CreateHwndRenderTarget(
-        D2D1::RenderTargetProperties(),
-        D2D1::HwndRenderTargetProperties(
-            hwnd,
-            D2D1::SizeU(
-                rc.right - rc.left,
-                rc.bottom - rc.top)
-        ),
-        &pRT
-    );
+    return Direct2D_Surface::create(deps);
 }
 
 std::unique_ptr<WindowFactory> Direct2D::windowFactory()

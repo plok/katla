@@ -12,10 +12,10 @@ class Direct2D_SurfacePrivateDeps;
 class KATLA_GPU_DECLSPEC Direct2D_Surface
 {
 public:
-    Direct2D_Surface(const Direct2D_SurfacePrivateDeps& deps);
+    Direct2D_Surface(const Direct2D_SurfacePrivateDeps& deps, std::unique_ptr<Direct2D_SurfacePrivate> p);
     virtual ~Direct2D_Surface();
 
-    static Direct2D_Surface create(const Direct2D_SurfacePrivateDeps& deps);
+    static std::unique_ptr<Direct2D_Surface> create(const Direct2D_SurfacePrivateDeps& deps);
     
 private:
     std::unique_ptr<Direct2D_SurfacePrivate> _d;

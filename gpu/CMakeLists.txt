@@ -69,6 +69,7 @@ if (WIN32)
     set(SOURCES ${SOURCES}
         backend/direct2d/direct2d.cpp
         backend/direct2d/direct2d.h
+        backend/direct2d/direct2d-surface.cpp
     )
 endif()
 

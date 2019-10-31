@@ -33,7 +33,7 @@ public:
         return Error::none();
     }
 
-    Direct2D_Surface createSurface(const WindowHandle& handle);
+    std::unique_ptr<Direct2D_Surface> createSurface(const WindowHandle& handle);
 
     std::unique_ptr<WindowFactory> windowFactory();
     
