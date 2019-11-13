@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 
     auto renderView = std::make_shared<RenderView>();
     auto windowProperties = std::make_shared<WindowProperties>();
-    windowProperties->size = Size {800, 600};
+    windowProperties->size = Size_32s {800, 600};
 
     // before we can create a sufrace we need to create a window
     auto windowFactory = graphicsBackend->windowFactory();

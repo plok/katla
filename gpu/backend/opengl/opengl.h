@@ -1,5 +1,5 @@
-#ifndef OPENGL_H
-#define OPENGL_H
+#ifndef KATLA_OPENGL_H
+#define KATLA_OPENGL_H
 
 #include "graphics/graphics-backend.h"
 #include "graphics/graphics-configuration.h"

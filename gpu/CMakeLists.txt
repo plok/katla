@@ -20,13 +20,11 @@ if (SKIA_OPTION)
 endif()
 
 set(SOURCES
-    ../common/error.cpp
-
-    
+    ../common/error.cpp   
 )
 
 if (NOT WIN32)
-    set(SOURCSE ${SOURCES}
+    set(SOURCES ${SOURCES}
         ../external/imgui/imgui.cpp
         ../external/imgui/imgui_widgets.cpp
         ../external/imgui/imgui_draw.cpp
@@ -57,7 +55,7 @@ if(VULKAN_OPTION)
 endif()
 
 if (OPENGL_OPTION)
-    set(SOURCSE ${SOURCES}
+    set(SOURCES ${SOURCES}
         backend/opengl/opengl.cpp
         backend/opengl/opengl-window.cpp
         backend/opengl/opengl-window-factory.cpp
