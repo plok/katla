@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(katla-ui-controls-wincontrol)
+project(katla-ui-components-wincontrol)
 
 include(../../cmake/cmake-common.txt)
 
@@ -7,7 +7,7 @@ find_package(UV)
 
 add_definitions(-DKATLA_WINDOW_MANAGEMENT_WINCONTROL_INDLL)
 
-set(target_name katla-ui-controls-wincontrol)
+set(target_name katla-ui-components-wincontrol)
 
 set(sources
     ../common/error.cpp

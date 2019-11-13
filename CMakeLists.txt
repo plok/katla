@@ -11,6 +11,7 @@ endif()
 option(SKIA_OPTION "enable use of skia" FALSE)
 
 option(GLFW_OPTION "enable use of glfw" TRUE)
+option(QT_OPTION "enable use of qt" FALSE)
 
 option(VULKAN_OPTION "enable use of vulkan" TRUE)
 option(OPENGL_OPTION "enable use of opengl" FALSE)
@@ -21,6 +22,13 @@ option(WAYLAND_OPTION "enable use of wayland" TRUE)
 add_subdirectory(app-kit)
 add_subdirectory(graphics)
 add_subdirectory(window-management)
+
+add_subdirectory(ui-components)
+
+if (QT_OPTION)
+    add_subdirectory(ui-components-qt)
+    add_subdirectory(test-apps/qt-ui-components-test)
+endif()
 
 if (GLFW_OPTION)
     add_subdirectory(window-management-client-glfw)
