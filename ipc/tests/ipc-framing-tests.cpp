@@ -90,13 +90,14 @@ void framingTestsParent(int fdIn, int fdOut) {
         }
 
         absl::Span<std::byte> span (buffer.data(), nbytes);
-        for (auto frame = adsf frameReader.read(span) ; frame ;) {
+        for (auto frame = frameReader.read(span) ; frame ;) {
             if (frame) {
                 nrOfReceivedFrames++;
                 std::cout << "Frame received!" << nrOfReceivedFrames << std::endl;
             }
             if (nrOfReceivedFrames == 2) {
                 done = true;
+                break;
             }
 
             auto timeoutElapsed = (getTimestamp() - startTime) > std::chrono::milliseconds(4000);
