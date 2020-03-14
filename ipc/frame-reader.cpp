@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 
-
+// TODO dont create vector, pass buffer as argument for efficiency
 std::optional<std::vector<std::byte> > FrameReader::read(absl::Span<std::byte> &data)
 {
     if (data.size())

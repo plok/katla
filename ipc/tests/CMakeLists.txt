@@ -27,6 +27,7 @@ target_include_directories(${target_name} PRIVATE
     ../
     ../../
     ../../external/abseil-cpp/
+    ../../external/outcome/
     ../../app-kit/
     ${LIBUV_INCLUDE_DIR}
     ${GTEST_INCLUDE_DIRS}

@@ -17,6 +17,7 @@ set(sources
     process-uv.cpp
 
     frame-reader.cpp
+    pipe.cpp
 
     flatbuffer/katla-ipc_generated.h
     )
@@ -26,6 +27,7 @@ add_library(${target_name} SHARED ${sources})
 target_include_directories(${target_name} PRIVATE
     .
     ..
+    ../external/outcome/
     ../external/abseil-cpp/
     ../app-kit/
     ${LIBUV_INCLUDE_DIR}

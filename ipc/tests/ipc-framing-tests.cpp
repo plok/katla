@@ -6,6 +6,7 @@
 
 #include "../messages.h"
 #include "../frame-reader.h"
+#include "../pipe.h"
 
 #include "gtest/gtest.h"
 
@@ -27,7 +28,7 @@ namespace katla {
 
 
 // Send two frames as stream from child to parent
-void framingTestsChild(int fdIn, int fdOut) {
+void framingTestsChild(Pipe& pipeWrite) {
     std::cout << "child: Starting.." << std::endl;
     auto message = std::make_shared<InitialFrame>();
     message->frameHeader.frameLength = sizeof(InitialFrame);
@@ -50,23 +51,27 @@ void framingTestsChild(int fdIn, int fdOut) {
 
     absl::Span<std::byte> sendSpan(sendBuffer);
 
-    std::function<void(absl::Span<std::byte>)> sendFunc = [fdOut](absl::Span<std::byte> frame) {
-        std::cout << write(fdOut, frame.data(), frame.size()) << std::endl;
+    std::function<void(absl::Span<std::byte>)> sendFunc = [&pipeWrite](absl::Span<std::byte> frame) {
+        auto result = pipeWrite.write(frame);
+        if (result) {
+            std::cout << "written bytes" << result << std::endl;
+
+            if (result.value() != static_cast<ssize_t>(frame.size())) {
+                std::cout << "warning: incomplete write!" << std::endl;
+            }
+        } else {
+            std::cout << "failed writing to pipe:" << result.error().message();
+        }
     };
 
     std::cout << "send!" << std::endl;
 
     sendFunc(sendSpan);
 
-    close(fdIn);
-    close(fdOut);
-
     std::cout << "child: closed.." << std::endl;
-
-    exit(EXIT_SUCCESS);
 }
 
-void framingTestsParent(int fdIn, int fdOut) {
+void framingTestsParent(Pipe& pipeRead) {
     std::cout << "parent: Starting.." << std::endl;
 
     const int BUFFER_SIZE = 100;
@@ -83,14 +88,14 @@ void framingTestsParent(int fdIn, int fdOut) {
 
     bool done = false;
     while(!done) {
-        ssize_t nbytes = read(fdIn, buffer.data(), buffer.size());
-
-        if (nbytes == -1) {
+        absl::Span<std::byte> bufferSpan (buffer.data(), buffer.size());
+        auto result = pipeRead.read(bufferSpan);
+        if (!result) {
             std::cerr << fmt::format("server: failed reading from pipe with error: {0}!", strerror(errno)) << std::endl;
         }
 
-        absl::Span<std::byte> span (buffer.data(), nbytes);
-        for (auto frame = frameReader.read(span) ; frame ;) {
+        absl::Span<std::byte> readSpan (buffer.data(), result.value());
+        for (auto frame = frameReader.read(readSpan) ; frame ;) {
             if (frame) {
                 nrOfReceivedFrames++;
                 std::cout << "Frame received!" << nrOfReceivedFrames << std::endl;
@@ -107,9 +112,6 @@ void framingTestsParent(int fdIn, int fdOut) {
 
     }
 
-    close(fdIn);
-    close(fdOut);
-
     std::cout << "parent: closed.." << std::endl;
 }
 
@@ -120,21 +122,15 @@ void framingTestsParent(int fdIn, int fdOut) {
  */
 TEST(KatlaIpcTests, IpcFramingTest) {
     
-    // TODO pipe class
-    int pipeInFd[2];
-    auto pipeInStatus = pipe(pipeInFd);
-    if (pipeInStatus == -1) {
-        auto pipeInErrno = errno;
-        EXPECT_NE(pipeInErrno, 0);
-        ASSERT_NE(pipeInStatus, -1);
-    }
+    Pipe pipeIn;
+    Pipe pipeOut;
 
-    int pipeOutFd[2];
-    auto pipeOutStatus = pipe(pipeOutFd);
-    if (pipeOutStatus == -1) {
-        auto pipeOutErrno = errno;
-        EXPECT_NE(pipeOutErrno, 0);
-        ASSERT_NE(pipeOutStatus, -1);
+    outcome::result<void> result = pipeIn.open();
+    ASSERT_TRUE(result) << result.error().message();
+
+    result = pipeOut.open();
+    if(!result) {
+        FAIL() << result.error().message();
     }
 
     auto forkResult = fork();
@@ -144,18 +140,39 @@ TEST(KatlaIpcTests, IpcFramingTest) {
 
     if (forkResult == 0) {
         // child
-        close(pipeInFd[1]);
-        close(pipeOutFd[0]);
-        framingTestsChild(pipeInFd[0], pipeOutFd[1]);
+        result = pipeIn.closeWrite();
+        ASSERT_TRUE(result) << result.error().message();
+
+        result = pipeOut.closeRead();
+        ASSERT_TRUE(result) << result.error().message();
+
+        framingTestsChild(pipeOut);
+
+        result = pipeIn.close();
+        ASSERT_TRUE(result) << result.error().message();
+
+        result = pipeOut.close();
+        ASSERT_TRUE(result) << result.error().message();
 
         exit(EXIT_SUCCESS);
     }
 
     // parent
-    close(pipeInFd[0]);
-    close(pipeOutFd[1]);
-    framingTestsParent(pipeOutFd[0], pipeInFd[1]);
+    result = pipeIn.closeRead();
+    ASSERT_TRUE(result) << result.error().message();
 
+    result = pipeIn.closeWrite();
+    ASSERT_TRUE(result) << result.error().message();
+
+    framingTestsParent(pipeOut);
+
+    result = pipeIn.close();
+    ASSERT_TRUE(result) << result.error().message();
+
+    result = pipeOut.close();
+    ASSERT_TRUE(result) << result.error().message();
+
+    exit(EXIT_SUCCESS);
 }
 
 }

@@ -1,3 +1,11 @@
+general:
+- namespaces
+- unhappy flow
+- remove iostream
+- cleanup cmake files includes
+- strategy for externals
+
+vulkan:
 - validation layer
 - assign score and select gpu devices
 - define katla options and create extension list based on that
