@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(freetype-test)
 
-set(CMAKE_CXX_STANDARD 17)
+include(../../cmake/cmake-common.txt)
 
 find_package(Freetype REQUIRED)
 find_package(TIFF REQUIRED)

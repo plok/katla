@@ -1,4 +1,4 @@
-#include "app-kit/core-application.h"
+#include "app-kit/core-application-uv.h"
 
 #include "compositor/wayland/client/wayland-display.h"
 
@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 
     std::cout << "Starting wayland-test-client with args: "; for(auto s : args) std::cout << s; std::cout << std::endl;
 
-    CoreApplication app;
+    UvCoreApplication app;
     auto appError = app.init();
     if (appError) {
         std::cout << appError->name << " " << appError->message << std::endl << std::flush;

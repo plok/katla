@@ -23,7 +23,7 @@ UvSignalHandler::~UvSignalHandler() {
 
 ErrorPtr UvSignalHandler::init()
 {
-    auto uvEventLoop = _eventLoop->uvEventLoop();
+    auto uvEventLoop = _eventLoop->handle();
     auto result = uv_signal_init(uvEventLoop, _signalHandler);
     if (result != 0) {
         return Error::create( uv_err_name(result), uv_strerror(result) );

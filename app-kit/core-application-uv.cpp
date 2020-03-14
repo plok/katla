@@ -1,4 +1,4 @@
-#include "core-application.h"
+#include "core-application-uv.h"
 
 #include "timer-uv.h"
 
@@ -7,15 +7,15 @@
 
 #include <iostream>
 
-CoreApplication::CoreApplication()
+UvCoreApplication::UvCoreApplication()
 {
     _eventLoop = std::make_shared<UvEventLoop>();
     _signalHandler = std::make_shared<UvSignalHandler>(_eventLoop);
 }
 
-CoreApplication::~CoreApplication() = default;
+UvCoreApplication::~UvCoreApplication() = default;
 
-ErrorPtr CoreApplication::init()
+ErrorPtr UvCoreApplication::init()
 {
     auto error = _eventLoop->init();
     if (error) {
@@ -35,18 +35,18 @@ ErrorPtr CoreApplication::init()
     return error;
 }
 
-ErrorPtr CoreApplication::run()
+ErrorPtr UvCoreApplication::run()
 {
     return _eventLoop->run();
 }
 
-ErrorPtr CoreApplication::close()
+ErrorPtr UvCoreApplication::close()
 {
     _signalHandler->stop();
     return _eventLoop->close();
 }
 
-std::shared_ptr<Timer> CoreApplication::createTimer()
+std::shared_ptr<Timer> UvCoreApplication::createTimer()
 {
     auto timer = std::make_shared<UvTimer>(_eventLoop);
     
@@ -55,7 +55,10 @@ std::shared_ptr<Timer> CoreApplication::createTimer()
     return timer;
 }
 
-std::shared_ptr<EventLoop> CoreApplication::eventLoop() {
+std::shared_ptr<EventLoop> UvCoreApplication::eventLoop() {
+    return _eventLoop;
+}
+std::shared_ptr<UvEventLoop> UvCoreApplication::uvEventLoop() {
     return _eventLoop;
 }
 

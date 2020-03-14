@@ -12,24 +12,18 @@
 
 #include <memory>
 
-class UvEventLoop;
-class UvSignalHandler;
-
 class KATLA_APPKIT_DECLSPEC CoreApplication {
 public:
-    CoreApplication();
-    virtual ~CoreApplication();
+    CoreApplication() = default;
+    virtual ~CoreApplication() = default;
 
-    ErrorPtr init();
-    ErrorPtr run();
-    ErrorPtr close();
+    virtual ErrorPtr init() = 0;
+    virtual ErrorPtr run() = 0;
+    virtual ErrorPtr close() = 0;
 
-    std::shared_ptr<Timer> createTimer();
+    virtual std::shared_ptr<Timer> createTimer() = 0;
 
-    std::shared_ptr<EventLoop> eventLoop();
-private:
-    std::shared_ptr<UvEventLoop> _eventLoop;
-    std::shared_ptr<UvSignalHandler> _signalHandler;
+    virtual std::shared_ptr<EventLoop> eventLoop() = 0;
 };
 
 #endif

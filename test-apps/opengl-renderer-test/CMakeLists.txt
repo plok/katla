@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(katla-opengl-test-renderer)
 
-set(CMAKE_CXX_STANDARD 17)
+include(../../cmake/cmake-common.txt)
 
 include(FindPkgConfig)
 pkg_check_modules(GL REQUIRED gl)

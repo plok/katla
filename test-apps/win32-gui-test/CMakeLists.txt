@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(win32-gui-test)
 
-set(CMAKE_CXX_STANDARD 17)
-
 include(../../cmake/cmake-common.txt)
 
 SET (EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/out)

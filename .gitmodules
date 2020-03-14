@@ -10,3 +10,6 @@
 [submodule "external/skia/depot_tools"]
 	path = external/skia/depot_tools
 	url = https://chromium.googlesource.com/chromium/tools/depot_tools.git
+[submodule "external/fmt"]
+	path = external/fmt
+	url = https://github.com/fmtlib/fmt.git

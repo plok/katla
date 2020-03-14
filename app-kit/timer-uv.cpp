@@ -16,7 +16,7 @@ UvTimer::~UvTimer() {
 
 void UvTimer::init()
 {
-    auto uvEventLoop = _eventLoop->uvEventLoop();
+    auto uvEventLoop = _eventLoop->handle();
     auto result = uv_timer_init(uvEventLoop, _timer);
     if (result != 0) {
         // TODO

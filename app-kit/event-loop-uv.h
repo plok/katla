@@ -19,7 +19,7 @@ public:
     ErrorPtr run();
     ErrorPtr close();
 
-    uv_loop_t* uvEventLoop() {
+    uv_loop_t* handle() {
         return _eventLoop;
     }
 private:

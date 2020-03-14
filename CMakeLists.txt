@@ -36,6 +36,11 @@ endif()
 
 add_subdirectory(gpu)
 
+add_subdirectory(ipc)
+add_subdirectory(ipc/tests)
+add_subdirectory(test-apps/ipc-test)
+
+
 if (NOT WIN32)
     if (SKIA_OPTION)
         add_subdirectory(external/skia/skia-cmake)

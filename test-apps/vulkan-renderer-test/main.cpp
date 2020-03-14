@@ -4,7 +4,7 @@
 #include "window-management/window-factory.h"
 #include "graphics/render-view.h"
 
-#include "app-kit/core-application.h"
+#include "app-kit/core-application-uv.h"
 
 #include "string.h"
 #include <iostream>
@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
         args.push_back(arg);
     }
 
-    CoreApplication app;
+    UvCoreApplication app;
     auto appError = app.init();
     if (appError) {
         std::cout << appError->name << " " << appError->message << std::endl << std::flush;

@@ -1,5 +1,5 @@
-#ifndef GUI_APPLICATION_H
-#define GUI_APPLICATION_H
+#ifndef GUI_KIT_H
+#define GUI_KIT_H
 
 #include "katla-guikit.h"
 

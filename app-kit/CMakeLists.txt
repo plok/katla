@@ -10,7 +10,7 @@ add_definitions(-DKATLA_APPKIT_INDLL)
 set(sources
     ../common/error.cpp
 
-    core-application.cpp
+    core-application-uv.cpp
     event-loop-uv.cpp
     timer-uv.cpp
     signal-handler-uv.cpp
