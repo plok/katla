@@ -27,7 +27,7 @@ ErrorPtr UvCoreApplication::init()
         return error;
     }
 
-    error = _signalHandler->start([=](Signal signal) {
+    error = _signalHandler->start([this](Signal signal) {
         std::cout << "Signal received: " << (int)signal << std::endl << std::flush;
         _eventLoop->close();
     });

@@ -11,6 +11,8 @@ endif()
 option(SKIA_OPTION "enable use of skia" FALSE)
 
 option(GLFW_OPTION "enable use of glfw" TRUE)
+
+option(GTK_OPTION "enable use of gtk" FALSE)
 option(QT_OPTION "enable use of qt" FALSE)
 
 option(VULKAN_OPTION "enable use of vulkan" TRUE)
@@ -24,6 +26,11 @@ add_subdirectory(graphics)
 add_subdirectory(window-management)
 
 add_subdirectory(ui-components)
+
+if (GTK_OPTION)
+    add_subdirectory(ui-components-gtk)
+    add_subdirectory(test-apps/gtk-ui-components-test)
+endif()
 
 if (QT_OPTION)
     add_subdirectory(ui-components-qt)
