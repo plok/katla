@@ -6,3 +6,7 @@ cmake_install.cmake
 CMakeFiles/
 Makefile
 .directory
+
+renderer/katla-renderer
+renderer/vulkan-test/build/
+renderer/skia-test/build/

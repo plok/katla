@@ -1,0 +1,79 @@
+namespace katla.ipc.fb;
+
+// TODO on which level qos-handshaking?
+
+enum MessageType:short {
+    InvalidMessageType = 0,
+    NotificationMessageType,
+    NotificationAckMessageType,
+    RequestMessageType,
+    RequestResponseMessageType
+    }
+
+enum NotificationType:short {
+    InvalidNotificationType = 0,
+    HeartBeatNotificationType,
+    EventNotificationType
+    }
+
+enum NotificationAckType:short {
+    InvalidNotificationAckType = 0,
+    EventNotificationAckType
+    }
+
+enum RequestType:short {
+    InvalidRequestType = 0,
+    QueryRequestType,
+    CommandRequestType
+    }
+
+enum RequestResponseType:short {
+    InvalidRequestResponseType = 0,
+    QueryRequestResponseType,
+    CommandRequestResponseType
+    }
+
+enum WireFormat: short { FlatBuffer, Json }
+
+union MessageBody {
+    Notification,
+    NotificationAck,
+    Request,
+    RequestResponse }
+
+table Message {
+  source: int;
+  destination: int;
+  message: MessageBody;
+}
+
+type MessageBuffer {
+    messages: [Message]
+}
+root_type Message;
+
+table Notification {
+    id: int;
+    dispatcher_id: int;
+    bytes: [ubyte];
+}
+
+table NotificationAck {
+    id: int;
+    dispatcher_id: int;
+}
+
+table Request {
+    id: int;
+    dispatcher_id: int;
+    format: short;
+    body: [ubyte];
+}
+
+table RequestResponse {
+    id: int;
+    dispatcher_id: int;
+    format: short;
+    body: [ubyte];
+}
+
