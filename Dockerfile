@@ -1,8 +1,7 @@
 # Container image that runs your code
 FROM archlinux:latest
 
-RUN pacman -Sy --noconfirm ca-certificates-mozilla  && pacman -Sy --noconfirm base-devel cmake
-
+RUN pacman -Sy --noconfirm ca-certificates-mozilla  && pacman -Sy --noconfirm base-devel cmake fmt
 
 COPY . .
 
