@@ -18,6 +18,8 @@
 
 #include "fmt/format.h"
 
+#include <asm-generic/errno.h>
+#include <sys/poll.h>
 #include <vector>
 
 #include <unistd.h>
@@ -26,6 +28,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/un.h>
 #include <linux/if_packet.h>
 #include <linux/if_ether.h>
 
@@ -34,23 +37,24 @@
 
 #include <arpa/inet.h>
 
+#include <poll.h>
+
 namespace katla {
 
 PosixSocket::PosixSocket(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking) :
     _protocolDomain(protocolDomain),
     _type(type),
     _frameType(frameType),
-    _nonBlocking(nonBlocking),
-    _fd(-1)
+    _nonBlocking(nonBlocking)
 {
 }
 
 PosixSocket::PosixSocket(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking, int fd) :
+        _fd(fd),
         _protocolDomain(protocolDomain),
         _type(type),
         _frameType(frameType),
-        _nonBlocking(nonBlocking),
-        _fd(fd)
+        _nonBlocking(nonBlocking)
 {
 }
 
@@ -118,56 +122,126 @@ int PosixSocket::mapType(Type type) {
     return -1;
 }
 
-outcome::result<void> PosixSocket::open(int protocol)
+outcome::result<void> PosixSocket::bind(std::string url)
 {
-    int domain = mapProtocolDomain(_protocolDomain);
-    if (domain == -1) {
-        return make_error_code(PosixErrorCodes::InvalidDomain);
-    }
+    if (_protocolDomain == ProtocolDomain::Packet && _type == Type::Raw) {
+        auto result = create();
+        if (!result) {
+            return result.error();
+        }
 
-    int mappedType = mapType(_type);
-    if (mappedType == -1) {
-        return make_error_code(PosixErrorCodes::InvalidType);
-    }
+        auto nameToIndexResult = if_nametoindex(url.c_str());
+        if (nameToIndexResult == 0) {
+            fmt::print(stderr, "Failed finding adapter: {}: {}\n", nameToIndexResult, url);
+            return std::make_error_code(static_cast<std::errc>(errno));
+        }
 
-    if (_nonBlocking) {
-        mappedType |= SOCK_NONBLOCK;
-    }
+        sockaddr_ll destAddress = {};
+        destAddress.sll_family = AF_PACKET;
+        destAddress.sll_protocol = ::htons( static_cast<uint16_t> (_frameType));
+        destAddress.sll_ifindex = static_cast<int>(nameToIndexResult);
+        destAddress.sll_pkttype = PACKET_MULTICAST;
 
-    uint16_t nsFrameType = ::htons( static_cast<uint16_t> (_frameType) );
+        auto bindResult = ::bind(_fd, reinterpret_cast<sockaddr*>(&destAddress), sizeof(destAddress));
+        if (bindResult == -1) {
+            fmt::print(stderr, "Failed binding adapter: {}: {}\n", nameToIndexResult, url);
+            return std::make_error_code(static_cast<std::errc>(errno));
+        }
 
-    fmt::print("{} {}\n", _frameType, nsFrameType);
-    fflush(stdout);
+        _url = url;
 
-    _fd = socket(domain, mappedType, nsFrameType);
-    if (_fd == -1) {
-        return std::make_error_code(static_cast<std::errc>(errno));
-    }
+        struct packet_mreq mreq = {};
+        mreq.mr_ifindex = static_cast<int>(nameToIndexResult);
+        mreq.mr_type = PACKET_MR_PROMISC;
+        if (setsockopt(_fd, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) == -1) {
+            fmt::print(stderr, "Failed setting socket options on: {}: {}\n", nameToIndexResult, url);
+            return std::make_error_code(static_cast<std::errc>(errno));
+        }
+    } else if (_protocolDomain == ProtocolDomain::Unix) {
+        auto result = create();
+        if (!result) {
+            return result.error();
+        }
 
-    sockaddr_ll destAddress = {};
-    destAddress.sll_family = AF_PACKET;
-    destAddress.sll_protocol = ::htons( static_cast<uint16_t> (_frameType));
-    destAddress.sll_ifindex = 2; // virbr0 // TODO make configurable
-    destAddress.sll_pkttype = PACKET_MULTICAST;
+        if (url.length() >= 108) {
+            return make_error_code(PosixErrorCodes::UnixSocketPathTooLong);
+        }
 
-    auto bindResult = ::bind(_fd, reinterpret_cast<sockaddr*>(&destAddress), sizeof(destAddress));
-    if (bindResult == -1) {
-        fmt::print("failed bind!");
-        return std::make_error_code(static_cast<std::errc>(errno));
-    }
+        sockaddr_un bindAddress = {};
+        bindAddress.sun_family = AF_UNIX;
+        strncpy(bindAddress.sun_path, url.c_str(), url.length() + 1);
 
-    struct packet_mreq mreq = {0};
-    mreq.mr_ifindex = 2;
-    mreq.mr_type = PACKET_MR_PROMISC;
-    if (setsockopt(_fd, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) == -1) {
-        perror("setsockopt");
-        exit(1);
+        auto bindResult = ::bind(_fd, reinterpret_cast<sockaddr*>(&bindAddress), sizeof(bindAddress));
+        if (bindResult == -1) {
+            fmt::print(stderr, "Failed binding to path: {}\n", url);
+            return std::make_error_code(static_cast<std::errc>(errno));
+        }
+    } else {
+        return make_error_code(PosixErrorCodes::OperationNotSupported);
     }
 
     return outcome::success();
 }
 
-outcome::result<ssize_t> PosixSocket::read(const absl::Span<std::byte>& buffer)
+outcome::result<void> PosixSocket::connect(std::string url)
+{
+    if (_protocolDomain == ProtocolDomain::Unix) {
+        auto result = create();
+        if (!result) {
+            return result.error();
+        }
+
+        if (url.length() >= 108) {
+            return make_error_code(PosixErrorCodes::UnixSocketPathTooLong);
+        }
+
+        sockaddr_un bindAddress = {};
+        bindAddress.sun_family = AF_UNIX;
+        strncpy(bindAddress.sun_path, url.c_str(), url.length() + 1);
+
+        auto connectResult = ::connect(_fd, reinterpret_cast<sockaddr*>(&bindAddress), sizeof(bindAddress));
+        if (connectResult == -1) {
+            fmt::print(stderr, "Failed connecting to path: {}\n", url);
+            return std::make_error_code(static_cast<std::errc>(errno));
+        }
+    } else {
+        return make_error_code(PosixErrorCodes::OperationNotSupported);
+    }
+
+    return outcome::success();
+}
+
+outcome::result<PosixSocket::WaitResult> PosixSocket::poll(std::chrono::milliseconds timeout, bool writePending)
+{
+    pollfd pollDescriptor {
+        _fd,
+        POLLIN | POLLPRI | POLLRDHUP,
+        0
+    };
+
+    // If we have bytes to send we want to return early to send our bytes
+    if (writePending) {
+        pollDescriptor.events |= POLLOUT;
+    }
+
+    auto result = ::poll(&pollDescriptor, 1, static_cast<int>(timeout.count()));
+    if (result == -1) {
+        return std::make_error_code(static_cast<std::errc>(errno));
+    }
+
+    WaitResult waitResult;
+    waitResult.dataToRead = (pollDescriptor.revents & POLLIN) || (pollDescriptor.revents & POLLPRI);
+    waitResult.urgentDataToRead = (pollDescriptor.revents & POLLPRI);
+    waitResult.writingWillNotBlock = (pollDescriptor.revents & POLLOUT);
+    waitResult.readHangup = (pollDescriptor.revents & POLLRDHUP);
+    waitResult.writeHangup = (pollDescriptor.revents & POLLHUP);
+    waitResult.error = (pollDescriptor.revents & POLLERR);
+    waitResult.invalid = (pollDescriptor.revents & POLLNVAL);
+
+    return waitResult;
+}
+
+outcome::result<size_t> PosixSocket::read(const absl::Span<std::byte>& buffer)
 {
     sockaddr_ll destAddress = {};
     destAddress.sll_family = AF_PACKET;
@@ -175,16 +249,26 @@ outcome::result<ssize_t> PosixSocket::read(const absl::Span<std::byte>& buffer)
     destAddress.sll_ifindex = 2; // virbr0 // TODO make configurable
     destAddress.sll_pkttype = PACKET_MULTICAST;
 
-    ssize_t nbytes = ::recvfrom(_fd, buffer.data(), buffer.size(), 0, nullptr, nullptr);
+    int flags = 0;
+    if (_nonBlocking) {
+        flags |= MSG_DONTWAIT;
+    }
 
+    ssize_t nbytes = ::recvfrom(_fd, buffer.data(), buffer.size(), flags, nullptr, nullptr);
     if (nbytes == -1) {
-        return std::make_error_code(static_cast<std::errc>(errno));
+        bool wouldBlock = false;
+        if (_nonBlocking && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+            // TODO TEST??
+            nbytes = 0;
+        } else {
+            return std::make_error_code(static_cast<std::errc>(errno));
+        }
     }
 
     return nbytes;
 }
 
-outcome::result<ssize_t> PosixSocket::write(const absl::Span<std::byte>& buffer)
+outcome::result<size_t> PosixSocket::write(const absl::Span<std::byte>& buffer)
 {
     ssize_t nbytes = ::write(_fd, buffer.data(), buffer.size());
 
@@ -195,7 +279,7 @@ outcome::result<ssize_t> PosixSocket::write(const absl::Span<std::byte>& buffer)
     return nbytes;
 }
 
-outcome::result<ssize_t> PosixSocket::sendto(const absl::Span<std::byte>& buffer)
+outcome::result<size_t> PosixSocket::sendto(const absl::Span<std::byte>& buffer)
 {
     sockaddr_ll destAddress = {};
     destAddress.sll_family = AF_PACKET;
@@ -215,8 +299,6 @@ outcome::result<ssize_t> PosixSocket::sendto(const absl::Span<std::byte>& buffer
     return nbytes;
 }
 
-
-
 outcome::result<void> PosixSocket::close()
 {
     if (_fd == -1) {
@@ -232,5 +314,37 @@ outcome::result<void> PosixSocket::close()
 
     return outcome::success();
 }
+
+outcome::result<void> PosixSocket::create()
+{
+    int domain = mapProtocolDomain(_protocolDomain);
+    if (domain == -1) {
+        return make_error_code(PosixErrorCodes::InvalidDomain);
+    }
+
+    int mappedType = mapType(_type);
+    if (mappedType == -1) {
+        return make_error_code(PosixErrorCodes::InvalidType);
+    }
+
+    if (_nonBlocking) {
+        mappedType |= SOCK_NONBLOCK;
+    }
+
+    // Only set frame/protocol type for RAW sockets for now
+    uint16_t frameType = 0;
+    if (_type == Type::Raw) {
+        frameType = static_cast<uint16_t> ( ::htons( frameType ));
+    }
+
+    _fd = socket(domain, mappedType, frameType);
+    if (_fd == -1) {
+        // TODO check root access
+        return std::make_error_code(static_cast<std::errc>(errno));
+    }
+
+    return outcome::success();
+}
+
 
 }

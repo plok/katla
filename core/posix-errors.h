@@ -24,8 +24,10 @@
 namespace katla {
 
     enum class PosixErrorCodes {
-        InvalidDomain = 1,
-        InvalidType = 2
+        InvalidDomain,
+        InvalidType,
+        OperationNotSupported,
+        UnixSocketPathTooLong
     };
 
     // Define a custom error code category derived from std::error_category
