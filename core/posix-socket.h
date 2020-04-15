@@ -28,6 +28,7 @@
 #include <optional>
 #include <system_error>
 
+#include <chrono>
 #include <string>
 
 namespace outcome = OUTCOME_V2_NAMESPACE;
@@ -40,21 +41,37 @@ public:
     enum class Type { Stream, Datagram, SequencedPacket, Raw};
     enum class FrameType : uint16_t { All = ETH_P_ALL, EtherCat = 0x88a4 };
 
+    struct WaitResult {
+        bool dataToRead {0};
+        bool urgentDataToRead {0};
+        bool writingWillNotBlock {0};
+        bool readHangup {0};
+        bool writeHangup {0};
+        bool error {0};      
+        bool invalid {0};
+    };
+
     PosixSocket(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking);
     PosixSocket(const PosixSocket&) = delete;
     ~PosixSocket();
 
     static outcome::result<std::array<std::shared_ptr<PosixSocket>, 2>> createUnnamedPair(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking);
 
-    outcome::result<void> open(int protocol = 0);
+    outcome::result<void> bind(std::string url);
+    outcome::result<void> connect(std::string url);
 
-    outcome::result<ssize_t> read(const absl::Span<std::byte>& buffer);
-    outcome::result<ssize_t> write(const absl::Span<std::byte>& buffer);
+    // TODO add wakeup to interrupt wait -> multithreading??
+    outcome::result<WaitResult> poll(std::chrono::milliseconds timeout, bool writePending);
 
-    outcome::result<ssize_t> sendto(const absl::Span<std::byte>& buffer);
+    outcome::result<size_t> read(const absl::Span<std::byte>& buffer);
+    outcome::result<size_t> write(const absl::Span<std::byte>& buffer);
+
+    outcome::result<size_t> sendto(const absl::Span<std::byte>& buffer);
 
     outcome::result<void> close();
 private:
+    outcome::result<void> create();
+
     PosixSocket & operator=(const PosixSocket&) = delete;
 
     PosixSocket(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking, int fd);
@@ -62,13 +79,15 @@ private:
     static int mapProtocolDomain (ProtocolDomain protocolDomain);
     static int mapType (Type type);
 
-    int _fd;
+    int _fd {-1};
 
     ProtocolDomain _protocolDomain;
     Type _type;
     FrameType _frameType;
 
-    bool _nonBlocking;
+    std::string _url;
+
+    bool _nonBlocking {false};
 };
 
 }

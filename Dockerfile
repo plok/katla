@@ -1,12 +1,15 @@
 # Container image that runs your code
 FROM archlinux:latest
 
-RUN pacman -Sy --noconfirm ca-certificates-mozilla  && pacman -Sy --noconfirm base-devel cmake fmt
+RUN pacman -Syu --noconfirm ca-certificates-mozilla  && pacman -Syu --noconfirm base-devel cmake fmt libffi gtest
 
-COPY . .
+run mkdir -p /root/katla
+COPY . /root/katla/
 
-run mkdir build
-WORKDIR build
+run rm -Rf /root/katla/build
+run mkdir -p /root/katla/build
+WORKDIR /root/katla/build
+
 run cmake ..
 run make
 

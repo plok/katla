@@ -22,6 +22,10 @@ std::string katla::PosixErrorCategory::message(int c) const {
             return "Invalid protocol domain";
         case PosixErrorCodes::InvalidType:
             return "Invalid protocol type";
+        case PosixErrorCodes::OperationNotSupported:
+            return "Operation not supported";
+        case PosixErrorCodes::UnixSocketPathTooLong:
+            return "UnixSocket path too long";
     }
 
     return "unknown";
@@ -33,6 +37,10 @@ std::error_condition katla::PosixErrorCategory::default_error_condition(int c) c
         case PosixErrorCodes::InvalidDomain:
             return make_error_condition(std::errc::invalid_argument);
         case PosixErrorCodes::InvalidType:
+            return make_error_condition(std::errc::invalid_argument);
+        case PosixErrorCodes::OperationNotSupported:
+            return make_error_condition(std::errc::operation_not_supported);
+        case PosixErrorCodes::UnixSocketPathTooLong:
             return make_error_condition(std::errc::invalid_argument);
     }
 
