@@ -6,7 +6,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/cmake-common.txt)
 enable_testing()
 include(GoogleTest)
 
-find_package(GTest)
+enable_testing()
 
 set(target_name katla-core-tests)
 

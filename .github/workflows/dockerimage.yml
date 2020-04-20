@@ -17,4 +17,4 @@ jobs:
       with:
         submodules: 'true'
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag katla-builder$(date +%s)
+      run: docker build . --file Dockerfile-ubuntu-1804 --tag katla-builder$(date +%s)
