@@ -1,0 +1,16 @@
+# Container image that runs your code
+FROM ubuntu:18.04
+
+RUN apt-get update && apt-get install -y build-essential openssh-client git ninja-build cmake g++-8 libfmt-dev googletest libgtest-dev
+
+run mkdir -p /root/katla
+COPY . /root/katla/
+
+run rm -Rf /root/katla/build
+run mkdir -p /root/katla/build
+WORKDIR /root/katla/build
+
+run GTEST_ROOT=/usr/src/gtest cmake ..
+run make
+
+# Code file to execute when the docker container starts up (`entrypoint.sh`)

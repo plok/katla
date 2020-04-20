@@ -4,8 +4,9 @@ project(katla-core-tests)
 include(${CMAKE_SOURCE_DIR}/cmake/cmake-common.txt)
 
 enable_testing()
+include(GoogleTest)
 
-find_package(GTest)
+enable_testing()
 
 set(target_name katla-core-tests)
 
@@ -23,6 +24,6 @@ target_include_directories(${target_name} PRIVATE
     ${GTEST_INCLUDE_DIRS}
     )
 
-target_link_libraries(${target_name} GTest::GTest GTest::Main katla-core fmt)
+target_link_libraries(${target_name} gtest gtest_main katla-core fmt)
 
 gtest_discover_tests(${target_name})
