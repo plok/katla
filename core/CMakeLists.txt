@@ -13,9 +13,19 @@ add_definitions(-DKATLA_CORE_INDLL)
 
 set(sources
     posix-errors.cpp
+    posix-errors.h
+
     posix-pipe.cpp
+    posix-pipe.h
+
     posix-socket.cpp
+    posix-socket.h
+    
     posix-file.cpp
+    posix-file.h
+
+    stopwatch.cpp
+    stopwatch.h
     )
 
 add_library(${target_name} SHARED ${sources})
