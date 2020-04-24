@@ -9,12 +9,12 @@ void Stopwatch::start (void)
     m_startTime = std::chrono::steady_clock::now();
 }
 
-long long Stopwatch::msecsElapsed (void)
+long long Stopwatch::msecsElapsed (void) const
 {   
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_startTime).count();
 }
 
-long long Stopwatch::usecsElapsed (void)
+long long Stopwatch::usecsElapsed (void) const
 {
     return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - m_startTime).count();
 }
