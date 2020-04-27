@@ -45,11 +45,14 @@ namespace katla {
         PosixFile();
         ~PosixFile();
 
-        outcome::result<void> open(std::string_view filePath, OpenFlags flags, uint32_t mode);
+        outcome::result<void> create(std::string_view filePath, uint32_t mode);
+        outcome::result<void> open(std::string_view filePath, OpenFlags flags);
         outcome::result<void> close();
 
         outcome::result<ssize_t> read(gsl::span<std::byte> &buffer);
         outcome::result<ssize_t> write(gsl::span<std::byte> &buffer);
+
+        outcome::result<size_t> size();
 
     private:
         int m_fd;
