@@ -241,7 +241,7 @@ outcome::result<PosixSocket::WaitResult> PosixSocket::poll(std::chrono::millisec
     return waitResult;
 }
 
-outcome::result<size_t> PosixSocket::read(const absl::Span<std::byte>& buffer)
+outcome::result<ssize_t> PosixSocket::read(const gsl::span<std::byte>& buffer)
 {
     sockaddr_ll destAddress = {};
     destAddress.sll_family = AF_PACKET;
@@ -268,7 +268,7 @@ outcome::result<size_t> PosixSocket::read(const absl::Span<std::byte>& buffer)
     return nbytes;
 }
 
-outcome::result<size_t> PosixSocket::write(const absl::Span<std::byte>& buffer)
+outcome::result<ssize_t> PosixSocket::write(const gsl::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::write(_fd, buffer.data(), buffer.size());
 
@@ -279,7 +279,7 @@ outcome::result<size_t> PosixSocket::write(const absl::Span<std::byte>& buffer)
     return nbytes;
 }
 
-outcome::result<size_t> PosixSocket::sendto(const absl::Span<std::byte>& buffer)
+outcome::result<ssize_t> PosixSocket::sendto(const gsl::span<std::byte>& buffer)
 {
     sockaddr_ll destAddress = {};
     destAddress.sll_family = AF_PACKET;

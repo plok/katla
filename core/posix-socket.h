@@ -19,8 +19,9 @@
 
 #include "posix-errors.h"
 
-#include "absl/types/span.h"
-#include "outcome.hpp"
+#include "katla/core/core.h"
+
+#include <gsl/span>
 
 #include <net/ethernet.h>
 
@@ -63,10 +64,10 @@ public:
     // TODO add wakeup to interrupt wait -> multithreading??
     outcome::result<WaitResult> poll(std::chrono::milliseconds timeout, bool writePending);
 
-    outcome::result<size_t> read(const absl::Span<std::byte>& buffer);
-    outcome::result<size_t> write(const absl::Span<std::byte>& buffer);
+    outcome::result<ssize_t> read(const gsl::span<std::byte>& buffer);
+    outcome::result<ssize_t> write(const gsl::span<std::byte>& buffer);
 
-    outcome::result<size_t> sendto(const absl::Span<std::byte>& buffer);
+    outcome::result<ssize_t> sendto(const gsl::span<std::byte>& buffer);
 
     outcome::result<void> close();
 private:
