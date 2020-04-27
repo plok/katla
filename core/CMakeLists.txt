@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(katla-core)
 
-include(${CMAKE_SOURCE_DIR}/cmake/cmake-common.txt)
+include(${PROJECT_SOURCE_DIR}/../cmake/cmake-common.txt)
 
 find_package(Threads REQUIRED)
 find_package(Absl REQUIRED)
