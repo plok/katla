@@ -61,7 +61,7 @@ outcome::result<void> PosixFile::close()
     return outcome::success();
 }
 
-outcome::result<ssize_t> PosixFile::read(absl::Span<std::byte>& buffer)
+outcome::result<ssize_t> PosixFile::read(gsl::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::read(m_fd, buffer.data(), buffer.size());
 
@@ -72,7 +72,7 @@ outcome::result<ssize_t> PosixFile::read(absl::Span<std::byte>& buffer)
     return nbytes;
 }
 
-outcome::result<ssize_t> PosixFile::write(absl::Span<std::byte>& buffer)
+outcome::result<ssize_t> PosixFile::write(gsl::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::write(m_fd, buffer.data(), buffer.size());
 

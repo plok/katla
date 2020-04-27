@@ -14,36 +14,33 @@
  * limitations under the License.
  */
 
-#ifndef KATLA_PIPE_H
-#define KATLA_PIPE_H
+#ifndef KATLA_CORE_H
+#define KATLA_CORE_H
 
-#include "katla/core/core.h"
+#include "outcome/outcome.hpp"
+namespace outcome = OUTCOME_V2_NAMESPACE;
+
+#include "fmt/format.h"
 
 #include <gsl/span>
 
-#include <optional>
-
-namespace outcome = OUTCOME_V2_NAMESPACE;
-
 namespace katla {
 
-class PosixPipe {
-public:
-    PosixPipe();
-    ~PosixPipe();
+    template<class T, std::size_t Extent>
+    using span = gsl::span<T, Extent>;
 
-    outcome::result<void> open();
+    /****
+     * Declare format and print here for convenience
+     */
+    template <typename S, typename... Args>
+    inline std::string format(const S& format_str, Args&&... args) {
+        return fmt::format(format_str, args...);
+    }
 
-    outcome::result<ssize_t> read(gsl::span<std::byte>& buffer);
-    outcome::result<ssize_t> write(gsl::span<std::byte>& buffer);
-
-    outcome::result<void> close();
-    outcome::result<void> closeRead();
-    outcome::result<void> closeWrite();
-private:
-    int _fd[2];
-};
-
+    template <typename S, typename... Args>
+    inline void print(std::FILE* f, const S& format_str, Args&&... args) {
+        fmt::print(f, format_str, args...);
+    }
 }
 
-#endif // KATLA_PIPE_H
+#endif // KATLA_CORE_H

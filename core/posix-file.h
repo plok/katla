@@ -17,15 +17,12 @@
 #ifndef KATLA_POSIX_FILE_H
 #define KATLA_POSIX_FILE_H
 
-#include "absl/types/span.h"
-
-#include "outcome.hpp"
+#include "katla/core/core.h"
 
 #include <optional>
+#include <gsl/span>
 
 #include <fcntl.h>
-
-namespace outcome = OUTCOME_V2_NAMESPACE;
 
 namespace katla {
 
@@ -51,8 +48,8 @@ namespace katla {
         outcome::result<void> open(std::string_view filePath, OpenFlags flags, uint32_t mode);
         outcome::result<void> close();
 
-        outcome::result<ssize_t> read(absl::Span<std::byte> &buffer);
-        outcome::result<ssize_t> write(absl::Span<std::byte> &buffer);
+        outcome::result<ssize_t> read(gsl::span<std::byte> &buffer);
+        outcome::result<ssize_t> write(gsl::span<std::byte> &buffer);
 
     private:
         int m_fd;

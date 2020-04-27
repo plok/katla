@@ -50,7 +50,7 @@ outcome::result<void> PosixPipe::open()
     return outcome::success();
 }
 
-outcome::result<ssize_t> PosixPipe::read(absl::Span<std::byte>& buffer)
+outcome::result<ssize_t> PosixPipe::read(gsl::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::read(_fd[0], buffer.data(), buffer.size());
 
@@ -61,7 +61,7 @@ outcome::result<ssize_t> PosixPipe::read(absl::Span<std::byte>& buffer)
     return nbytes;
 }
 
-outcome::result<ssize_t> PosixPipe::write(absl::Span<std::byte>& buffer)
+outcome::result<ssize_t> PosixPipe::write(gsl::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::write(_fd[1], buffer.data(), buffer.size());
 
