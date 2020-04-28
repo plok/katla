@@ -15,8 +15,14 @@ namespace katla
         long long msecsElapsed (void) const;
         long long usecsElapsed (void) const;
 
+        std::chrono::time_point<std::chrono::steady_clock> steadyStartTime();
+        std::chrono::time_point<std::chrono::system_clock> systemStartTime();
+
     private:
-        std::chrono::time_point<std::chrono::steady_clock> m_startTime;
+        bool m_isStarted {0};
+
+        std::chrono::time_point<std::chrono::steady_clock> m_steadyStartTime {};
+        std::chrono::time_point<std::chrono::system_clock> m_systemStartTime {};
     };
 }
 

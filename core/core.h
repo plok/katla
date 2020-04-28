@@ -24,6 +24,10 @@ namespace outcome = OUTCOME_V2_NAMESPACE;
 
 #include <gsl/span>
 
+#include <cstdio>
+#include <cstdlib>
+#include <string_view>
+
 namespace katla {
 
     template<class T, std::size_t Extent>
@@ -40,6 +44,11 @@ namespace katla {
     template <typename S, typename... Args>
     inline void print(std::FILE* f, const S& format_str, Args&&... args) {
         fmt::print(f, format_str, args...);
+    }
+
+    inline void fatal(const std::string_view& message) {
+        print(stderr, "{}", message);
+        std::abort();
     }
 }
 
