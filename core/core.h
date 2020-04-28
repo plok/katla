@@ -46,7 +46,8 @@ namespace katla {
         fmt::print(f, format_str, args...);
     }
 
-    inline void fatal(const std::string_view& message) {
+    template <typename S>
+    inline void fatal(const S& message) {
         print(stderr, "{}", message);
         std::abort();
     }
