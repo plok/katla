@@ -138,7 +138,7 @@ outcome::result<void> PosixSocket::bind(std::string url)
 
         sockaddr_ll destAddress = {};
         destAddress.sll_family = AF_PACKET;
-        destAddress.sll_protocol = ::htons( static_cast<uint16_t> (_frameType));
+        destAddress.sll_protocol = htons( static_cast<uint16_t> (_frameType));
         destAddress.sll_ifindex = static_cast<int>(nameToIndexResult);
         destAddress.sll_pkttype = PACKET_MULTICAST;
 
@@ -245,7 +245,7 @@ outcome::result<ssize_t> PosixSocket::read(const gsl::span<std::byte>& buffer)
 {
     sockaddr_ll destAddress = {};
     destAddress.sll_family = AF_PACKET;
-    destAddress.sll_protocol = ::htons( static_cast<uint16_t> (_frameType));
+    destAddress.sll_protocol = htons( static_cast<uint16_t> (_frameType));
     destAddress.sll_ifindex = 2; // virbr0 // TODO make configurable
     destAddress.sll_pkttype = PACKET_MULTICAST;
 
@@ -283,7 +283,7 @@ outcome::result<ssize_t> PosixSocket::sendto(const gsl::span<std::byte>& buffer)
 {
     sockaddr_ll destAddress = {};
     destAddress.sll_family = AF_PACKET;
-    destAddress.sll_protocol = ::htons( static_cast<uint16_t> (_frameType));
+    destAddress.sll_protocol = htons( static_cast<uint16_t> (_frameType));
     destAddress.sll_ifindex = 2; // virbr0 // TODO make configurable
 
     std::array<uint8_t, 8> addr = {1,1,5,4,0,0};
@@ -334,7 +334,7 @@ outcome::result<void> PosixSocket::create()
     // Only set frame/protocol type for RAW sockets for now
     uint16_t frameType = 0;
     if (_type == Type::Raw) {
-        frameType = static_cast<uint16_t> ( ::htons( frameType ));
+        frameType = static_cast<uint16_t> ( htons( frameType ));
     }
 
     _fd = socket(domain, mappedType, frameType);
