@@ -13,6 +13,11 @@ add_definitions(-DKATLA_CORE_INDLL)
 set(sources
     core.h
 
+    error.cpp
+    error.h
+
+    core-errors.cpp
+    core-errors.h
     posix-errors.cpp
     posix-errors.h
 

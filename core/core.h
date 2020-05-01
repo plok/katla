@@ -49,6 +49,7 @@ namespace katla {
     template <typename S>
     inline void fatal(const S& message) {
         print(stderr, "{}", message);
+        fflush(stderr);
         std::abort();
     }
 }
