@@ -11,7 +11,7 @@ find_library(UV_LIBRARY NAMES uv HINTS ${LIBUV_LIBRARY_DIR})
 include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set LIBXML2_FOUND to TRUE
 # if all listed variables are TRUE
-find_package_handle_standard_args(libuv DEFAULT_MSG
+find_package_handle_standard_args(Uv DEFAULT_MSG
     UV_LIBRARY LIBUV_INCLUDE_DIR)
 
 mark_as_advanced(LIBUV_INCLUDE_DIR LIBUV_LIBRARY_DIR )
