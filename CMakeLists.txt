@@ -9,3 +9,4 @@ add_subdirectory(external/googletest)
 
 add_subdirectory(core)
 add_subdirectory(core/unit-tests)
+add_subdirectory(core-uv)
