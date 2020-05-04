@@ -16,28 +16,60 @@ void Stopwatch::start (void)
     m_isStarted = true;
 }
 
-long long Stopwatch::msecsElapsed (void) const
-{   
-    assert(m_isStarted);
-
-    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_steadyStartTime).count();
-}
-
-long long Stopwatch::usecsElapsed (void) const
+void Stopwatch::stop()
 {
-    assert(m_isStarted);
+    assert (m_isStarted);
 
-    auto result = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - m_steadyStartTime).count();
+    m_steadyStopTime = std::chrono::steady_clock::now();
+    m_systemStopTime = std::chrono::system_clock::now();
 
-    return result;
+    m_isStarted = false;
+
+    m_totalElapsed += m_steadyStopTime - m_steadyStartTime;
 }
 
-std::chrono::time_point<std::chrono::steady_clock> Stopwatch::steadyStartTime()
+void Stopwatch::reset()
+{
+    m_isStarted = false;
+    m_totalElapsed = {};
+}
+
+int64_t Stopwatch::msecsElapsed (void) const
+{   
+    auto stopTime = m_steadyStopTime;
+    if (m_isStarted) {
+        stopTime = std::chrono::steady_clock::now();
+    }
+
+    return std::chrono::duration_cast<std::chrono::milliseconds>(stopTime - m_steadyStartTime).count();
+}
+
+int64_t Stopwatch::usecsElapsed (void) const
+{
+    auto stopTime = m_steadyStopTime;
+    if (m_isStarted) {
+        stopTime = std::chrono::steady_clock::now();
+    }
+
+    return std::chrono::duration_cast<std::chrono::microseconds>(stopTime - m_steadyStartTime).count();
+}
+
+int64_t Stopwatch::nsecsElapsed() const
+{
+    auto stopTime = m_steadyStopTime;
+    if (m_isStarted) {
+        stopTime = std::chrono::steady_clock::now();
+    }
+
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(stopTime - m_steadyStartTime).count();
+}
+
+Stopwatch::SteadyTimePoint Stopwatch::steadyStartTime()
 {
     return m_steadyStartTime;
 }
 
-std::chrono::time_point<std::chrono::system_clock> Stopwatch::systemStartTime()
+Stopwatch::SystemTimePoint Stopwatch::systemStartTime()
 {
     return m_systemStartTime;
 }
