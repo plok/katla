@@ -22,22 +22,38 @@ namespace katla
 {   
     class Stopwatch
     {
+        using SteadyTimePoint = std::chrono::time_point<std::chrono::steady_clock>;
+        using SystemTimePoint = std::chrono::time_point<std::chrono::system_clock>;
+
     public:
         virtual ~Stopwatch() = default;
 
         void start (void);
+        void stop (void);
 
-        long long msecsElapsed (void) const;
-        long long usecsElapsed (void) const;
+        void reset (void);
 
-        std::chrono::time_point<std::chrono::steady_clock> steadyStartTime();
-        std::chrono::time_point<std::chrono::system_clock> systemStartTime();
+        int64_t msecsElapsed (void) const;
+        int64_t usecsElapsed (void) const;
+        int64_t nsecsElapsed (void) const;
+
+        SteadyTimePoint steadyStartTime();
+        SystemTimePoint systemStartTime();
+
+        bool isValid() const {return m_isValid;}
+        bool isStarted() const {return m_isStarted;}
 
     private:
-        bool m_isStarted {0};
+        bool m_isValid {false};
+        bool m_isStarted {false};
 
-        std::chrono::time_point<std::chrono::steady_clock> m_steadyStartTime {};
-        std::chrono::time_point<std::chrono::system_clock> m_systemStartTime {};
+        SteadyTimePoint m_steadyStartTime {};
+        SystemTimePoint m_systemStartTime {};
+
+        SteadyTimePoint m_steadyStopTime {};
+        SystemTimePoint m_systemStopTime {};
+
+        std::chrono::nanoseconds m_totalElapsed {};
     };
 }
 

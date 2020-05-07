@@ -13,32 +13,76 @@ void Stopwatch::start (void)
     m_steadyStartTime = std::chrono::steady_clock::now();
     m_systemStartTime = std::chrono::system_clock::now();
 
+    m_isValid = true;
     m_isStarted = true;
 }
 
-long long Stopwatch::msecsElapsed (void) const
+void Stopwatch::stop()
+{
+    assert (m_isValid);
+    assert (m_isStarted);
+
+    m_steadyStopTime = std::chrono::steady_clock::now();
+    m_systemStopTime = std::chrono::system_clock::now();
+
+    m_isStarted = false;
+
+    m_totalElapsed += m_steadyStopTime - m_steadyStartTime;
+}
+
+void Stopwatch::reset()
+{
+    m_totalElapsed = {};
+    start();
+}
+
+int64_t Stopwatch::msecsElapsed (void) const
 {   
-    assert(m_isStarted);
+    assert (m_isValid);
 
-    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_steadyStartTime).count();
+    auto stopTime = m_steadyStopTime;
+    if (m_isStarted) {
+        stopTime = std::chrono::steady_clock::now();
+    }
+
+    return std::chrono::duration_cast<std::chrono::milliseconds>(stopTime - m_steadyStartTime).count();
 }
 
-long long Stopwatch::usecsElapsed (void) const
+int64_t Stopwatch::usecsElapsed (void) const
 {
-    assert(m_isStarted);
+    assert (m_isValid);
 
-    auto result = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - m_steadyStartTime).count();
+    auto stopTime = m_steadyStopTime;
+    if (m_isStarted) {
+        stopTime = std::chrono::steady_clock::now();
+    }
 
-    return result;
+    return std::chrono::duration_cast<std::chrono::microseconds>(stopTime - m_steadyStartTime).count();
 }
 
-std::chrono::time_point<std::chrono::steady_clock> Stopwatch::steadyStartTime()
+int64_t Stopwatch::nsecsElapsed() const
 {
+    assert (m_isValid);
+
+    auto stopTime = m_steadyStopTime;
+    if (m_isStarted) {
+        stopTime = std::chrono::steady_clock::now();
+    }
+
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(stopTime - m_steadyStartTime).count();
+}
+
+Stopwatch::SteadyTimePoint Stopwatch::steadyStartTime()
+{
+    assert (m_isValid);
+
     return m_steadyStartTime;
 }
 
-std::chrono::time_point<std::chrono::system_clock> Stopwatch::systemStartTime()
+Stopwatch::SystemTimePoint Stopwatch::systemStartTime()
 {
+    assert (m_isValid);
+
     return m_systemStartTime;
 }
 
