@@ -204,11 +204,11 @@ outcome::result<void> PosixSocket::connect(std::string url)
             fmt::print(stderr, "Failed connecting to path: {}\n", url);
             return std::make_error_code(static_cast<std::errc>(errno));
         }
-    } else {
-        return make_error_code(PosixErrorCodes::OperationNotSupported);
+
+        return outcome::success();
     }
 
-    return outcome::success();
+    return make_error_code(PosixErrorCodes::OperationNotSupported);
 }
 
 outcome::result<PosixSocket::WaitResult> PosixSocket::poll(std::chrono::milliseconds timeout, bool writePending)
@@ -243,12 +243,11 @@ outcome::result<PosixSocket::WaitResult> PosixSocket::poll(std::chrono::millisec
 
 outcome::result<ssize_t> PosixSocket::read(const gsl::span<std::byte>& buffer)
 {
-    sockaddr_ll destAddress = {};
-    destAddress.sll_family = AF_PACKET;
-    destAddress.sll_protocol = htons( static_cast<uint16_t> (_frameType));
-    destAddress.sll_ifindex = 2; // virbr0 // TODO make configurable
-    destAddress.sll_pkttype = PACKET_MULTICAST;
+    return receiveFrom(buffer);
+}
 
+outcome::result<ssize_t> PosixSocket::receiveFrom(const gsl::span<std::byte>& buffer)
+{
     int flags = 0;
     if (_nonBlocking) {
         flags |= MSG_DONTWAIT;
@@ -279,24 +278,38 @@ outcome::result<ssize_t> PosixSocket::write(const gsl::span<std::byte>& buffer)
     return nbytes;
 }
 
-outcome::result<ssize_t> PosixSocket::sendto(const gsl::span<std::byte>& buffer)
+outcome::result<ssize_t> PosixSocket::sendTo(std::string url, const gsl::span<std::byte>& buffer)
 {
-    sockaddr_ll destAddress = {};
-    destAddress.sll_family = AF_PACKET;
-    destAddress.sll_protocol = htons( static_cast<uint16_t> (_frameType));
-    destAddress.sll_ifindex = 2; // virbr0 // TODO make configurable
+    if (_protocolDomain == ProtocolDomain::Packet && _type == Type::Raw) {
+        auto result = create();
+        if (!result) {
+            return result.error();
+        }
 
-    std::array<uint8_t, 8> addr = {1,1,5,4,0,0};
-    ::memcpy(destAddress.sll_addr, addr.data(), addr.size());
-    destAddress.sll_halen = 6;
+        auto nameToIndexResult = if_nametoindex(url.c_str());
+        if (nameToIndexResult == 0) {
+            fmt::print(stderr, "Failed finding adapter: {}: {}\n", nameToIndexResult, url);
+            return std::make_error_code(static_cast<std::errc>(errno));
+        }
 
-    ssize_t nbytes = ::sendto(_fd, buffer.data(), buffer.size(), 0, reinterpret_cast<sockaddr*>(&destAddress), sizeof(sockaddr_ll));
+        sockaddr_ll destAddress = {};
+        destAddress.sll_family = AF_PACKET;
+        destAddress.sll_protocol = htons( static_cast<uint16_t> (_frameType));
+        destAddress.sll_ifindex = nameToIndexResult;
 
-    if (nbytes == -1) {
-        return std::make_error_code(static_cast<std::errc>(errno));
+        std::array<uint8_t, 8> addr = {1,1,5,4,0,0};
+        ::memcpy(destAddress.sll_addr, addr.data(), addr.size());
+        destAddress.sll_halen = 6;
+
+        ssize_t nbytes = ::sendto(_fd, buffer.data(), buffer.size(), 0, reinterpret_cast<sockaddr*>(&destAddress), sizeof(sockaddr_ll));
+        return nbytes;
+
+        if (nbytes == -1) {
+            return std::make_error_code(static_cast<std::errc>(errno));
+        }
     }
-
-    return nbytes;
+    
+    return make_error_code(PosixErrorCodes::OperationNotSupported);
 }
 
 outcome::result<void> PosixSocket::close()
