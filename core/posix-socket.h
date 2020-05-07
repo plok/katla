@@ -67,7 +67,8 @@ public:
     outcome::result<ssize_t> read(const gsl::span<std::byte>& buffer);
     outcome::result<ssize_t> write(const gsl::span<std::byte>& buffer);
 
-    outcome::result<ssize_t> sendto(const gsl::span<std::byte>& buffer);
+    outcome::result<ssize_t> receiveFrom(const gsl::span<std::byte>& buffer);
+    outcome::result<ssize_t> sendTo(std::string url, const gsl::span<std::byte>& buffer);
 
     outcome::result<void> close();
 private:
@@ -82,9 +83,9 @@ private:
 
     int _fd {-1};
 
-    ProtocolDomain _protocolDomain;
-    Type _type;
-    FrameType _frameType;
+    ProtocolDomain _protocolDomain {ProtocolDomain::IPv4};
+    Type _type {Type::Stream};
+    FrameType _frameType {FrameType::All};
 
     std::string _url;
 
