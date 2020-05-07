@@ -40,7 +40,11 @@ namespace katla
         SteadyTimePoint steadyStartTime();
         SystemTimePoint systemStartTime();
 
+        bool isValid() const {return m_isValid;}
+        bool isStarted() const {return m_isStarted;}
+
     private:
+        bool m_isValid {false};
         bool m_isStarted {false};
 
         SteadyTimePoint m_steadyStartTime {};
