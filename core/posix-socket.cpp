@@ -281,11 +281,6 @@ outcome::result<ssize_t> PosixSocket::write(const gsl::span<std::byte>& buffer)
 outcome::result<ssize_t> PosixSocket::sendTo(std::string url, const gsl::span<std::byte>& buffer)
 {
     if (_protocolDomain == ProtocolDomain::Packet && _type == Type::Raw) {
-        auto result = create();
-        if (!result) {
-            return result.error();
-        }
-
         auto nameToIndexResult = if_nametoindex(url.c_str());
         if (nameToIndexResult == 0) {
             fmt::print(stderr, "Failed finding adapter: {}: {}\n", nameToIndexResult, url);
