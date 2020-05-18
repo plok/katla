@@ -11,8 +11,7 @@ class Error
 {
 public:
     Error() = default;
-    Error(const std::error_code errorCode);
-    Error(const std::error_code errorCode, std::string description, std::string info);
+    Error(const std::error_code errorCode, std::string description = "", std::string info = "");
 
     virtual std::error_code code (void) const {return m_errorCode; }
     virtual std::string message (void) const {return m_errorCode.message(); }
@@ -22,7 +21,6 @@ public:
 
 private:
     std::error_code m_errorCode {};
-    std::string m_subId;
 
     std::chrono::time_point<std::chrono::system_clock> m_timestamp;
 
