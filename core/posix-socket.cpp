@@ -41,6 +41,10 @@
 
 namespace katla {
 
+PosixSocket::PosixSocket()
+{
+}
+
 PosixSocket::PosixSocket(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking) :
     _protocolDomain(protocolDomain),
     _type(type),
@@ -65,20 +69,18 @@ PosixSocket::~PosixSocket()
     }
 }
 
-outcome::result<std::array<std::shared_ptr<PosixSocket>,2>> PosixSocket::createUnnamedPair(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking)
+outcome::result<std::array<std::shared_ptr<PosixSocket>,2>, Error> PosixSocket::createUnnamedPair(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking)
 {
     PosixErrorCategory errorCategory;
 
     int mappedDomain = mapProtocolDomain(protocolDomain);
     if (mappedDomain == -1) {
-        std::error_code errorCode(static_cast<int>(PosixErrorCodes::InvalidDomain), errorCategory);
-        return errorCode;
+        return Error(make_error_code(PosixErrorCodes::InvalidDomain));
     }
 
     int mappedType = mapType(type);
     if (mappedType == -1) {
-        std::error_code errorCode(static_cast<int>(PosixErrorCodes::InvalidType), errorCategory);
-        return errorCode;
+        return Error(make_error_code(PosixErrorCodes::InvalidType));
     }
 
     if (nonBlocking) {
@@ -88,7 +90,7 @@ outcome::result<std::array<std::shared_ptr<PosixSocket>,2>> PosixSocket::createU
     int sd[2] = {-1,-1};
     int result = socketpair(mappedDomain, mappedType, 0, sd);
     if (result != 0) {
-        return std::make_error_code(static_cast<std::errc>(errno));
+        return Error(std::make_error_code(static_cast<std::errc>(errno)), "Failed creating socket pair");
     }
 
     return outcome::success(std::array<std::shared_ptr<PosixSocket>,2>{
@@ -122,7 +124,7 @@ int PosixSocket::mapType(Type type) {
     return -1;
 }
 
-outcome::result<void> PosixSocket::bind(std::string url)
+outcome::result<void, Error> PosixSocket::bind(std::string url)
 {
     if (_protocolDomain == ProtocolDomain::Packet && _type == Type::Raw) {
         auto result = create();
@@ -132,8 +134,9 @@ outcome::result<void> PosixSocket::bind(std::string url)
 
         auto nameToIndexResult = if_nametoindex(url.c_str());
         if (nameToIndexResult == 0) {
-            fmt::print(stderr, "Failed finding adapter: {}: {}\n", nameToIndexResult, url);
-            return std::make_error_code(static_cast<std::errc>(errno));
+            return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed finding adapter: {}: {}\n", nameToIndexResult, url));
         }
 
         sockaddr_ll destAddress = {};
@@ -144,8 +147,9 @@ outcome::result<void> PosixSocket::bind(std::string url)
 
         auto bindResult = ::bind(_fd, reinterpret_cast<sockaddr*>(&destAddress), sizeof(destAddress));
         if (bindResult == -1) {
-            fmt::print(stderr, "Failed binding adapter: {}: {}\n", nameToIndexResult, url);
-            return std::make_error_code(static_cast<std::errc>(errno));
+            return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed binding adapter: {}: {}\n", nameToIndexResult, url));
         }
 
         _url = url;
@@ -154,8 +158,9 @@ outcome::result<void> PosixSocket::bind(std::string url)
         mreq.mr_ifindex = static_cast<int>(nameToIndexResult);
         mreq.mr_type = PACKET_MR_PROMISC;
         if (setsockopt(_fd, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) == -1) {
-            fmt::print(stderr, "Failed setting socket options on: {}: {}\n", nameToIndexResult, url);
-            return std::make_error_code(static_cast<std::errc>(errno));
+            return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed setting socket options on: {}: {}\n", nameToIndexResult, url));
         }
     } else if (_protocolDomain == ProtocolDomain::Unix) {
         auto result = create();
@@ -173,8 +178,9 @@ outcome::result<void> PosixSocket::bind(std::string url)
 
         auto bindResult = ::bind(_fd, reinterpret_cast<sockaddr*>(&bindAddress), sizeof(bindAddress));
         if (bindResult == -1) {
-            fmt::print(stderr, "Failed binding to path: {}\n", url);
-            return std::make_error_code(static_cast<std::errc>(errno));
+            return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed binding to path: {}\n", url));
         }
     } else {
         return make_error_code(PosixErrorCodes::OperationNotSupported);
@@ -183,7 +189,7 @@ outcome::result<void> PosixSocket::bind(std::string url)
     return outcome::success();
 }
 
-outcome::result<void> PosixSocket::connect(std::string url)
+outcome::result<void, Error> PosixSocket::connect(std::string url, SocketOptions options)
 {
     if (_protocolDomain == ProtocolDomain::Unix) {
         auto result = create();
@@ -195,14 +201,17 @@ outcome::result<void> PosixSocket::connect(std::string url)
             return make_error_code(PosixErrorCodes::UnixSocketPathTooLong);
         }
 
+        _nonBlocking = options.nonBlocking;
+
         sockaddr_un bindAddress = {};
         bindAddress.sun_family = AF_UNIX;
         strncpy(bindAddress.sun_path, url.c_str(), url.length() + 1);
 
         auto connectResult = ::connect(_fd, reinterpret_cast<sockaddr*>(&bindAddress), sizeof(bindAddress));
         if (connectResult == -1) {
-            fmt::print(stderr, "Failed connecting to path: {}\n", url);
-            return std::make_error_code(static_cast<std::errc>(errno));
+            return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed connecting to path: {}\n", url));
         }
 
         return outcome::success();
@@ -211,7 +220,42 @@ outcome::result<void> PosixSocket::connect(std::string url)
     return make_error_code(PosixErrorCodes::OperationNotSupported);
 }
 
-outcome::result<PosixSocket::WaitResult> PosixSocket::poll(std::chrono::milliseconds timeout, bool writePending)
+outcome::result<void, Error> PosixSocket::connectIPv4(std::string ip, int port, SocketOptions options)
+{
+    if (_protocolDomain == ProtocolDomain::IPv4) {
+        auto result = create();
+        if (!result) {
+            return result.error();
+        }
+
+        _nonBlocking = options.nonBlocking;
+
+        sockaddr_in address = {};
+        address.sin_family = AF_INET;
+        address.sin_port = htons(port);
+
+        int ipConvResult = inet_aton(ip.c_str(), &address.sin_addr);
+        if (ipConvResult == -1) {
+            return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed parsing ip address: {}\n", ip));
+        }
+
+        auto connectResult = ::connect(_fd, reinterpret_cast<sockaddr*>(&address), sizeof(address));
+        if (connectResult == -1) {
+            return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed connecting to ip: {}:{}\n", ip, port));
+        }
+
+        return outcome::success();
+    }
+
+    return make_error_code(PosixErrorCodes::OperationNotSupported);
+}
+
+
+outcome::result<PosixSocket::WaitResult, Error> PosixSocket::poll(std::chrono::milliseconds timeout, bool writePending)
 {
     pollfd pollDescriptor {
         _fd,
@@ -226,7 +270,9 @@ outcome::result<PosixSocket::WaitResult> PosixSocket::poll(std::chrono::millisec
 
     auto result = ::poll(&pollDescriptor, 1, static_cast<int>(timeout.count()));
     if (result == -1) {
-        return std::make_error_code(static_cast<std::errc>(errno));
+        return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed polling socket"));
     }
 
     WaitResult waitResult;
@@ -241,12 +287,12 @@ outcome::result<PosixSocket::WaitResult> PosixSocket::poll(std::chrono::millisec
     return waitResult;
 }
 
-outcome::result<ssize_t> PosixSocket::read(const gsl::span<std::byte>& buffer)
+outcome::result<ssize_t, Error> PosixSocket::read(const gsl::span<std::byte>& buffer)
 {
     return receiveFrom(buffer);
 }
 
-outcome::result<ssize_t> PosixSocket::receiveFrom(const gsl::span<std::byte>& buffer)
+outcome::result<ssize_t, Error> PosixSocket::receiveFrom(const gsl::span<std::byte>& buffer)
 {
     int flags = 0;
     if (_nonBlocking) {
@@ -260,31 +306,36 @@ outcome::result<ssize_t> PosixSocket::receiveFrom(const gsl::span<std::byte>& bu
             // TODO TEST??
             nbytes = 0;
         } else {
-            return std::make_error_code(static_cast<std::errc>(errno));
+            return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed receving from socket"));
         }
     }
 
     return nbytes;
 }
 
-outcome::result<ssize_t> PosixSocket::write(const gsl::span<std::byte>& buffer)
+outcome::result<ssize_t, Error> PosixSocket::write(const gsl::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::write(_fd, buffer.data(), buffer.size());
 
     if (nbytes == -1) {
-        return std::make_error_code(static_cast<std::errc>(errno));
+        return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed writing to socket"));
     }
 
     return nbytes;
 }
 
-outcome::result<ssize_t> PosixSocket::sendTo(std::string url, const gsl::span<std::byte>& buffer)
+outcome::result<ssize_t, Error> PosixSocket::sendTo(std::string url, const gsl::span<std::byte>& buffer)
 {
     if (_protocolDomain == ProtocolDomain::Packet && _type == Type::Raw) {
         auto nameToIndexResult = if_nametoindex(url.c_str());
         if (nameToIndexResult == 0) {
-            fmt::print(stderr, "Failed finding adapter: {}: {}\n", nameToIndexResult, url);
-            return std::make_error_code(static_cast<std::errc>(errno));
+            return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed finding adapter: {}: {}\n", nameToIndexResult, url));
         }
 
         sockaddr_ll destAddress = {};
@@ -300,14 +351,16 @@ outcome::result<ssize_t> PosixSocket::sendTo(std::string url, const gsl::span<st
         return nbytes;
 
         if (nbytes == -1) {
-            return std::make_error_code(static_cast<std::errc>(errno));
+            return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed sending to socket"));
         }
     }
     
     return make_error_code(PosixErrorCodes::OperationNotSupported);
 }
 
-outcome::result<void> PosixSocket::close()
+outcome::result<void, Error> PosixSocket::close()
 {
     if (_fd == -1) {
         return outcome::success();
@@ -315,7 +368,9 @@ outcome::result<void> PosixSocket::close()
 
     int status = ::close(_fd);
     if (status == -1) {
-        return std::make_error_code(static_cast<std::errc>(errno));
+        return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed closing socket"));
     }
 
     _fd = -1;
@@ -323,16 +378,16 @@ outcome::result<void> PosixSocket::close()
     return outcome::success();
 }
 
-outcome::result<void> PosixSocket::create()
+outcome::result<void, Error> PosixSocket::create()
 {
     int domain = mapProtocolDomain(_protocolDomain);
     if (domain == -1) {
-        return make_error_code(PosixErrorCodes::InvalidDomain);
+        return Error(make_error_code(PosixErrorCodes::InvalidDomain));
     }
 
     int mappedType = mapType(_type);
     if (mappedType == -1) {
-        return make_error_code(PosixErrorCodes::InvalidType);
+        return Error(make_error_code(PosixErrorCodes::InvalidType));
     }
 
     if (_nonBlocking) {
@@ -347,12 +402,13 @@ outcome::result<void> PosixSocket::create()
 
     _fd = socket(domain, mappedType, frameType);
     if (_fd == -1) {
-        // TODO check root access
-        return std::make_error_code(static_cast<std::errc>(errno));
+        // TODO check root access for raw sockets
+        return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed creating socket"));
     }
 
     return outcome::success();
 }
-
 
 }

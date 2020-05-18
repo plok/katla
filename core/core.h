@@ -34,7 +34,8 @@ namespace katla {
     using span = gsl::span<T, Extent>;
 
     /****
-     * Declare format and print here for convenience
+     * Declare format and print here for convenience. Current implementation uses the Fmt lib,
+     * the idea is to use std c++ format later. Which is the reason for the indirection.
      */
     template <typename S, typename... Args>
     inline std::string format(const S& format_str, Args&&... args) {
@@ -44,6 +45,18 @@ namespace katla {
     template <typename S, typename... Args>
     inline void print(std::FILE* f, const S& format_str, Args&&... args) {
         fmt::print(f, format_str, args...);
+    }
+
+    template <typename S>
+    inline void printInfo(const S& message) {
+        print(stdout, "{}", message);
+        fflush(stdout);
+    }
+
+    template <typename S>
+    inline void printError(const S& message) {
+        print(stderr, "{}", message);
+        fflush(stderr);
     }
 
     template <typename S>
