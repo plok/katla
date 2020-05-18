@@ -172,7 +172,7 @@ namespace katla {
         if (forkResult == 0) {
             // child
             PosixSocket childSocket(PosixSocket::ProtocolDomain::Unix, PosixSocket::Type::Datagram, PosixSocket::FrameType::All, false);
-            auto connectResult = childSocket.connect(url);
+            auto connectResult = childSocket.connect(url, PosixSocket::SocketOptions {});
             ASSERT_TRUE(connectResult) << connectResult.error().message();
 
             testChild(childSocket);
