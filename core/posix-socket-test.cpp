@@ -15,6 +15,7 @@
  */
 
 #include "core/posix-socket.h"
+#include "core/stopwatch.h"
 
 #include "gtest/gtest.h"
 
@@ -27,6 +28,7 @@
 #include <utility>
 #include <memory>
 #include <functional>
+#include <thread>
 
 #include <cstdlib>
 #include <unistd.h>
@@ -36,6 +38,8 @@
 #include <chrono>
 
 namespace katla {
+
+    using namespace std::chrono_literals;
 
     std::string helloWorld = "Hello World!";
 
@@ -195,5 +199,43 @@ namespace katla {
         ASSERT_TRUE(result) << result.error().message();
     }
 
+    TEST(KatlaIpcTests, BlockingSocketWakeupTest) {
+        auto tmpDir = createTemporaryDir();
+        ASSERT_TRUE(tmpDir) << tmpDir.error().message();
+
+        fmt::print("{}\n", tmpDir.value());
+        fflush(stdout);
+
+        auto url = fmt::format("{}/test.sock", tmpDir.value());
+
+        PosixSocket socket(PosixSocket::ProtocolDomain::Unix, PosixSocket::Type::Datagram, PosixSocket::FrameType::All, false);
+        
+        auto bindResult = socket.bind(url);
+        ASSERT_TRUE(bindResult) << bindResult.error().message();
+
+        Stopwatch stopwatch;
+        stopwatch.start();
+
+        std::thread thread([&socket]() {
+            usleep(100000);
+            auto result = socket.wakeup();
+            ASSERT_TRUE(result);
+        });
+
+        auto pollResult = socket.poll(4000ms);
+        auto elapsed = stopwatch.elapsed();
+        thread.join();
+
+        ASSERT_TRUE(pollResult);
+
+        ASSERT_TRUE(elapsed > 50ms);
+        ASSERT_TRUE(elapsed < 2000ms);
+        ASSERT_TRUE(pollResult.value().wakeup);
+
+        auto result = socket.close();
+        ASSERT_TRUE(result) << result.error().message();
+
+        exit(EXIT_SUCCESS);
+    }
 }
 

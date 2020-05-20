@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <sys/eventfd.h>
 #include <linux/if_packet.h>
 #include <linux/if_ether.h>
 
@@ -53,8 +54,9 @@ PosixSocket::PosixSocket(ProtocolDomain protocolDomain, Type type, FrameType fra
 {
 }
 
-PosixSocket::PosixSocket(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking, int fd) :
+PosixSocket::PosixSocket(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking, int fd, int wakeupFd) :
         _fd(fd),
+        _wakeupFd(wakeupFd),
         _protocolDomain(protocolDomain),
         _type(type),
         _frameType(frameType),
@@ -64,6 +66,10 @@ PosixSocket::PosixSocket(ProtocolDomain protocolDomain, Type type, FrameType fra
 
 PosixSocket::~PosixSocket()
 {
+    if (_wakeupFd != -1) {
+        ::close(_wakeupFd);
+    }
+
     if (_fd != -1) {
         ::close(_fd);
     }
@@ -93,9 +99,29 @@ outcome::result<std::array<std::shared_ptr<PosixSocket>,2>, Error> PosixSocket::
         return Error(std::make_error_code(static_cast<std::errc>(errno)), "Failed creating socket pair");
     }
 
+    int wakeupFd[2] = {-1,-1};
+    wakeupFd[0] = eventfd(0, 0);
+    if (wakeupFd[0] == -1) {
+        ::close(sd[0]);
+        ::close(sd[1]);
+        return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed creating wakeup fd"));
+    }
+
+    wakeupFd[1] = eventfd(0, 0);
+    if (wakeupFd[1] == -1) {
+        ::close(sd[0]);
+        ::close(sd[1]);
+        ::close(wakeupFd[0]);
+        return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed creating wakeup fd"));
+    }
+
     return outcome::success(std::array<std::shared_ptr<PosixSocket>,2>{
-            std::shared_ptr<PosixSocket>(new PosixSocket(protocolDomain, type, frameType, nonBlocking, sd[0])),
-            std::shared_ptr<PosixSocket>(new PosixSocket(protocolDomain, type, frameType, nonBlocking, sd[1]))
+            std::shared_ptr<PosixSocket>(new PosixSocket(protocolDomain, type, frameType, nonBlocking, sd[0], wakeupFd[0])),
+            std::shared_ptr<PosixSocket>(new PosixSocket(protocolDomain, type, frameType, nonBlocking, sd[1], wakeupFd[1]))
     });
 }
 
@@ -257,18 +283,22 @@ outcome::result<void, Error> PosixSocket::connectIPv4(std::string ip, int port, 
 
 outcome::result<PosixSocket::WaitResult, Error> PosixSocket::poll(std::chrono::milliseconds timeout, bool writePending)
 {
-    pollfd pollDescriptor {
+    pollfd pollDescriptor[2] = {{
         _fd,
         POLLIN | POLLPRI | POLLRDHUP,
         0
-    };
+    }, {
+        _wakeupFd,
+        POLLIN,
+        0
+    }};
 
     // If we have bytes to send we want to return early to send our bytes
     if (writePending) {
-        pollDescriptor.events |= POLLOUT;
+        pollDescriptor[0].events |= POLLOUT;
     }
 
-    auto result = ::poll(&pollDescriptor, 1, static_cast<int>(timeout.count()));
+    auto result = ::poll(pollDescriptor, 2, static_cast<int>(timeout.count()));
     if (result == -1) {
         return Error(
                 std::make_error_code(static_cast<std::errc>(errno)),
@@ -276,13 +306,14 @@ outcome::result<PosixSocket::WaitResult, Error> PosixSocket::poll(std::chrono::m
     }
 
     WaitResult waitResult;
-    waitResult.dataToRead = (pollDescriptor.revents & POLLIN) || (pollDescriptor.revents & POLLPRI);
-    waitResult.urgentDataToRead = (pollDescriptor.revents & POLLPRI);
-    waitResult.writingWillNotBlock = (pollDescriptor.revents & POLLOUT);
-    waitResult.readHangup = (pollDescriptor.revents & POLLRDHUP);
-    waitResult.writeHangup = (pollDescriptor.revents & POLLHUP);
-    waitResult.error = (pollDescriptor.revents & POLLERR);
-    waitResult.invalid = (pollDescriptor.revents & POLLNVAL);
+    waitResult.dataToRead = (pollDescriptor[0].revents & POLLIN) || (pollDescriptor[0].revents & POLLPRI);
+    waitResult.urgentDataToRead = (pollDescriptor[0].revents & POLLPRI);
+    waitResult.writingWillNotBlock = (pollDescriptor[0].revents & POLLOUT);
+    waitResult.readHangup = (pollDescriptor[0].revents & POLLRDHUP);
+    waitResult.writeHangup = (pollDescriptor[0].revents & POLLHUP);
+    waitResult.error = (pollDescriptor[0].revents & POLLERR);
+    waitResult.invalid = (pollDescriptor[0].revents & POLLNVAL);
+    waitResult.wakeup = (pollDescriptor[1].revents & POLLIN);
 
     return waitResult;
 }
@@ -360,6 +391,19 @@ outcome::result<ssize_t, Error> PosixSocket::sendTo(std::string url, const gsl::
     return make_error_code(PosixErrorCodes::OperationNotSupported);
 }
 
+outcome::result<void, Error> PosixSocket::wakeup()
+{
+    uint64_t counter = 1;
+    int status = ::write(_wakeupFd, reinterpret_cast<void*>(&counter), sizeof(counter));
+    if (status == -1) {
+        return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed to wakeup socket"));
+    }
+
+    return outcome::success();
+}
+
 outcome::result<void, Error> PosixSocket::close()
 {
     if (_fd == -1) {
@@ -406,6 +450,13 @@ outcome::result<void, Error> PosixSocket::create()
         return Error(
                 std::make_error_code(static_cast<std::errc>(errno)),
                 katla::format("Failed creating socket"));
+    }
+
+    _wakeupFd = eventfd(0, 0);
+    if (_wakeupFd == -1) {
+        return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed creating wakeup fd"));
     }
 
     return outcome::success();
