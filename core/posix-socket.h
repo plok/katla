@@ -48,9 +48,10 @@ public:
         Type type {Type::Stream};
         FrameType frameType {FrameType::All};
         bool nonBlocking {false};
+        bool reuseAddress {false};
     };
 
-    static constexpr SocketOptions IPv4SocketOptions {ProtocolDomain::IPv4, Type::Stream, FrameType::All, false};
+    static constexpr SocketOptions IPv4SocketOptions {ProtocolDomain::IPv4, Type::Stream, FrameType::All, false, false};
 
     struct WaitResult {
         bool dataToRead {0};
@@ -71,6 +72,12 @@ public:
     static outcome::result<std::array<std::shared_ptr<PosixSocket>, 2>, Error> createUnnamedPair(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking);
 
     outcome::result<void, Error> bind(std::string url);
+    outcome::result<void, Error> bindIPv4(std::string ip, int port, SocketOptions options = IPv4SocketOptions);
+
+    outcome::result<void, Error> listen();
+    outcome::result<std::unique_ptr<PosixSocket>, Error> accept();
+    std::optional<Error> error();
+
     outcome::result<void, Error> connect(std::string url, SocketOptions options);
     outcome::result<void, Error> connectIPv4(std::string ip, int port, SocketOptions options = IPv4SocketOptions);
 

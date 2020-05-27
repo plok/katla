@@ -188,7 +188,11 @@ outcome::result<void, Error> PosixSocket::bind(std::string url)
                 std::make_error_code(static_cast<std::errc>(errno)),
                 katla::format("Failed setting socket options on: {}: {}\n", nameToIndexResult, url));
         }
-    } else if (_protocolDomain == ProtocolDomain::Unix) {
+
+        return outcome::success();
+    }
+    
+    if (_protocolDomain == ProtocolDomain::Unix) {
         auto result = create();
         if (!result) {
             return result.error();
@@ -208,11 +212,116 @@ outcome::result<void, Error> PosixSocket::bind(std::string url)
                 std::make_error_code(static_cast<std::errc>(errno)),
                 katla::format("Failed binding to path: {}\n", url));
         }
-    } else {
+
+        return outcome::success();
+    } 
+
+    return make_error_code(PosixErrorCodes::OperationNotSupported);
+}
+
+outcome::result<void, Error> PosixSocket::bindIPv4(std::string ip, int port, SocketOptions options)
+{
+    if (_protocolDomain == ProtocolDomain::IPv4 && _type == Type::Stream) {
+        auto result = create();
+        if (!result) {
+            return result.error();
+        }
+
+        int setsockoptEnable = options.reuseAddress ? 1 : 0;
+        if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &setsockoptEnable, sizeof(int)) < 0)
+        {
+            return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed opening socket: {}:{}\n", ip, port));
+        }
+
+        sockaddr_in address = {};
+        address.sin_family = AF_INET;
+        address.sin_addr.s_addr = INADDR_ANY;
+        address.sin_port = htons(port);
+
+        int ipConvResult = inet_aton(ip.c_str(), &address.sin_addr);
+        if (ipConvResult == -1) {
+            return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed parsing ip address: {}\n", ip));
+        }
+
+        auto bindResult = ::bind(_fd, reinterpret_cast<sockaddr*>(&address), sizeof(address));
+        if (bindResult == -1) {
+            return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed binding to port: {}:{}\n", ip, port));
+        }
+
+        return outcome::success();
+    }
+
+    return make_error_code(PosixErrorCodes::OperationNotSupported);
+}
+
+outcome::result<void, Error> PosixSocket::listen()
+{
+    if (_type != Type::Stream && _type != Type::SequencedPacket) {
         return make_error_code(PosixErrorCodes::OperationNotSupported);
     }
 
+    auto listenResult = ::listen(_fd, 1);
+    if (listenResult == -1) {
+        return Error(
+            std::make_error_code(static_cast<std::errc>(errno)),
+            katla::format("Failed listening to socket"));
+    }
+
     return outcome::success();
+}
+
+outcome::result<std::unique_ptr<PosixSocket>, Error> PosixSocket::accept()
+{
+    if (_type != Type::Stream && _type != Type::SequencedPacket) {
+        return make_error_code(PosixErrorCodes::OperationNotSupported);
+    }
+
+    socklen_t addressLength = sizeof(sockaddr_in);
+    struct sockaddr_in address; ///two objects to store client and server address
+
+    auto acceptResult = ::accept(_fd, (struct sockaddr *) &address, &addressLength);
+    if (acceptResult == -1) {
+        return Error(
+            std::make_error_code(static_cast<std::errc>(errno)),
+            katla::format("Failed accepting client socket"));
+    }
+
+    auto wakeupFd = eventfd(0, 0);
+    if (wakeupFd == -1) {
+        ::close(acceptResult);
+        return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed creating wakeup fd"));
+    };
+
+    auto clientSocket = std::unique_ptr<PosixSocket>(new PosixSocket(_protocolDomain, _type, _frameType, _nonBlocking, acceptResult, wakeupFd));
+    return clientSocket;
+}
+
+std::optional<Error> PosixSocket::error()
+{
+    int errorValue = 0;
+    socklen_t errorValueLength = sizeof(errorValue);
+    auto result = ::getsockopt(_fd, SOL_SOCKET, SO_ERROR, &errorValue, &errorValueLength);
+    if (result == -1) {
+        return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed getting socket error"));
+    }
+
+    if (errorValue) {
+        return Error(
+                std::make_error_code(static_cast<std::errc>(errorValue)),
+                katla::format("Socket error"));
+    }
+
+    return {};
 }
 
 outcome::result<void, Error> PosixSocket::connect(std::string url, SocketOptions options)
@@ -234,7 +343,7 @@ outcome::result<void, Error> PosixSocket::connect(std::string url, SocketOptions
         strncpy(bindAddress.sun_path, url.c_str(), url.length() + 1);
 
         auto connectResult = ::connect(_fd, reinterpret_cast<sockaddr*>(&bindAddress), sizeof(bindAddress));
-        if (connectResult == -1) {
+        if (connectResult == -1 && connectResult != EINPROGRESS) {
             return Error(
                 std::make_error_code(static_cast<std::errc>(errno)),
                 katla::format("Failed connecting to path: {}\n", url));
@@ -268,7 +377,7 @@ outcome::result<void, Error> PosixSocket::connectIPv4(std::string ip, int port, 
         }
 
         auto connectResult = ::connect(_fd, reinterpret_cast<sockaddr*>(&address), sizeof(address));
-        if (connectResult == -1) {
+        if (connectResult == -1 && connectResult != EINPROGRESS) {
             return Error(
                 std::make_error_code(static_cast<std::errc>(errno)),
                 katla::format("Failed connecting to ip: {}:{}\n", ip, port));
