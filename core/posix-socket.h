@@ -60,6 +60,7 @@ public:
         bool writeHangup {0};
         bool error {0};      
         bool invalid {0};
+        bool wakeup {0};
     };
 
     PosixSocket();
@@ -74,7 +75,7 @@ public:
     outcome::result<void, Error> connectIPv4(std::string ip, int port, SocketOptions options = IPv4SocketOptions);
 
     // TODO add wakeup to interrupt wait -> multithreading??
-    outcome::result<WaitResult, Error> poll(std::chrono::milliseconds timeout, bool writePending);
+    outcome::result<WaitResult, Error> poll(std::chrono::milliseconds timeout, bool writePending = false);
 
     outcome::result<ssize_t, Error> read(const gsl::span<std::byte>& buffer);
     outcome::result<ssize_t, Error> write(const gsl::span<std::byte>& buffer);
@@ -82,18 +83,21 @@ public:
     outcome::result<ssize_t, Error> receiveFrom(const gsl::span<std::byte>& buffer);
     outcome::result<ssize_t, Error> sendTo(std::string url, const gsl::span<std::byte>& buffer);
 
+    outcome::result<void, Error> wakeup();
+
     outcome::result<void, Error> close();
 private:
     outcome::result<void, Error> create();
 
     PosixSocket & operator=(const PosixSocket&) = delete;
 
-    PosixSocket(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking, int fd);
+    PosixSocket(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking, int fd, int wakeupFd);
 
     static int mapProtocolDomain (ProtocolDomain protocolDomain);
     static int mapType (Type type);
 
     int _fd {-1};
+    int _wakeupFd {-1};
 
     ProtocolDomain _protocolDomain {ProtocolDomain::IPv4};
     Type _type {Type::Stream};

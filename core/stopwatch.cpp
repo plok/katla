@@ -36,6 +36,18 @@ void Stopwatch::reset()
     start();
 }
 
+std::chrono::microseconds Stopwatch::elapsed (void) const
+{   
+    assert (m_isValid);
+
+    auto stopTime = m_steadyStopTime;
+    if (m_isStarted) {
+        stopTime = std::chrono::steady_clock::now();
+    }
+
+    return std::chrono::duration_cast<std::chrono::microseconds>(stopTime - m_steadyStartTime);
+}
+
 int64_t Stopwatch::msecsElapsed (void) const
 {   
     assert (m_isValid);
