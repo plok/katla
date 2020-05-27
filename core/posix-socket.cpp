@@ -301,7 +301,7 @@ outcome::result<std::unique_ptr<PosixSocket>, Error> PosixSocket::accept()
     };
 
     auto clientSocket = std::unique_ptr<PosixSocket>(new PosixSocket(_protocolDomain, _type, _frameType, _nonBlocking, acceptResult, wakeupFd));
-    return clientSocket;
+    return std::move(clientSocket);
 }
 
 std::optional<Error> PosixSocket::error()
