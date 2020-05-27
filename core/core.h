@@ -47,21 +47,21 @@ namespace katla {
         fmt::print(f, format_str, args...);
     }
 
-    template <typename S>
-    inline void printInfo(const S& message) {
-        print(stdout, "{}", message);
+    template <typename S, typename... Args>
+    inline void printInfo(const S& message, Args&&... args) {
+        print(stdout, fmt::format("{}\n", message), args...);
         fflush(stdout);
     }
 
-    template <typename S>
-    inline void printError(const S& message) {
-        print(stderr, "{}", message);
+    template <typename S, typename... Args>
+    inline void printError(const S& message, Args&&... args) {
+        print(stderr, fmt::format("{}\n", message), args...);
         fflush(stderr);
     }
 
-    template <typename S>
-    inline void fatal(const S& message) {
-        print(stderr, "{}", message);
+    template <typename S, typename... Args>
+    inline void fatal(const S& message, Args&&... args) {
+        print(stderr, fmt::format("{}\n", message), args...);
         fflush(stderr);
         std::abort();
     }
