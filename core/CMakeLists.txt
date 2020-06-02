@@ -30,6 +30,8 @@ set(sources
     posix-file.cpp
     posix-file.h
 
+    posix-thread.cpp
+
     stopwatch.cpp
     stopwatch.h
     )
