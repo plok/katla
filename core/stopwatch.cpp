@@ -20,7 +20,9 @@ void Stopwatch::start (void)
 void Stopwatch::stop()
 {
     assert (m_isValid);
-    assert (m_isStarted);
+    if (!m_isStarted) {
+        return;
+    }
 
     m_steadyStopTime = std::chrono::steady_clock::now();
     m_systemStopTime = std::chrono::system_clock::now();
