@@ -22,10 +22,16 @@ std::string katla::PosixErrorCategory::message(int c) const {
             return "Invalid protocol domain";
         case PosixErrorCodes::InvalidType:
             return "Invalid protocol type";
+        case PosixErrorCodes::Invalid:
+            return "Invalid operation";
         case PosixErrorCodes::OperationNotSupported:
             return "Operation not supported";
         case PosixErrorCodes::UnixSocketPathTooLong:
             return "UnixSocket path too long";
+        case PosixErrorCodes::PermissionDenied:
+            return "Permission denied";
+        case PosixErrorCodes::NotFound:
+            return "Not found";
     }
 
     return "unknown";
