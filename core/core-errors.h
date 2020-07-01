@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #ifndef KATLA_CORE_ERRORS_H
 #define KATLA_CORE_ERRORS_H
 
