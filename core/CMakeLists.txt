@@ -35,6 +35,9 @@ set(sources
         stopwatch.cpp
         stopwatch.h
 
+        worker-thread.cpp
+        worker-thread.h
+
         observable.h
         observer.h
         subject.h
