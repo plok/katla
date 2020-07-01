@@ -11,51 +11,55 @@ set(target_name katla-core)
 add_definitions(-DKATLA_CORE_INDLL)
 
 set(sources
-    core.h
+        core.h
 
-    error.cpp
-    error.h
+        error.cpp
+        error.h
 
-    core-errors.cpp
-    core-errors.h
-    posix-errors.cpp
-    posix-errors.h
+        core-errors.cpp
+        core-errors.h
+        posix-errors.cpp
+        posix-errors.h
 
-    posix-pipe.cpp
-    posix-pipe.h
+        posix-pipe.cpp
+        posix-pipe.h
 
-    posix-socket.cpp
-    posix-socket.h
-    
-    posix-file.cpp
-    posix-file.h
+        posix-socket.cpp
+        posix-socket.h
 
-    posix-thread.cpp
+        posix-file.cpp
+        posix-file.h
 
-    stopwatch.cpp
-    stopwatch.h
-    )
+        posix-thread.cpp
+
+        stopwatch.cpp
+        stopwatch.h
+
+        observable.h
+        observer.h
+        subject.h
+        )
 
 add_library(${target_name} SHARED ${sources})
 
 target_include_directories(${target_name} PUBLIC
-    ../
-    ../../
-    ../external/   # TODO make suitable for FindPackage
-    ${LIBFMT_INCLUDE_DIR}
-    ${LIBGSL_INCLUDE_DIR}
-    )
+        ../
+        ../../
+        ../external/   # TODO make suitable for FindPackage
+        ${LIBFMT_INCLUDE_DIR}
+        ${LIBGSL_INCLUDE_DIR}
+        )
 
 target_include_directories(${target_name} PRIVATE
-    .
-    )
+        .
+        )
 
 target_link_libraries(${target_name} fmt)
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_link_libraries (${target_name} Threads::Threads)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_link_libraries(${target_name} Threads::Threads)
 
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9.0.0")
-            target_link_libraries (${target_name} stdc++fs)
-    endif()
-endif()
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9.0.0")
+        target_link_libraries(${target_name} stdc++fs)
+    endif ()
+endif ()
