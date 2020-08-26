@@ -423,6 +423,13 @@ outcome::result<PosixSocket::WaitResult, Error> PosixSocket::poll(std::chrono::m
     waitResult.error = (pollDescriptor[0].revents & POLLERR);
     waitResult.invalid = (pollDescriptor[0].revents & POLLNVAL);
     waitResult.wakeup = (pollDescriptor[1].revents & POLLIN);
+    
+    if (waitResult.wakeup) 
+    {   //read data written to _wakeupFd to prevent subsequent wakeups without request
+        int size = sizeof(uint64_t);
+        std::vector<std::byte> buffer(size, std::byte{0});
+        ::read(_wakeupFd, buffer.data(), buffer.size());
+    }
 
     return waitResult;
 }
