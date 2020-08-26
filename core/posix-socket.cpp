@@ -426,7 +426,7 @@ outcome::result<PosixSocket::WaitResult, Error> PosixSocket::poll(std::chrono::m
     
     if (waitResult.wakeup) 
     {   //read data written to _wakeupFd to prevent subsequent wakeups without request
-        int size = 512;
+        int size = sizeof(uint64_t);
         std::vector<std::byte> buffer(size, std::byte{0});
         ::read(_wakeupFd, buffer.data(), buffer.size());
     }
