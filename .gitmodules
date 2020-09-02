@@ -4,3 +4,9 @@
 [submodule "external/gsl"]
 	path = external/gsl
 	url = https://github.com/microsoft/GSL.git
+[submodule "external/libwebsockets"]
+	path = external/libwebsockets
+	url = https://github.com/warmcat/libwebsockets.git
+[submodule "external/fmt"]
+	path = external/fmt
+	url = https://github.com/fmtlib/fmt.git
