@@ -40,7 +40,7 @@ target_include_directories(${target_name} PRIVATE
         .
         )
 
-target_link_libraries(${target_name} fmt ${LIBWEBSOCKETS_LIBRARIES})
+target_link_libraries(${target_name} katla-core fmt ${LIBWEBSOCKETS_LIBRARIES})
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries(${target_name} Threads::Threads)

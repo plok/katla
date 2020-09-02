@@ -26,9 +26,9 @@ void handleCommands(std::string command)
         }
 
         katla::WebSocketServerLws server;
-        server.init();
+        server.init(8080);
 
-        server.handle("echo", [](katla::WebSocketServerClient& client) { katla::printInfo("http handler!!"); });
+        server.handle(katla::HttpMethod::Get, "echo", [](katla::WebSocketServerClient& client, const katla::HttpRequest& request) { katla::printInfo("http handler!!"); });
 
         server.handleWebSocket("echo", [](katla::WebSocketServerClient& client) {
             katla::printInfo("websocket handler!!");
