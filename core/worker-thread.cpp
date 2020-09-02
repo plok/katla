@@ -37,7 +37,10 @@ outcome::result<void, Error> WorkerThread::init(std::function<bool(void)> repeat
                                                 std::chrono::milliseconds interval)
 {
     m_interval = interval;
-    m_thread = std::make_unique<std::thread>(&WorkerThread::exec, this, repeatableWork);
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_thread = std::make_unique<std::thread>(&WorkerThread::exec, this, repeatableWork);
+    }
 
     return outcome::success();
 }
@@ -64,9 +67,14 @@ void WorkerThread::exec(const std::function<bool(void)>& repeatableWork)
     bool stop = false;
     bool noWait = false;
 
-    auto setPriorityResult = katla::PosixThread::setPriority(*m_thread, m_priority);
-    if (!setPriorityResult) {
-        katla::printError("Failed setting thread priority: {}", setPriorityResult.error().message());
+    {
+        // need lock otherwise m_thread is not always assigned yet
+        std::unique_lock<std::mutex> lock(m_mutex);
+
+        auto setPriorityResult = katla::PosixThread::setPriority(*m_thread, m_priority);
+        if (!setPriorityResult) {
+            katla::printError("Failed setting thread priority: {}", setPriorityResult.error().message());
+        }
     }
 
     while (!stop) {
