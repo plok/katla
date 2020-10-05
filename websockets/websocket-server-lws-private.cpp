@@ -65,14 +65,21 @@ void WebSocketServerLwsPrivate::removeWebSocketClient(const std::shared_ptr<WebS
 
 void WebSocketServerLwsPrivate::handleHttpRequest(const std::shared_ptr<WebSocketServerClientLwsImpl>& client, const katla::HttpRequest& request) {
     
+    bool found = false;
     for (auto& it : httpHandlers) {
         if (it.url != request.url || it.method != request.method) {
             continue;
         }
 
+        found = true;
+
         for (auto& callbackIt : it.callbacks) {
             callbackIt(*client->m_publicClient, request);
         }
+    }
+
+    if (!found) {
+        katla::printInfo("no handler found for url: {}", request.url);
     }
 }
 
