@@ -35,15 +35,18 @@ class WorkerThread {
     WorkerThread(std::string name, katla::PosixThread::Priority priority);
     virtual ~WorkerThread();
 
-    outcome::result<void, Error> init(std::function<bool(void)> repeatableWork, std::chrono::milliseconds interval);
+    outcome::result<void, Error> init(std::function<void(void)> repeatableWork, std::chrono::milliseconds interval);
 
     void wakeup();
 
     void stop();
     void join();
 
+  protected:
+    bool m_skipWaitForNextCycle {false};
+
   private:
-    void exec(const std::function<bool(void)>& repeatableWork);
+    void exec(const std::function<void(void)>& repeatableWork);
 
     std::unique_ptr<std::thread> m_thread;
     std::mutex m_mutex;

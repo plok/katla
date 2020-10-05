@@ -33,7 +33,7 @@ WorkerThread::WorkerThread(std::string name, katla::PosixThread::Priority priori
 
 WorkerThread::~WorkerThread() { join(); }
 
-outcome::result<void, Error> WorkerThread::init(std::function<bool(void)> repeatableWork,
+outcome::result<void, Error> WorkerThread::init(std::function<void(void)> repeatableWork,
                                                 std::chrono::milliseconds interval)
 {
     m_interval = interval;
@@ -62,7 +62,7 @@ void WorkerThread::join()
     }
 }
 
-void WorkerThread::exec(const std::function<bool(void)>& repeatableWork)
+void WorkerThread::exec(const std::function<void(void)>& repeatableWork)
 {
     bool stop = false;
     bool noWait = false;
@@ -91,10 +91,13 @@ void WorkerThread::exec(const std::function<bool(void)>& repeatableWork)
             }
         }
 
-        noWait = std::invoke(repeatableWork);
+        std::invoke(repeatableWork);
+
+        noWait = m_skipWaitForNextCycle;
+        m_skipWaitForNextCycle = false;
     }
 
-    katla::print(stdout, "Closing thread {}!\n", m_name);
+    katla::printInfo("Closing thread {}!\n", m_name);
 }
 
 } // namespace katla
