@@ -18,6 +18,7 @@
 #include "worker-thread.h"
 
 #include "katla/core/core.h"
+#include "katla/core/core-errors.h"
 
 #include <chrono>
 #include <mutex>
@@ -39,6 +40,11 @@ outcome::result<void, Error> WorkerThread::init(std::function<void(void)> repeat
     m_interval = interval;
     {
         std::unique_lock<std::mutex> lock(m_mutex);
+
+        if (m_thread) {
+            return Error(katla::make_error_code(katla::CoreErrorCode::AlreadyInitialized));
+        }
+
         m_thread = std::make_unique<std::thread>(&WorkerThread::exec, this, repeatableWork);
     }
 
