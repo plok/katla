@@ -395,7 +395,9 @@ void WebSocketServerLws::handleWebSocket(const std::string& url, const std::func
 }
 
 void WebSocketServerLws::wakeup() {
-    lws_cancel_service(d->context);
+    if (d->context) {
+        lws_cancel_service(d->context);
+    }
 }
 
 bool WebSocketServerLws::work() {
