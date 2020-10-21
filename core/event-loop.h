@@ -3,15 +3,19 @@
 
 #include "katla/core/error.h"
 
+namespace katla {
+
 class EventLoop {
-public:
+  public:
     virtual ~EventLoop() = default;
 
     virtual outcome::result<void, Error> init() = 0;
     virtual outcome::result<void, Error> run() = 0;
     virtual outcome::result<void, Error> close() = 0;
-private:
-    
+
+  private:
 };
+
+}
 
 #endif
