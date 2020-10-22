@@ -22,6 +22,8 @@
 #include "sqlite3.h"
 
 #include <memory>
+#include <vector>
+#include <optional>
 
 namespace katla {
 

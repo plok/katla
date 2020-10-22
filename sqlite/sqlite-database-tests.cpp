@@ -39,8 +39,10 @@ namespace katla {
     }
     SqliteDatabase createAndOpenDatabase() {
         SqliteDatabase sqliteDatabase;
+        sqliteDatabase.init();
         auto createResult = sqliteDatabase.create("/tmp/katla-sqlite-test/sqlite.db");
-        sqliteDatabase.open("/tmp/katla-sqlite-test/sqlite.db");
+        sqliteDatabase.setPath("/tmp/katla-sqlite-test/sqlite.db");
+        sqliteDatabase.open();
 
         return sqliteDatabase;
     }

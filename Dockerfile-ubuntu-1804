@@ -10,7 +10,7 @@ run rm -Rf /root/katla/build
 run mkdir -p /root/katla/build
 WORKDIR /root/katla/build
 
-run GTEST_ROOT=/usr/src/gtest cmake ..
+run GTEST_ROOT=/usr/src/gtest CC=gcc-8 CXX=g++-8 cmake ..
 run make
 
 # Code file to execute when the docker container starts up (`entrypoint.sh`)
