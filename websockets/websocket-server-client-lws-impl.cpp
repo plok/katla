@@ -2,6 +2,9 @@
 #include "websocket-server-client-lws-impl.h"
 
 #include "websocket-server-client-lws.h"
+#include "websocket-server-lws-private.h"
+
+#include "katla/core/core.h"
 
 namespace katla {
 
@@ -11,6 +14,12 @@ WebSocketServerClientLwsImpl::WebSocketServerClientLwsImpl(lws_context* serverCo
     : m_wsi(wsi), m_serverContext(serverContext)
 {
     m_publicClient = std::make_shared<WebSocketServerClientLws>(this);
+
+    auto [method, url] = WebSocketServerLwsPrivate::getMethod(wsi);
+    m_method = method;
+    m_url = url;
+
+    katla::printInfo("Websocket client: {} - {}", (int)method, url);
 }
 
 WebSocketServerClientLwsImpl::~WebSocketServerClientLwsImpl() {}
@@ -33,7 +42,7 @@ std::unique_ptr<LwsPacket> WebSocketServerClientLwsImpl::message()
     return message;
 }
 
-LwsPacket WebSocketServerClientLwsImpl::dataToSend()
+std::optional<LwsPacket> WebSocketServerClientLwsImpl::dataToSend()
 {
     std::scoped_lock lock(m_mutex);
 
@@ -59,6 +68,8 @@ void WebSocketServerClientLwsImpl::send(const LwsPacket& message)
         int idx = 0;
         while (idx < message.payload->size()) {
             LwsPacket sendMessage {};
+            sendMessage.statusCode = message.statusCode;
+            sendMessage.contentType = message.contentType;
             sendMessage.isFirst = idx == 0;
 
             int size = message.payload->size() - idx;
@@ -86,6 +97,8 @@ void WebSocketServerClientLwsImpl::send(const LwsPacket& message)
         std::scoped_lock lock(m_mutex);
 
         LwsPacket sendMessage {};
+        sendMessage.statusCode = message.statusCode;
+        sendMessage.contentType = message.contentType;
         sendMessage.isFirst = true;
         sendMessage.isFinal = true;
         sendMessage.isBinary = message.isBinary;
@@ -102,6 +115,17 @@ void WebSocketServerClientLwsImpl::send(const LwsPacket& message)
 
     // Cancel poll so we can ask for writable callback
     lws_cancel_service(m_serverContext);
+}
+
+void WebSocketServerClientLwsImpl::sendHttpResult(const HttpRequestResult& result)
+{
+    katla::LwsPacket packet {};
+    packet.statusCode = result.statusCode;
+    packet.contentType = result.contentType;
+    packet.payload = std::make_shared<std::vector<std::byte>>(result.payload); // copy data
+    packet.isBinary = true;
+
+    send(packet);
 }
 
 void WebSocketServerClientLwsImpl::handleMessage(const LwsPacket& message)
