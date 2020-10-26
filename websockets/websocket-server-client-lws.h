@@ -24,6 +24,7 @@ class WebSocketServerClientLws : public WebSocketServerClient {
     ~WebSocketServerClientLws();
 
     void send(const LwsPacket& message) override;
+    void sendHttpResult(const HttpRequestResult& result) override;
 
     // TODO private??
     void registerMessageHandler(std::function<void(const LwsPacket&)> callback);

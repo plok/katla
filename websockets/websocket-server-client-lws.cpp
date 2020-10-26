@@ -26,4 +26,6 @@ void WebSocketServerClientLws::handleMessage(const LwsPacket& message)
 }
 void WebSocketServerClientLws::send(const LwsPacket& message) { d->send(message); }
 
+void WebSocketServerClientLws::sendHttpResult(const HttpRequestResult& result) { d->sendHttpResult(result); }
+
 } // namespace katla

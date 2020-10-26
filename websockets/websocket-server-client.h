@@ -16,6 +16,9 @@ namespace katla {
 
 struct LwsPacket
 {
+    HttpStatusCode statusCode {};
+    std::string contentType;
+
     std::shared_ptr<std::vector<std::byte>> payload;
     bool isBinary {};
     bool isFirst {};
@@ -25,6 +28,7 @@ struct LwsPacket
 class WebSocketServerClient {
   public:
     virtual void send(const LwsPacket& message) = 0;
+    virtual void sendHttpResult(const HttpRequestResult& result) = 0;
 
     virtual void registerMessageHandler(std::function<void(const LwsPacket&)> callback) = 0;
 };

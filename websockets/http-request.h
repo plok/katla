@@ -24,6 +24,7 @@ enum class HttpMethod
 
 enum class HttpStatusCode
 {
+    Continue = 100,
     Ok = 200,
     Created = 201,
     BadRequest = 400,
@@ -35,13 +36,15 @@ enum class HttpStatusCode
 struct HttpRequest {
   HttpMethod method;
   std::string url;
-  std::variant<std::vector<std::byte>, std::string> payload;
+  std::string contentType;
+  std::vector<std::byte> payload;
 };
 
 struct HttpRequestResult {
   HttpRequest request;
   HttpStatusCode statusCode;
-  std::variant<std::vector<std::byte>, std::string> payload;
+  std::string contentType;
+  std::vector<std::byte> payload;
 };
 
 } // namespace katla

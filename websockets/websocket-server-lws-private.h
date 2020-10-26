@@ -35,11 +35,13 @@ struct WebSocketServerLwsPrivate
     // void addHttpClient(const std::shared_ptr<WebSocketServerClientLwsImpl>& client);
     // void removeHttpClient(const std::shared_ptr<WebSocketServerClientLwsImpl>& client);
 
-    void addWebSocketClient(const std::shared_ptr<WebSocketServerClientLwsImpl>& client);
+    void handleNewWebSocketClient(const std::shared_ptr<WebSocketServerClientLwsImpl>& client);
     void removeWebSocketClient(const std::shared_ptr<WebSocketServerClientLwsImpl>& client);
 
     // TODO use a promise for the bytes. So the body can be handles later
     void handleHttpRequest(const std::shared_ptr<WebSocketServerClientLwsImpl>& client, const katla::HttpRequest& request);
+
+    static std::optional<http_status> toLwsStatusCode(HttpStatusCode statusCode);
 
     const lws_protocol_vhost_options pvo = { nullptr, nullptr, "websocket-server", "" };
 

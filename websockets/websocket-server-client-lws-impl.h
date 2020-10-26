@@ -27,11 +27,12 @@ class WebSocketServerClientLwsImpl {
     void insert(gsl::span<std::byte> bytes);
     virtual std::unique_ptr<LwsPacket> message();
     void handleMessage(const LwsPacket& message);
-    LwsPacket dataToSend();
+    std::optional<LwsPacket> dataToSend();
     bool hasDataToSend();
     //--
 
     void send(const LwsPacket& message);
+    void sendHttpResult(const HttpRequestResult& result);
 
     std::shared_ptr<WebSocketServerClientLws> m_publicClient;
 
@@ -42,6 +43,9 @@ class WebSocketServerClientLwsImpl {
     lws_context* m_serverContext {nullptr};
 
     std::unique_ptr<std::vector<std::byte>> m_receiveBuffer;
+
+    std::string m_url;
+    HttpMethod m_method;
 };
 
 } // namespace katla
