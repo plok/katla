@@ -4,6 +4,7 @@
 
 #include "katla/core/core.h"
 #include "websocket-server-client.h"
+#include "katla/websockets/incoming-http-request.h"
 
 #include <chrono>
 #include <libwebsockets.h>
@@ -17,6 +18,13 @@
 namespace katla {
 
 class WebSocketServerClientLws;
+
+// TODO can be removed?
+struct VhdWebSocketServer
+{
+    lws_context* context;
+    lws_vhost* vhost;
+};
 
 class WebSocketServerClientLwsImpl {
   public:
@@ -46,6 +54,8 @@ class WebSocketServerClientLwsImpl {
 
     std::string m_url;
     HttpMethod m_method;
+
+    std::shared_ptr<IncomingHttpRequest> m_request;
 };
 
 } // namespace katla
