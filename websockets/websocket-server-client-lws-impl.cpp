@@ -70,6 +70,7 @@ void WebSocketServerClientLwsImpl::send(const LwsPacket& message)
             LwsPacket sendMessage {};
             sendMessage.statusCode = message.statusCode;
             sendMessage.contentType = message.contentType;
+            sendMessage.headers = message.headers;
             sendMessage.isFirst = idx == 0;
 
             int size = message.payload->size() - idx;
@@ -99,6 +100,7 @@ void WebSocketServerClientLwsImpl::send(const LwsPacket& message)
         LwsPacket sendMessage {};
         sendMessage.statusCode = message.statusCode;
         sendMessage.contentType = message.contentType;
+        sendMessage.headers = message.headers;
         sendMessage.isFirst = true;
         sendMessage.isFinal = true;
         sendMessage.isBinary = message.isBinary;
@@ -122,6 +124,7 @@ void WebSocketServerClientLwsImpl::sendHttpResult(const HttpRequestResult& resul
     katla::LwsPacket packet {};
     packet.statusCode = result.statusCode;
     packet.contentType = result.contentType;
+    packet.headers = result.headers;
     packet.payload = std::make_shared<std::vector<std::byte>>(result.payload); // copy data
     packet.isBinary = true;
 

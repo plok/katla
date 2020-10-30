@@ -100,14 +100,27 @@ void WebSocketServerLwsPrivate::handleHttpRequest(const std::shared_ptr<WebSocke
         }
     }
 
+    // Match wildcard
+    if (!found) {
+        for (auto& it : httpHandlers) {
+            if (it.url != "*" || it.method != request.method) {
+                continue;
+            }
 
+            found = true;
+
+            for (auto& callbackIt : it.callbacks) {
+                callbackIt(*client->m_publicClient, request);
+            }
+        }
+    }
 
     if (!found) {
         katla::printInfo("no handler found for url: {}", request.url);
 
         // TODO let client code handle this?
 
-        HttpRequestResult result;
+        HttpRequestResult result(request);
         result.request = request;
         result.statusCode = HttpStatusCode::NotFound;
         client->sendHttpResult(result);
