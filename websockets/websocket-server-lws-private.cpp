@@ -38,26 +38,22 @@ std::tuple<HttpMethod, std::string> WebSocketServerLwsPrivate::getMethod(lws* ws
     return { HttpMethod::Unknown, "" };
 }
 
-// void WebSocketServerLwsPrivate::addHttpClient(const std::shared_ptr<WebSocketServerClientLwsImpl>& client) {
-//     httpClients.push_back(client);
+void WebSocketServerLwsPrivate::addHttpClient(lws* wsi)
+{
+    auto client = std::make_shared<WebSocketServerClientLwsImpl>(context, wsi);
+    httpClientsMap[static_cast<void*>(wsi)] = client;
+}
 
-//     for(auto& handlerList : httpHandlers) {
-//         for (auto& handler : handlerList.second) {
-//             handler(*client->m_publicClient);
-//         }
-//     }
-// }
+void WebSocketServerLwsPrivate::removeHttpClient(lws* wsi)
+{
+    auto& client = httpClientsMap[static_cast<void*>(wsi)];
+    httpClientsMap.erase(static_cast<void*>(wsi));
+}
 
-// void WebSocketServerLwsPrivate::removeHttpClient(const std::shared_ptr<WebSocketServerClientLwsImpl>& client) {
-    
-//     auto it = std::find(httpClients.begin(), httpClients.end(), client);
-//     if (it != httpClients.end()) {
-//         httpClients.erase(it);
-//     }
-// }
+void WebSocketServerLwsPrivate::handleNewWebSocketClient(lws* wsi) {
 
-void WebSocketServerLwsPrivate::handleNewWebSocketClient(const std::shared_ptr<WebSocketServerClientLwsImpl>& client) {
-    webSocketClients.push_back(client);
+    auto client = std::make_shared<WebSocketServerClientLwsImpl>(context, wsi);
+    webSocketClientsMap[static_cast<void*>(wsi)] = client;
 
     bool found = false;
     for (auto& it : webSocketHandlers) {
@@ -77,12 +73,10 @@ void WebSocketServerLwsPrivate::handleNewWebSocketClient(const std::shared_ptr<W
     }
 }
 
-void WebSocketServerLwsPrivate::removeWebSocketClient(const std::shared_ptr<WebSocketServerClientLwsImpl>& client) {
+void WebSocketServerLwsPrivate::removeWebSocketClient(lws* wsi) {
 
-    auto it = std::find(webSocketClients.begin(), webSocketClients.end(), client);
-    if (it != webSocketClients.end()) {
-        webSocketClients.erase(it);
-    }
+    auto& client = webSocketClientsMap[static_cast<void*>(wsi)];
+    webSocketClientsMap.erase(static_cast<void*>(wsi));
 }
 
 void WebSocketServerLwsPrivate::handleHttpRequest(const std::shared_ptr<WebSocketServerClientLwsImpl>& client, const katla::HttpRequest& request) {

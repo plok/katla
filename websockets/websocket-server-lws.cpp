@@ -12,19 +12,18 @@ namespace katla {
 
 using namespace std::chrono_literals;
 
-void handleHttpNewConnection(lws* wsi, WebSocketServerLwsPrivate* server)
+int handleHttpNewConnection(lws* wsi, WebSocketServerLwsPrivate* server)
 {
     auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
 
     if (!vhd) {
-        return;
+        return 0;
     }
 
-    vhd->client = std::make_shared<WebSocketServerClientLwsImpl>(server->context, wsi);
-//    server->addWebSocketClient(vhd->client);
+    server->addHttpClient(wsi);
+    auto& client = server->httpClientsMap[static_cast<void*>(wsi)];
 
-
-    HttpRequest request {};
+    HttpRequest request;
 
     auto [method, url] = WebSocketServerLwsPrivate::getMethod(wsi);
     request.method = method;
@@ -38,19 +37,36 @@ void handleHttpNewConnection(lws* wsi, WebSocketServerLwsPrivate* server)
         request.contentType = contentType;
     }
 
+    if (int length = lws_hdr_total_length(wsi, WSI_TOKEN_HTTP_CONTENT_LENGTH); length > 0) {
+        std::string contentLengthString(length+1, 0);
+        lws_hdr_copy(wsi, contentLengthString.data(), length + 1, WSI_TOKEN_HTTP_CONTENT_LENGTH);
+        contentLengthString.resize(length);
+
+        try {
+            request.contentLength = std::stoi(contentLengthString);
+        } catch(...) {
+            request.contentLength = 0;
+            katla::printError("Error content length: {}", contentLengthString);
+        }
+    }
+
     katla::printInfo("{} - {} - {}", (int)method, url, request.contentType);
 
-    vhd->request = new IncomingHttpRequest(request);
+    client->m_request = std::make_shared<IncomingHttpRequest>(request);
 
-    if (int length = lws_hdr_total_length(wsi, WSI_TOKEN_HTTP_CONTENT_LENGTH); length > 0) {
-        std::vector<char> contentLengthVec(length + 1, 0);
-        lws_hdr_copy(wsi, contentLengthVec.data(), length + 1, WSI_TOKEN_HTTP_CONTENT_LENGTH);
+    if (!request.contentLength) {
+        auto request = client->m_request->completedRequest();
+        server->handleHttpRequest(client, *request);
 
-    } else {
-        auto request = vhd->request->completedRequest();
+        if (client->hasDataToSend()) {
+            lws_callback_on_writable(wsi);
+        } else {
+            return 1;
+        }
 
-        server->handleHttpRequest(vhd->client, *request);
     }
+
+    return 0;
 }
 
 static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len)
@@ -93,7 +109,9 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         katla::printInfo("LWS_CALLBACK_HTTP");
         katla::printInfo("url: {} {}", len, std::string(static_cast<char*>(in)));
 
-        handleHttpNewConnection(wsi, webSocketServer);
+        if (handleHttpNewConnection(wsi, webSocketServer)) {
+            return 1;
+        }
 
         break;
 
@@ -103,7 +121,10 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
 
         gsl::span<std::byte> bytes(reinterpret_cast<std::byte*>(in), len);
-        vhd->request->insert(bytes);
+
+        auto& client = webSocketServer->httpClientsMap[static_cast<void*>(wsi)];
+
+        client->m_request->insert(bytes);
 
         break;
     }
@@ -112,11 +133,13 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
 
         auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
 
-        auto request = vhd->request->completedRequest();
+        auto& client = webSocketServer->httpClientsMap[static_cast<void*>(wsi)];
 
-        webSocketServer->handleHttpRequest(vhd->client, *request);
+        auto request = client->m_request->completedRequest();
 
-        if (vhd->client->hasDataToSend()) {
+        webSocketServer->handleHttpRequest(client, *request);
+
+        if (client->hasDataToSend()) {
             lws_callback_on_writable(wsi);
         } else {
             return 1;
@@ -129,7 +152,9 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
 
         auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
 
-        auto dataOpt = vhd->client->dataToSend();
+        auto& client = webSocketServer->httpClientsMap[static_cast<void*>(wsi)];
+
+        auto dataOpt = client->dataToSend();
         if (!dataOpt) {
             katla::printError("nothing to send!");
             return 0;
@@ -185,7 +210,7 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
             }
         }
 
-        if (!data.isFinal && vhd->client->hasDataToSend()) {
+        if (!data.isFinal && client->hasDataToSend()) {
             lws_callback_on_writable(wsi);
         }
 
@@ -199,34 +224,24 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
     case LWS_CALLBACK_CLOSED_HTTP: {
         katla::printInfo("LWS_CALLBACK_CLOSED_HTTP");
 
-        auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
-
-        delete vhd->request;
-        vhd->request = nullptr;
-
-        webSocketServer->removeWebSocketClient(vhd->client);
-        vhd->client.reset();
-
+        webSocketServer->removeHttpClient(wsi);
         break;
     }
     case LWS_CALLBACK_ESTABLISHED: {
         katla::printInfo("LWS_CALLBACK_ESTABLISHED");
 
-        auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
-
-        vhd->client = std::make_shared<WebSocketServerClientLwsImpl>(webSocketServer->context, wsi);
-
-        webSocketServer->handleNewWebSocketClient(vhd->client);
+        webSocketServer->handleNewWebSocketClient(wsi);
 
         lws_callback_on_writable(wsi);
-
         break;
     }
     case LWS_CALLBACK_SERVER_WRITEABLE: {
 
         auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
 
-        auto dataOpt = vhd->client->dataToSend();
+        auto& client = webSocketServer->webSocketClientsMap[static_cast<void*>(wsi)];
+
+        auto dataOpt = client->dataToSend();
         if (!dataOpt.has_value()) {
             // Nothing to write
             return 0;
@@ -245,7 +260,7 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
             }
         }
 
-        if (vhd->client->hasDataToSend()) {
+        if (client->hasDataToSend()) {
             lws_callback_on_writable(wsi);
         }
 
@@ -258,6 +273,8 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         int isFinal = (int)lws_is_final_fragment(wsi);
         int isBinary = (int)lws_frame_is_binary(wsi);
 
+        auto& client = webSocketServer->webSocketClientsMap[static_cast<void*>(wsi)];
+
         katla::printInfo("LWS_CALLBACK_RECEIVE: {} {} {} {} {}",
                          len,
                          remainingPackets,
@@ -268,10 +285,10 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
 
         gsl::span<std::byte> bytes(reinterpret_cast<std::byte*>(in), len);
-        vhd->client->insert(bytes);
+        client->insert(bytes);
 
         if (isFinal) {
-            vhd->client->handleMessage(*vhd->client->message());
+            client->handleMessage(*client->message());
         }
 
         break;
@@ -279,12 +296,7 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
     case LWS_CALLBACK_CLOSED: {
         katla::printInfo("LWS_CALLBACK_CLOSED");
 
-        auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
-
-        webSocketServer->removeWebSocketClient(vhd->client);
-
-        vhd->client.reset();
-
+        webSocketServer->removeWebSocketClient(wsi);
         break;
     }
     case LWS_CALLBACK_ADD_HEADERS:
@@ -380,7 +392,7 @@ void WebSocketServerLws::init(int port)
 
     m_workerThread.init([this]() {
         return this->work();
-    }, 20ms);
+    }, 0ms);
 }
 void WebSocketServerLws::stop()
 {
@@ -442,12 +454,14 @@ void WebSocketServerLws::wakeup() {
 
 bool WebSocketServerLws::work() {
 
-    for (auto& client : d->httpClients) {
+    for (auto& clientPair : d->httpClientsMap) {
+        auto& client = clientPair.second;
         if (client->hasDataToSend()) {
             lws_callback_on_writable(client->m_wsi);
         }
     }
-    for (auto& client : d->webSocketClients) {
+    for (auto& clientPair : d->webSocketClientsMap) {
+        auto& client = clientPair.second;
         if (client->hasDataToSend()) {
             lws_callback_on_writable(client->m_wsi);
         }
