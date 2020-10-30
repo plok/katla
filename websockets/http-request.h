@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <variant>
+#include <map>
 
 namespace katla {
 
@@ -37,14 +38,27 @@ struct HttpRequest {
   HttpMethod method;
   std::string url;
   std::string contentType;
+  int contentLength {0};
   std::vector<std::byte> payload;
 };
 
-struct HttpRequestResult {
-  HttpRequest request;
-  HttpStatusCode statusCode;
-  std::string contentType;
-  std::vector<std::byte> payload;
+class HttpRequestResult {
+public:
+    HttpRequestResult(const HttpRequest& request) {
+        statusCode = katla::HttpStatusCode::InternalServerError;
+        contentType = "application/json";
+
+        // TODO not for public use!
+        headers["Access-Control-Allow-Origin"] = "*";
+        headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS";
+        headers["Access-Control-Allow-Headers"] = "X-Requested-With, content-type, Authorization";
+    };
+
+    HttpRequest request {};
+    HttpStatusCode statusCode {};
+    std::map<std::string, std::string> headers;
+    std::string contentType;
+    std::vector<std::byte> payload;
 };
 
 } // namespace katla

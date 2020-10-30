@@ -18,6 +18,7 @@ struct LwsPacket
 {
     HttpStatusCode statusCode {};
     std::string contentType;
+    std::map<std::string, std::string> headers;
 
     std::shared_ptr<std::vector<std::byte>> payload;
     bool isBinary {};
