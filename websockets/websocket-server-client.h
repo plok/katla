@@ -5,6 +5,7 @@
 #include "http-request.h"
 
 #include "katla/core/core.h"
+#include "katla/core/subject.h"
 
 #include <chrono>
 #include <memory>
@@ -32,6 +33,8 @@ class WebSocketServerClient {
     virtual void sendHttpResult(const HttpRequestResult& result) = 0;
 
     virtual void registerMessageHandler(std::function<void(const LwsPacket&)> callback) = 0;
+
+    virtual std::unique_ptr<katla::Subscription> onDisconnect(std::function<void(void)> callback) = 0;
 };
 
 } // namespace katla

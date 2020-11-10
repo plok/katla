@@ -1,10 +1,9 @@
 
 #include "websocket-server-client-lws-impl.h"
 
+#include "katla/core/core.h"
 #include "websocket-server-client-lws.h"
 #include "websocket-server-lws-private.h"
-
-#include "katla/core/core.h"
 
 namespace katla {
 
@@ -80,10 +79,9 @@ void WebSocketServerClientLwsImpl::send(const LwsPacket& message)
 
             // libwebsockets want's to have LWS_PRE bytes prepended for efficiency
             sendMessage.payload = std::make_unique<std::vector<std::byte>>(LWS_PRE + size);
-            std::copy(
-                message.payload->begin() + idx,
-                message.payload->begin() + idx + size,
-                sendMessage.payload->begin() + LWS_PRE);
+            std::copy(message.payload->begin() + idx,
+                      message.payload->begin() + idx + size,
+                      sendMessage.payload->begin() + LWS_PRE);
 
             idx += PacketSize;
             sendMessage.isFinal = idx >= message.payload->size();
@@ -107,10 +105,7 @@ void WebSocketServerClientLwsImpl::send(const LwsPacket& message)
 
         // libwebsockets want's to have LWS_PRE bytes prepended for efficiency
         sendMessage.payload = std::make_unique<std::vector<std::byte>>(LWS_PRE + message.payload->size());
-        std::copy(
-            message.payload->begin(),
-            message.payload->end(),
-            sendMessage.payload->begin() + LWS_PRE);
+        std::copy(message.payload->begin(), message.payload->end(), sendMessage.payload->begin() + LWS_PRE);
 
         m_sendList.push_back(sendMessage);
     }
@@ -131,9 +126,13 @@ void WebSocketServerClientLwsImpl::sendHttpResult(const HttpRequestResult& resul
     send(packet);
 }
 
-void WebSocketServerClientLwsImpl::handleMessage(const LwsPacket& message)
+void WebSocketServerClientLwsImpl::handleMessage(const LwsPacket& message) { m_publicClient->handleMessage(message); }
+
+void WebSocketServerClientLwsImpl::handleDisconnect()
 {
-    m_publicClient->handleMessage(message);
+    if (m_publicClient) {
+        m_publicClient->handleDisconnect();
+    }
 }
 
 } // namespace katla

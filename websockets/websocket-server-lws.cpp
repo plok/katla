@@ -390,9 +390,13 @@ void WebSocketServerLws::init(int port)
         return;
     }
 
-    m_workerThread.init([this]() {
+    auto initResult = m_workerThread.init([this]() {
         return this->work();
     }, 0ms);
+
+    if (!initResult) {
+        katla::printError("creating workerthread failed!");
+    }
 }
 void WebSocketServerLws::stop()
 {

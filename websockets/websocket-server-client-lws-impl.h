@@ -37,6 +37,8 @@ class WebSocketServerClientLwsImpl {
     void handleMessage(const LwsPacket& message);
     std::optional<LwsPacket> dataToSend();
     bool hasDataToSend();
+
+    void handleDisconnect();
     //--
 
     void send(const LwsPacket& message);

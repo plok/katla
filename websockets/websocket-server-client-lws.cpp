@@ -28,4 +28,8 @@ void WebSocketServerClientLws::send(const LwsPacket& message) { d->send(message)
 
 void WebSocketServerClientLws::sendHttpResult(const HttpRequestResult& result) { d->sendHttpResult(result); }
 
+void WebSocketServerClientLws::handleDisconnect() {
+    m_onDisconnectSubject.next();
+}
+
 } // namespace katla
