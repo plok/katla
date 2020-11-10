@@ -76,7 +76,11 @@ void WebSocketServerLwsPrivate::handleNewWebSocketClient(lws* wsi) {
 void WebSocketServerLwsPrivate::removeWebSocketClient(lws* wsi) {
 
     auto& client = webSocketClientsMap[static_cast<void*>(wsi)];
+
+    client->handleDisconnect();
+
     webSocketClientsMap.erase(static_cast<void*>(wsi));
+
 }
 
 void WebSocketServerLwsPrivate::handleHttpRequest(const std::shared_ptr<WebSocketServerClientLwsImpl>& client, const katla::HttpRequest& request) {

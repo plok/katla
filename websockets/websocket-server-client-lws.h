@@ -3,6 +3,7 @@
 #define KATLA_WEBSOCKET_SERVER_CLIENT_LWS_H
 
 #include "katla/core/core.h"
+#include "katla/core/subject.h"
 #include "websocket-server-client.h"
 
 #include <chrono>
@@ -26,15 +27,24 @@ class WebSocketServerClientLws : public WebSocketServerClient {
     void send(const LwsPacket& message) override;
     void sendHttpResult(const HttpRequestResult& result) override;
 
+    std::unique_ptr<katla::Subscription> onDisconnect(std::function<void(void)> callback)
+    {
+        auto observer = std::make_shared<katla::FuncObserver<void>>(callback);
+        return m_onDisconnectSubject.subscribe(observer);
+    }
+
     // TODO private??
     void registerMessageHandler(std::function<void(const LwsPacket&)> callback);
     void handleMessage(const LwsPacket& message);
+    void handleDisconnect();
 
   private:
     WebSocketServerClientLwsImpl* d { nullptr };
 
     int m_messageHandlerId {};
     std::map<int, std::function<void(const LwsPacket&)>> m_messageHandlers;
+
+    katla::Subject<void> m_onDisconnectSubject;
 };
 
 } // namespace katla
