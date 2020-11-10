@@ -188,7 +188,10 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
 
             for(auto& pair: data.headers) {
                 std::string name = pair.first + ":";
-                lws_add_http_header_by_name(wsi, reinterpret_cast<const unsigned char*>(name.c_str()), reinterpret_cast<const unsigned char*>(pair.second.c_str()), pair.second.size(), &p, end);
+                auto bufferTooSmall = lws_add_http_header_by_name(wsi, reinterpret_cast<const unsigned char*>(name.c_str()), reinterpret_cast<const unsigned char*>(pair.second.c_str()), pair.second.size(), &p, end);
+                if (bufferTooSmall) {
+                    katla::printError("LWS: buffer too small for writing header_by_name!");
+                }
             }
 
             if (lws_finalize_write_http_header(wsi, start, &p, end)) {
