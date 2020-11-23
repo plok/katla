@@ -103,7 +103,7 @@ namespace katla {
                 break;
             }
 
-            auto timeoutElapsed = (getTimestamp() - startTime) > std::chrono::milliseconds(4000);
+            auto timeoutElapsed = (getTimestamp() - startTime) > std::chrono::milliseconds(8000);
             ASSERT_EQ(timeoutElapsed, false); //timeout
         }
 

@@ -31,14 +31,14 @@ template <class T> class Subject : public Observable<T>, public Observer<T> {
   public:
     virtual ~Subject() = default;
 
-    void next(T value)
+    void next(const T& value)
     {
         for (auto o : m_observers) {
-            o->publish(value);
+            o->next(value);
         }
     }
 
-    std::unique_ptr<Subscription> subscribe(std::shared_ptr<Observer<void>> observer)
+    std::unique_ptr<Subscription> subscribe(std::shared_ptr<Observer<T>> observer)
     {
         m_observers.push_back(observer);
 
@@ -46,7 +46,7 @@ template <class T> class Subject : public Observable<T>, public Observer<T> {
             new FuncSubscription([this, &observer]() { this->unsubscribe(observer); }));
     }
 
-    void unsubscribe(const std::shared_ptr<Observer<void>>& observer)
+    void unsubscribe(const std::shared_ptr<Observer<T>>& observer)
     {
         auto it = std::find(m_observers.begin(), m_observers.end(), observer);
         if (it != m_observers.end()) {
