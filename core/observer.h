@@ -28,7 +28,7 @@ namespace katla {
 template <class T> class Observer {
   public:
     virtual ~Observer() = default;
-    virtual void next(T value) = 0;
+    virtual void next(const T& value) = 0;
 };
 
 template <>
@@ -40,9 +40,9 @@ class Observer<void> {
 
 template <class T> class FuncObserver : public Observer<T> {
   public:
-    explicit FuncObserver(std::function<void(T)> func) { _func = func; }
+    explicit FuncObserver(std::function<void(const T&)> func) { _func = func; }
 
-    void next(T value)
+    void next(const T& value)
     {
         if (_func) {
             _func(value);
@@ -50,7 +50,7 @@ template <class T> class FuncObserver : public Observer<T> {
     }
 
   private:
-    std::function<void(T)> _func;
+    std::function<void(const T&)> _func;
 };
 
 template <>
