@@ -139,7 +139,7 @@ void MqttClient::handleLogMessage(int level, const char* message)
     if (level == MOSQ_LOG_INFO || level == MOSQ_LOG_NOTICE) {
         m_logger.info(message);
     }
-    if (level == MOSQ_LOG_WARNING || MOSQ_LOG_ERR) {
+    if (level == MOSQ_LOG_WARNING || level == MOSQ_LOG_ERR) {
         m_logger.error(message);
     }
     if (level == MOSQ_LOG_DEBUG) {
