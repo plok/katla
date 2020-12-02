@@ -384,7 +384,10 @@ void WebSocketServerLws::init(int port)
 
     d->info.mounts = &d->mount;
     d->info.error_document_404 = "/404.html";
-    d->info.options = LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE; // NOLINT(hicpp-signed-bitwise)
+
+    // Use this when the server is on internet
+    //d->info.options = LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE; // NOLINT(hicpp-signed-bitwise)
+
     d->info.user = static_cast<void*>(d);
 
     d->context = lws_create_context(&d->info);
