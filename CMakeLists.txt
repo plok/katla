@@ -11,7 +11,7 @@ add_subdirectory(external/googletest)
 
 add_subdirectory(external/fmt)
 
-option(USE_SYSTEM_GSL "Use system GSL library" ON)
+option(USE_SYSTEM_GSL "Use system GSL library" OFF)
 IF(USE_SYSTEM_GSL)
     find_package(GSL REQUIRED)
     add_library(Microsoft.GSL::GSL ALIAS GSL::gsl)
