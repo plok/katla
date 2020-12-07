@@ -4,8 +4,6 @@ project(katla-websockets)
 include(${PROJECT_SOURCE_DIR}/../cmake/cmake-common.txt)
 
 find_package(Threads REQUIRED)
-find_package(Fmt REQUIRED)
-find_package(Websockets REQUIRED)
 
 set(target_name katla-websockets)
 
@@ -25,22 +23,20 @@ set(sources
         websocket-server-client-lws-impl.h
         )
 
-add_library(${target_name} SHARED ${sources})
+        add_library(${target_name} ${sources})
 
-target_include_directories(${target_name} PUBLIC
+target_include_directories(${target_name} PUBLIC 
         ../../
         ../external/   # TODO make suitable for FindPackage
         ../external/cxxopt/
-        ${LIBFMT_INCLUDE_DIR}
         ${LIBGSL_INCLUDE_DIR}
-        ${LIBWEBSOCKETS_INCLUDE_DIR}
         )
 
 target_include_directories(${target_name} PRIVATE
         .
         )
 
-target_link_libraries(${target_name} katla-core fmt ${LIBWEBSOCKETS_LIBRARIES})
+target_link_libraries(${target_name} katla-core fmt websockets_shared)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries(${target_name} Threads::Threads)

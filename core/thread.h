@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-#ifndef KATLA_POSIX_THREAD_H
-#define KATLA_POSIX_THREAD_H
+#ifndef KATLA_THREAD_H
+#define KATLA_THREAD_H
 
 #include "katla/core/core.h"
 #include "katla/core/error.h"
-#include "katla/core/thread.h"
-
-#include <gsl/span>
 
 #include <optional>
 #include <thread>
 
 namespace katla {
 
-class PosixThread {
+class Thread {
 public:
+    enum class Priority {
+        Realtime,
+        Normal,
+        Idle
+    };
+
     static outcome::result<void, Error> setPriority(std::thread& thread, Thread::Priority priority);
 private:
 
@@ -37,4 +40,4 @@ private:
 
 }
 
-#endif // KATLA_PIPE_H
+#endif // KATLA_THREAD_H

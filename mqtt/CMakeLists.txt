@@ -4,7 +4,6 @@ project(katla-mqtt)
 include(${PROJECT_SOURCE_DIR}/../cmake/cmake-common.txt)
 
 find_package(Threads REQUIRED)
-find_package(Fmt REQUIRED)
 find_package(Mosquitto REQUIRED)
 
 set(target_name katla-mqtt)

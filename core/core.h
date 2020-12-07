@@ -28,6 +28,16 @@ namespace outcome = OUTCOME_V2_NAMESPACE;
 #include <cstdlib>
 #include <string_view>
 
+#ifdef _MSC_VER
+    #ifdef KATLA_CORE_INDLL
+    # define KATLA_CORE_DECLSPEC __declspec(dllexport)
+    #else
+    # define KATLA_CORE_DECLSPEC __declspec(dllimport)
+    #endif
+#else
+    #define KATLA_CORE_DECLSPEC
+#endif
+
 namespace katla {
 
     template<class T, std::size_t Extent>

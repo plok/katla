@@ -28,7 +28,7 @@ namespace katla {
 
 using namespace std::literals::chrono_literals;
 
-WorkerThread::WorkerThread(std::string name, katla::PosixThread::Priority priority)
+WorkerThread::WorkerThread(std::string name, katla::Thread::Priority priority)
     : m_name(std::move(name)), m_priority(priority)
 {}
 
@@ -77,7 +77,7 @@ void WorkerThread::exec(const std::function<void(void)>& repeatableWork)
         // need lock otherwise m_thread is not always assigned yet
         std::unique_lock<std::mutex> lock(m_mutex);
 
-        auto setPriorityResult = katla::PosixThread::setPriority(*m_thread, m_priority);
+        auto setPriorityResult = katla::Thread::setPriority(*m_thread, m_priority);
         if (!setPriorityResult) {
             katla::printError("Failed setting thread priority: {}", setPriorityResult.error().message());
         }

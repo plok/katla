@@ -7,7 +7,6 @@
 #include "websocket-server-client.h"
 
 #include <chrono>
-#include <libwebsockets.h>
 #include <list>
 #include <map>
 #include <memory>

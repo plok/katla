@@ -16,6 +16,8 @@
 #ifndef KATLA_CORE_STOPWATCH_H_
 #define KATLA_CORE_STOPWATCH_H_
 
+#include "katla/core/core.h"
+
 #include <chrono>
 
 namespace katla
