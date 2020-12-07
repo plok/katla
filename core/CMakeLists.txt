@@ -3,7 +3,6 @@ project(katla-core)
 
 include(${PROJECT_SOURCE_DIR}/../cmake/cmake-common.txt)
 
-
 set(target_name katla-core)
 
 add_definitions(-DKATLA_CORE_INDLL)

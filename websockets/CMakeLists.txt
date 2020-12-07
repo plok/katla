@@ -23,7 +23,7 @@ set(sources
         websocket-server-client-lws-impl.h
         )
 
-        add_library(${target_name} ${sources})
+add_library(${target_name} ${sources})
 
 target_include_directories(${target_name} PUBLIC 
         ../../

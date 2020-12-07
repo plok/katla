@@ -19,7 +19,7 @@ set(sources
     mqtt-errors.h
     )
 
-add_library(${target_name} SHARED ${sources})
+add_library(${target_name} ${sources})
 
 target_include_directories(${target_name} PRIVATE
     .
