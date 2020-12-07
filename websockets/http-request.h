@@ -5,7 +5,6 @@
 #include "katla/core/core.h"
 
 #include <chrono>
-#include <libwebsockets.h>
 #include <memory>
 #include <string>
 #include <vector>

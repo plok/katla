@@ -19,7 +19,7 @@
 #define KATLA_WORKER_THREAD_H
 
 #include "katla/core/core.h"
-#include "katla/core/posix-thread.h"
+#include "katla/core/thread.h"
 
 #include <chrono>
 #include <condition_variable>
@@ -32,7 +32,7 @@ namespace katla {
 
 class WorkerThread {
   public:
-    WorkerThread(std::string name, katla::PosixThread::Priority priority);
+    WorkerThread(std::string name, katla::Thread::Priority priority);
     virtual ~WorkerThread();
 
     outcome::result<void, Error> init(std::function<void(void)> repeatableWork, std::chrono::milliseconds interval);
@@ -54,7 +54,7 @@ class WorkerThread {
 
     std::string m_name { "WorkerThread" };
 
-    katla::PosixThread::Priority m_priority { katla::PosixThread::Priority::Normal };
+    katla::Thread::Priority m_priority { katla::Thread::Priority::Normal };
 
     bool m_stop {};
     std::chrono::milliseconds m_interval { 1000 };

@@ -3,9 +3,6 @@ project(katla-core)
 
 include(${PROJECT_SOURCE_DIR}/../cmake/cmake-common.txt)
 
-find_package(Threads REQUIRED)
-find_package(Fmt REQUIRED)
-
 set(target_name katla-core)
 
 add_definitions(-DKATLA_CORE_INDLL)
@@ -18,23 +15,12 @@ set(sources
 
         core-errors.cpp
         core-errors.h
-        posix-errors.cpp
-        posix-errors.h
-
-        posix-pipe.cpp
-        posix-pipe.h
-
-        posix-socket.cpp
-        posix-socket.h
-
-        posix-file.cpp
-        posix-file.h
-
-        posix-thread.cpp
-
+        
         stopwatch.cpp
         stopwatch.h
 
+        thread.cpp
+        thread.h
         worker-thread.cpp
         worker-thread.h
 
@@ -43,13 +29,39 @@ set(sources
         subject.h
         )
 
-add_library(${target_name} SHARED ${sources})
+IF (NOT WIN32)
+        set(sources ${sources}
+                posix-errors.cpp
+                posix-errors.h
+
+                posix-pipe.cpp
+                posix-pipe.h
+
+                posix-socket.cpp
+                posix-socket.h
+
+                posix-file.cpp
+                posix-file.h
+
+                posix-thread.cpp
+        )
+ELSE()
+        set(sources ${sources}
+                win32-errors.cpp
+                win32-errors.h
+
+                win32-thread.cpp
+                win32-thread.h
+        )
+ENDIF()
+
+add_library(${target_name} ${sources})
 
 target_include_directories(${target_name} PUBLIC
         ../
         ../../
         ../external/   # TODO make suitable for FindPackage
-        ${LIBFMT_INCLUDE_DIR}
+        ../external/gsl/
         ${LIBGSL_INCLUDE_DIR}
         )
 
@@ -57,7 +69,7 @@ target_include_directories(${target_name} PRIVATE
         .
         )
 
-target_link_libraries(${target_name} fmt)
+target_link_libraries(${target_name} fmt Microsoft.GSL::GSL)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries(${target_name} Threads::Threads)

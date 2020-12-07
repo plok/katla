@@ -342,7 +342,7 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
 
 
 WebSocketServerLws::WebSocketServerLws() :
-    m_workerThread("WebSocketServerLws", katla::PosixThread::Priority::Normal)
+    m_workerThread("WebSocketServerLws", katla::Thread::Priority::Normal)
 {
     d = new WebSocketServerLwsPrivate();
 
@@ -407,6 +407,7 @@ void WebSocketServerLws::init(int port)
 void WebSocketServerLws::stop()
 {
     m_workerThread.stop();
+    wakeup();
 
     if (!d->context) {
         return;

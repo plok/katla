@@ -15,40 +15,34 @@
  */
 
 
-#ifndef KATLA_CORE_POSIX_ERRORS_H
-#define KATLA_CORE_POSIX_ERRORS_H
+#ifndef KATLA_CORE_WIN32_ERRORS_H
+#define KATLA_CORE_WIN32_ERRORS_H
 
 #include <system_error>
 #include <string>
 
 namespace katla {
 
-    enum class PosixErrorCodes {
-        InvalidDomain,
-        InvalidType,
-        Invalid,
-        OperationNotSupported,
-        UnixSocketPathTooLong,
-        PermissionDenied,
-        NotFound
+    enum class Win32ErrorCodes {
+        OperationFailed
     };
 
     // Define a custom error code category derived from std::error_category
-    class PosixErrorCategory : public std::error_category
+    class Win32ErrorCategory : public std::error_category
     {
     public:
         // Return a short descriptive name for the category
-        virtual const char *name() const noexcept override final { return "Posix error"; }
+        virtual const char *name() const noexcept override final { return "Win32 error"; }
         // Return what each enum means in text
         virtual std::string message(int c) const override final;
 
         virtual std::error_condition default_error_condition(int c) const noexcept override final;
     };
 
-    const PosixErrorCategory& posixSocketErrorCategory();
+    const Win32ErrorCategory& win32SocketErrorCategory();
 
-    inline std::error_code make_error_code(katla::PosixErrorCodes e) {
-        return {static_cast<int>(e), katla::posixSocketErrorCategory()};
+    inline std::error_code make_error_code(katla::Win32ErrorCodes e) {
+        return {static_cast<int>(e), katla::win32SocketErrorCategory()};
     }
 }
 

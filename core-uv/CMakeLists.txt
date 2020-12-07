@@ -4,7 +4,6 @@ project(katla-core-uv)
 include(${PROJECT_SOURCE_DIR}/../cmake/cmake-common.txt)
 
 find_package(Threads REQUIRED)
-find_package(Fmt REQUIRED)
 find_package(Uv REQUIRED)
 
 set(target_name katla-core-uv)
@@ -22,7 +21,7 @@ set(sources
     uv-core-application.h
     )
 
-add_library(${target_name} SHARED ${sources})
+add_library(${target_name} ${sources})
 
 target_include_directories(${target_name} PRIVATE
     .

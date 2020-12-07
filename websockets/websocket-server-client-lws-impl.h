@@ -6,8 +6,10 @@
 #include "websocket-server-client.h"
 #include "katla/websockets/incoming-http-request.h"
 
+#define WIN32_LEAN_AND_MEAN
+#include "libwebsockets.h"
+
 #include <chrono>
-#include <libwebsockets.h>
 #include <map>
 #include <memory>
 #include <string>

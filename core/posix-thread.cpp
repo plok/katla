@@ -22,7 +22,7 @@
 
 namespace katla {
 
-outcome::result<void, Error> PosixThread::setPriority(std::thread& thread, Priority priority)
+outcome::result<void, Error> PosixThread::setPriority(std::thread& thread, Thread::Priority priority)
 {
     auto nativeHandle = thread.native_handle();
 
@@ -32,14 +32,14 @@ outcome::result<void, Error> PosixThread::setPriority(std::thread& thread, Prior
     param.sched_priority = 0;
 
     switch(priority) {
-        case Priority::Realtime: 
+        case Thread::Priority::Realtime: 
             policy = SCHED_RR;
             param.sched_priority = 10;
             break;
-        case Priority::Normal:
+        case Thread::Priority::Normal:
             policy = SCHED_OTHER;
             break;
-        case Priority::Idle:
+        case Thread::Priority::Idle:
             policy = SCHED_IDLE;
     }
 

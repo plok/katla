@@ -4,7 +4,6 @@ project(katla-sqlite)
 include(${PROJECT_SOURCE_DIR}/../cmake/cmake-common.txt)
 
 find_package(Threads REQUIRED)
-find_package(Fmt REQUIRED)
 find_package(Uv REQUIRED)
 find_package(SQLite3 REQUIRED)
 
@@ -19,7 +18,7 @@ set(sources
     sqlite-database.h
     )
 
-add_library(${target_name} SHARED ${sources})
+add_library(${target_name} ${sources})
 
 target_include_directories(${target_name} PRIVATE
     .
