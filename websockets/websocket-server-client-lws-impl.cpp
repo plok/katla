@@ -69,6 +69,7 @@ void WebSocketServerClientLwsImpl::send(const LwsPacket& message)
             LwsPacket sendMessage {};
             sendMessage.statusCode = message.statusCode;
             sendMessage.contentType = message.contentType;
+            sendMessage.contentLength = message.payload->size();
             sendMessage.headers = message.headers;
             sendMessage.isFirst = idx == 0;
 
@@ -98,6 +99,7 @@ void WebSocketServerClientLwsImpl::send(const LwsPacket& message)
         LwsPacket sendMessage {};
         sendMessage.statusCode = message.statusCode;
         sendMessage.contentType = message.contentType;
+        sendMessage.contentLength = message.payload->size();
         sendMessage.headers = message.headers;
         sendMessage.isFirst = true;
         sendMessage.isFinal = true;

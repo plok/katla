@@ -22,6 +22,7 @@ struct LwsPacket
     std::map<std::string, std::string> headers;
 
     std::shared_ptr<std::vector<std::byte>> payload;
+    int contentLength {};
     bool isBinary {};
     bool isFirst {};
     bool isFinal {};

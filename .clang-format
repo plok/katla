@@ -16,6 +16,7 @@ SpaceBeforeCpp11BracedList: true
 Cpp11BracedListStyle: false
 
 BraceWrapping:
+  AfterClass: true
   AfterStruct: true
   AfterFunction: true
   AfterEnum: true
@@ -26,3 +27,13 @@ IncludeCategories:
   # system includes last
   - Regex:           '^<.*'
     Priority:        10
+
+# We don't want a space between the type and the star for pointer types.
+PointerBindsToType: true
+
+# We use template< without space.
+SpaceAfterTemplateKeyword: false
+
+# We want to break before the operators, but not before a '='.
+BreakBeforeBinaryOperators: NonAssignment
+BreakConstructorInitializers: BeforeColon

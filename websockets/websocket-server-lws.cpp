@@ -180,7 +180,7 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         // TODO test multi-packet sending
         if (data.isFirst) {
             if (lws_add_http_common_headers(
-                    wsi, lwsHttpStatus, data.contentType.c_str(), data.payload->size() - LWS_PRE, &p, end)) {
+                    wsi, lwsHttpStatus, data.contentType.c_str(), data.contentLength, &p, end)) {
                 katla::printInfo("r1");
 
                 return 1;
