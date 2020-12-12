@@ -18,8 +18,11 @@
 
 #include <system_error>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <climits>
 
 namespace katla {
 
@@ -35,9 +38,19 @@ PosixFile::~PosixFile()
     }
 }
 
-outcome::result<void> PosixFile::open(std::string_view pathPath, PosixFile::OpenFlags flags, uint32_t mode)
+outcome::result<void> PosixFile::create(std::string_view pathPath, PosixFile::OpenFlags flags)
 {
-    m_fd = ::open(std::string(pathPath).c_str(), static_cast<int>(flags), mode);
+    m_fd = ::open(std::string(pathPath).c_str(), static_cast<int>(flags), 0644);
+    if (m_fd == -1) {
+        return std::make_error_code(static_cast<std::errc>(errno));
+    }
+
+    return outcome::success();
+}
+
+outcome::result<void> PosixFile::open(std::string_view pathPath, PosixFile::OpenFlags flags)
+{
+    m_fd = ::open(std::string(pathPath).c_str(), static_cast<int>(flags));
     if (m_fd == -1) {
         return std::make_error_code(static_cast<std::errc>(errno));
     }
@@ -81,6 +94,28 @@ outcome::result<ssize_t> PosixFile::write(gsl::span<std::byte>& buffer)
     }
 
     return nbytes;
+}
+
+outcome::result<std::string> PosixFile::absolutePath(std::string path) {
+    char actualpath [PATH_MAX+1];
+    auto cstrPtr = realpath(path.c_str(), actualpath);
+    if (cstrPtr == nullptr) {
+        return std::make_error_code(static_cast<std::errc>(errno));
+    }
+
+    return std::string(cstrPtr);
+}
+
+
+outcome::result<size_t> PosixFile::size()
+{
+    struct stat fileInfo;
+    int result = fstat(m_fd, &fileInfo);
+    if (result == -1) {
+        return std::make_error_code(static_cast<std::errc>(errno));
+    }
+
+    return fileInfo.st_size;
 }
 
 }
