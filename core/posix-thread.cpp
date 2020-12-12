@@ -24,6 +24,7 @@ namespace katla {
 
 outcome::result<void, Error> PosixThread::setPriority(std::thread& thread, Thread::Priority priority)
 {
+#ifndef __APPLE__
     auto nativeHandle = thread.native_handle();
 
     int policy = SCHED_OTHER;
@@ -40,6 +41,7 @@ outcome::result<void, Error> PosixThread::setPriority(std::thread& thread, Threa
             policy = SCHED_OTHER;
             break;
         case Thread::Priority::Idle:
+
             policy = SCHED_IDLE;
     }
 
@@ -58,6 +60,10 @@ outcome::result<void, Error> PosixThread::setPriority(std::thread& thread, Threa
             }
         }
     }
+
+#else
+    assert(false /*,"setPriority not implemented for macos"*/);
+#endif
 
     return outcome::success();
 }

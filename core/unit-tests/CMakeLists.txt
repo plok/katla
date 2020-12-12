@@ -11,8 +11,13 @@ enable_testing()
 set(target_name katla-core-tests)
 
 set(sources
-    ../posix-socket-test.cpp
 )
+
+IF (NOT WIN32 AND NOT APPLE)
+    set(sources ${sources}
+        ../posix-socket-test.cpp
+    )
+ENDIF()
 
 add_executable(${target_name} ${sources})
 
