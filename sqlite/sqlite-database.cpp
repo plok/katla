@@ -56,6 +56,8 @@ outcome::result<void, Error> SqliteDatabase::create(std::string path)
 
     sqlite3_close(handle);
 
+    m_path = path;
+
     return outcome::success();
 }
 
