@@ -37,14 +37,18 @@ IF (NOT WIN32)
                 posix-pipe.cpp
                 posix-pipe.h
 
-                posix-socket.cpp
-                posix-socket.h
-
                 posix-file.cpp
                 posix-file.h
 
                 posix-thread.cpp
         )
+
+        IF(NOT APPLE)
+                set(sources ${sources}
+                        posix-socket.cpp
+                        posix-socket.h
+                )
+        ENDIF()
 ELSE()
         set(sources ${sources}
                 win32-errors.cpp
@@ -61,7 +65,7 @@ target_include_directories(${target_name} PUBLIC
         ../
         ../../
         ../external/   # TODO make suitable for FindPackage
-        ../external/gsl/
+        ../external/gsl/include
         ${LIBGSL_INCLUDE_DIR}
         )
 

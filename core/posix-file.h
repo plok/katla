@@ -39,7 +39,10 @@ namespace katla {
             NonBlocking = O_NONBLOCK,
             Sync        = O_SYNC,
             Async       = O_ASYNC,
+
+#if defined(O_TMPFILE)
             TmpFile     = O_TMPFILE
+#endif
         };
 
         PosixFile();

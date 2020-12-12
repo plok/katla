@@ -3,9 +3,6 @@ project(katla-core-uv)
 
 include(${PROJECT_SOURCE_DIR}/../cmake/cmake-common.txt)
 
-find_package(Threads REQUIRED)
-find_package(Uv REQUIRED)
-
 set(target_name katla-core-uv)
 
 add_definitions(-DKATLA_CORE_UV_INDLL)
@@ -31,4 +28,4 @@ target_include_directories(${target_name} PRIVATE
     ${LIBUV_INCLUDE_DIR}
     )
 
-target_link_libraries(${target_name} ${LIBUV_LIBRARIES} fmt)
+target_link_libraries(${target_name} uv fmt)

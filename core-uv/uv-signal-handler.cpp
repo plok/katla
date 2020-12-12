@@ -18,6 +18,8 @@
 
 #include "katla/core/core-errors.h"
 
+#include <signal.h>
+
 namespace katla {
 
 UvSignalHandler::UvSignalHandler(UvEventLoop& eventLoop) :

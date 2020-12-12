@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: ubuntu-18.04-docker-ci
 
 on:
   push:
@@ -9,7 +9,6 @@ on:
 jobs:
 
   build:
-
     runs-on: ubuntu-latest
 
     steps:

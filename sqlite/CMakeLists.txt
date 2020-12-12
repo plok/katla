@@ -3,10 +3,6 @@ project(katla-sqlite)
 
 include(${PROJECT_SOURCE_DIR}/../cmake/cmake-common.txt)
 
-find_package(Threads REQUIRED)
-find_package(Uv REQUIRED)
-find_package(SQLite3 REQUIRED)
-
 set(target_name katla-sqlite)
 
 add_definitions(-DKATLA_SQLITE_INDLL)
