@@ -20,7 +20,10 @@
 
 #include "sqlite3.h"
 
+#include "fmt/core.h"
+
 #include <filesystem>
+#include <algorithm>
 
 namespace katla {
 
@@ -144,5 +147,78 @@ outcome::result<SqliteQueryResult, Error> SqliteDatabase::exec(std::string sql)
     return queryResult;
 }
 
+outcome::result<SqliteQueryResult, Error> SqliteDatabase::insert(std::string table, gsl::span<std::pair<std::string, std::string>> values)
+{
+    if (m_handle == nullptr) {
+        return Error(katla::make_error_code(katla::SqliteErrorCodes::DatabaseNotOpened), katla::format("Database not opened"));;
+    }
+
+    char* errorMessage = nullptr;
+
+    SqliteQueryResult queryResult;
+
+    std::vector<std::string> columns;
+    std::transform(values.begin(), values.end(), std::back_inserter(columns),
+                   [](std::pair<std::string, std::string> pair) -> std::string { return pair.first; });
+
+    std::vector<std::string> valueTemplates;
+    for (int i = 0; i < values.size(); i++) {
+        valueTemplates.push_back(katla::format("?{:0>#3}", i+1));
+    }
+
+    auto sqlColumns = fmt::format("({})", fmt::join(columns, ", "));
+    auto sqlValueTemplates = fmt::format("({})", fmt::join(valueTemplates, ", "));
+
+    auto queryTemplate = katla::format("INSERT INTO {} {} VALUES {};", table, sqlColumns, sqlValueTemplates);
+
+    sqlite3_stmt* sqlStatement = nullptr;
+    const char* pzTail;
+    auto prepareResult = sqlite3_prepare_v2(
+        m_handle,
+        queryTemplate.c_str(),
+        queryTemplate.size(),
+        &sqlStatement,
+        &pzTail
+    );
+    if (prepareResult != SQLITE_OK) {
+        return Error(katla::make_error_code(katla::SqliteErrorCodes::QueryFailed), katla::format("Error creating query: {}", sqlite3_errstr(prepareResult)));
+    }
+
+    for (int i=0; i<values.size(); i++) {
+        sqlite3_bind_text(sqlStatement, i + 1, values[i].second.c_str(), values[i].second.size(), SQLITE_STATIC);
+    }
+
+    int stepResult = SQLITE_ROW;
+    while(stepResult != SQLITE_DONE) {
+        stepResult = sqlite3_step(sqlStatement);
+
+        if (stepResult != SQLITE_DONE && stepResult != SQLITE_ROW) {
+            return Error(katla::make_error_code(katla::SqliteErrorCodes::QueryFailed), katla::format("Error executing query: {}", sqlite3_errstr(stepResult)));
+        }
+
+        // TODO needed for insert?
+        int nrOfColumns = sqlite3_column_count(sqlStatement);
+
+        if (!queryResult.queryResult.has_value()) {
+            queryResult.queryResult = SqliteTableData {};
+            queryResult.queryResult->nrOfColumns = nrOfColumns;
+
+            for (int i = 0; i < nrOfColumns; i++) {
+
+                auto name = sqlite3_column_name(sqlStatement, i);
+                if (name) {
+                    queryResult.queryResult->columnNames.push_back(std::string(name));
+                }
+            }
+        }
+
+        for (int i=0; i < nrOfColumns; i++) {
+            auto value = sqlite3_column_text(sqlStatement, i);
+            queryResult.queryResult->data.push_back(std::string(reinterpret_cast<const char*>(value)));
+        }
+    }
+
+    return queryResult;
+}
 
 }
