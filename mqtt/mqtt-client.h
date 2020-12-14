@@ -23,6 +23,7 @@
 
 #include "mosquitto.h"
 #include "outcome/outcome.hpp"
+#include <map>
 
 namespace katla {
 
@@ -43,16 +44,13 @@ class MqttClient {
     outcome::result<void, Error> disconnect();
 
     outcome::result<void, Error> publish(std::string topic, gsl::span<std::byte> payload, MqttQos qos, bool retain);
-    outcome::result<void, Error> subscribe(std::string subPattern, MqttQos qos);
+    outcome::result<std::unique_ptr<katla::Subscription>, Error> subscribe(std::string subPattern, MqttQos qos, const std::function<void(const MqttMessage& message)>& callback);
 
     std::unique_ptr<katla::Subscription> onConnect(const std::function<void(void)>& callback) {
         return m_onConnectSubject.subscribe(std::make_shared<katla::FuncObserver<void>>(callback));
     }
     std::unique_ptr<katla::Subscription> onDisconnect(const std::function<void(void)>& callback) {
         return m_onDisconnectSubject.subscribe(std::make_shared<katla::FuncObserver<void>>(callback));
-    }
-    std::unique_ptr<katla::Subscription> onMessage(const std::function<void(const MqttMessage& message)>& callback) {
-        return m_onMessageSubject.subscribe(std::make_shared<katla::FuncObserver<MqttMessage>>(callback));
     }
 
   private:
@@ -70,7 +68,7 @@ class MqttClient {
 
     katla::Subject<void> m_onConnectSubject;
     katla::Subject<void> m_onDisconnectSubject;
-    katla::Subject<MqttMessage> m_onMessageSubject;
+    std::map<std::string, katla::Subject<MqttMessage> > m_onMessageSubject;
 };
 
 } // namespace syncer
