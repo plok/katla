@@ -45,6 +45,7 @@ outcome::result<void, Error> WorkerThread::init(std::function<void(void)> repeat
             return Error(katla::make_error_code(katla::CoreErrorCode::AlreadyInitialized));
         }
 
+        m_stop = false;
         m_thread = std::make_unique<std::thread>(&WorkerThread::exec, this, repeatableWork);
     }
 
