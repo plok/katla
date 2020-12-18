@@ -154,7 +154,15 @@ void MqttClient::handleMessage(const struct mosquitto_message* mosqMessage) {
     message.payload = gsl::span<std::byte>(reinterpret_cast<std::byte*>(mosqMessage->payload), mosqMessage->payloadlen);
     message.qos = static_cast<MqttQos>(mosqMessage->qos);
 
-    m_onMessageSubject.next(message);
+    bool topicMatch;
+    for (auto& subscr : m_onMessageSubject)
+    {
+        int result = mosquitto_topic_matches_sub(subscr.first.c_str(), mosqMessage->topic, &topicMatch);
+        if (topicMatch)
+        {
+            subscr.second.next(message);
+        }
+    }
 }
 
 outcome::result<void, Error>
@@ -170,7 +178,7 @@ MqttClient::publish(std::string topic, gsl::span<std::byte> payload, MqttQos qos
     return outcome::success();
 }
 
-outcome::result<void, Error> MqttClient::subscribe(std::string subPattern, MqttQos qos)
+outcome::result<std::unique_ptr<katla::Subscription>, Error> MqttClient::subscribe(std::string subPattern, MqttQos qos, const std::function<void(const MqttMessage& message)>& callback)
 {
     int messageId = {};
     int result = mosquitto_subscribe(m_client, &messageId, subPattern.c_str(), static_cast<int>(qos));
@@ -178,7 +186,7 @@ outcome::result<void, Error> MqttClient::subscribe(std::string subPattern, MqttQ
         return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(result));
     }
 
-    return outcome::success();
+    return m_onMessageSubject[subPattern].subscribe(std::make_shared<katla::FuncObserver<MqttMessage>>(callback));
 }
 
 } // namespace katla
