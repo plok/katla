@@ -20,6 +20,9 @@ namespace katla {
         }
 
         m_widget = GTK_LABEL(::gtk_label_new(m_state.text.c_str()));
+        g_object_ref(m_widget);
+
+        gtk_widget_set_halign (GTK_WIDGET(m_widget), GTK_ALIGN_START);
 //        g_signal_connect (m_widget, "clicked", G_CALLBACK (handleClicked), this);
     }
 

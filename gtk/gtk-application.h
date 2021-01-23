@@ -39,7 +39,7 @@ public:
 
     virtual void init(int argc, char* argv[], std::string appName);
 
-    virtual std::shared_ptr<GtkWindowImpl> createWindow();
+    virtual std::shared_ptr<GtkWindowImpl> createWindow(std::string title, katla::Size_32s size);
 
     // TODO integrate in event-loop or seperate process?
     virtual int run();

@@ -15,6 +15,7 @@ namespace katla {
             ::GtkWindow *window) :
             _window(window),
             _closeRequested(false) {
+        g_object_ref(window);
     }
 
     GtkWindowImpl::~GtkWindowImpl() {
