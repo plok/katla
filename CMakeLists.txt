@@ -14,6 +14,8 @@ option(BUILD_KATLA_MQTT "Build mqtt module" ON)
 option(BUILD_KATLA_SQLITE "Build sqlite module" ON)
 option(BUILD_KATLA_WEBSOCKETS "Build websockets module" ON)
 
+option(BUILD_KATLA_GTK "Build gtk module" OFF)
+
 option(BUILD_GMOCK "Builds the googlemock subproject" OFF)
 option(INSTALL_GTEST "Enable installation of googletest. (Projects embedding googletest may want to turn this OFF.)" OFF)
 add_subdirectory(external/googletest)
@@ -80,4 +82,15 @@ ENDIF()
 IF(BUILD_KATLA_MQTT)
     add_subdirectory(mqtt)
     add_subdirectory(mqtt/unit-tests)
+ENDIF()
+
+add_subdirectory(ui-components)
+add_subdirectory(window-management)
+
+IF (BUILD_KATLA_GTK)
+    find_package(PkgConfig REQUIRED)
+    PKG_CHECK_MODULES(GTK3 REQUIRED gtk+-3.0)
+
+    add_subdirectory(gtk)
+    add_subdirectory(gtk/integration-tests/gtk-application-test)
 ENDIF()
