@@ -57,6 +57,7 @@ class WorkerThread {
     katla::Thread::Priority m_priority { katla::Thread::Priority::Normal };
 
     bool m_stop {};
+    bool m_wakeUp {};
     std::chrono::milliseconds m_interval { 1000 };
 };
 

@@ -46,13 +46,18 @@ outcome::result<void, Error> WorkerThread::init(std::function<void(void)> repeat
         }
 
         m_stop = false;
+        m_wakeUp = false;
         m_thread = std::make_unique<std::thread>(&WorkerThread::exec, this, repeatableWork);
     }
 
     return outcome::success();
 }
 
-void WorkerThread::wakeup() { m_condition.notify_all(); }
+void WorkerThread::wakeup() 
+{
+    m_wakeUp = true;
+    m_condition.notify_all(); 
+}
 
 void WorkerThread::stop()
 {
@@ -96,11 +101,13 @@ void WorkerThread::exec(const std::function<void(void)>& repeatableWork)
                 stop = true;
                 continue;
             }
+
+            m_wakeUp = false;
         }
 
         std::invoke(repeatableWork);
 
-        noWait = m_skipWaitForNextCycle;
+        noWait = m_skipWaitForNextCycle || m_wakeUp;
         m_skipWaitForNextCycle = false;
     }
 
