@@ -52,6 +52,9 @@ class MqttClient {
     std::unique_ptr<katla::Subscription> onDisconnect(const std::function<void(void)>& callback) {
         return m_onDisconnectSubject.subscribe(std::make_shared<katla::FuncObserver<void>>(callback));
     }
+    std::unique_ptr<katla::Subscription> onSubscribe(const std::function<void(const std::string&)>& callback) {
+        return m_onSubscribeSubject.subscribe(std::make_shared<katla::FuncObserver<std::string>>(callback));
+    }
 
   private:
     outcome::result<void, Error> init(const std::string& clientName);
@@ -60,6 +63,7 @@ class MqttClient {
     void handleDisconnect(int rc);
     void handleLogMessage(int level, const char* message);
     void handleMessage(const struct mosquitto_message* message);
+    void handleSubscribe(int mid, int qos_count, int granted_qos);
 
     mosquitto* m_client {};
     Logger& m_logger;
@@ -68,7 +72,9 @@ class MqttClient {
 
     katla::Subject<void> m_onConnectSubject;
     katla::Subject<void> m_onDisconnectSubject;
+    katla::Subject<std::string> m_onSubscribeSubject;
     std::map<std::string, katla::Subject<MqttMessage> > m_onMessageSubject;
+    std::map<int, std::string> m_subscriptions;
 };
 
 } // namespace syncer
