@@ -70,6 +70,12 @@ outcome::result<void, Error> MqttClient::init(const std::string& clientName)
                                        mqttClient->handleMessage(message);
                                    });
 
+    mosquitto_subscribe_callback_set(m_client,
+                                   [](struct mosquitto* client, void* obj, int mid, int qos_count, const int* granted_qos) {
+                                       auto mqttClient = reinterpret_cast<MqttClient*>(obj);
+                                       mqttClient->handleSubscribe(mid, qos_count, *granted_qos);
+                                   });
+
     int result = mosquitto_loop_start(m_client);
     if (result != MOSQ_ERR_SUCCESS) {
         return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(result));
@@ -143,8 +149,14 @@ void MqttClient::handleLogMessage(int level, const char* message)
         m_logger.error(message);
     }
     if (level == MOSQ_LOG_DEBUG) {
-    //    m_logger.info(message);
+        //m_logger.info(message);
     }
+}
+
+void MqttClient::handleSubscribe(int mid, int qos_count, int granted_qos)
+{
+   //m_logger.info(katla::format("SUBACK received; mid={} qos_count={} granted_qos={}", mid, qos_count, granted_qos));
+   m_onSubscribeSubject.next(m_subscriptions[mid]);
 }
 
 void MqttClient::handleMessage(const struct mosquitto_message* mosqMessage) {
@@ -186,6 +198,7 @@ outcome::result<std::unique_ptr<katla::Subscription>, Error> MqttClient::subscri
         return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(result));
     }
 
+    m_subscriptions[messageId] = subPattern;
     return m_onMessageSubject[subPattern].subscribe(std::make_shared<katla::FuncObserver<MqttMessage>>(callback));
 }
 
