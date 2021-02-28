@@ -64,6 +64,12 @@ outcome::result<void, Error> SqliteDatabase::create(std::string path)
     return outcome::success();
 }
 
+outcome::result<void, Error> SqliteDatabase::open(std::string path)
+{
+    m_path = path;
+    return open();
+}
+
 outcome::result<void, Error> SqliteDatabase::open()
 {
     if (!std::filesystem::exists(m_path)) {

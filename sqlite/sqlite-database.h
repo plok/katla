@@ -45,6 +45,7 @@ public:
 
     outcome::result<void, Error> init();
 
+    outcome::result<void, Error> open(std::string path);
     outcome::result<void, Error> open();
     outcome::result<void, Error> close();
 
