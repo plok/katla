@@ -37,6 +37,9 @@ public:
     outcome::result<ssize_t> read(gsl::span<std::byte>& buffer);
     outcome::result<ssize_t> write(gsl::span<std::byte>& buffer);
 
+    outcome::result<void> redirectToRead(int fd_src);
+    outcome::result<void> redirectToWrite(int fd_src);
+
     outcome::result<void> close();
     outcome::result<void> closeRead();
     outcome::result<void> closeWrite();
