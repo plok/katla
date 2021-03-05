@@ -77,10 +77,12 @@ class Subject<void> : public Observable<void>, public Observer<void> {
         m_observers.push_back(observer);
 
         return std::unique_ptr<Subscription>(
-            new FuncSubscription([this, &observer]() { this->unsubscribe(observer); }));
+            new FuncSubscription([this, observer]() { 
+                this->unsubscribe(observer);
+        }));
     }
 
-    void unsubscribe(const std::shared_ptr<Observer<void>>& observer)
+    void unsubscribe(std::shared_ptr<Observer<void>> observer)
     {
         auto it = std::find(m_observers.begin(), m_observers.end(), observer);
         if (it != m_observers.end()) {
