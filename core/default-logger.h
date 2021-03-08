@@ -31,6 +31,7 @@ class DefaultLogger : public Logger {
     ~DefaultLogger() override = default;
 
     void info(const std::string_view& message) override { katla::printInfo(message); };
+    void debug(const std::string_view& message) override { katla::printInfo(message); };
     void warning(const std::string_view& message) override { katla::printError(message); };
     void error(const std::string_view& message) override { katla::printError(message); };
 
