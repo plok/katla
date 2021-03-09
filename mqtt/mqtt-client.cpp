@@ -106,7 +106,7 @@ outcome::result<void, Error> MqttClient::disconnect()
 
 void MqttClient::handleConnect(int rc)
 {
-    m_logger.info(katla::format("Connected: {}", rc));
+    m_logger.debug(katla::format("Connected: {}", rc));
 
     switch (rc) {
     case 0: {
@@ -132,9 +132,9 @@ void MqttClient::handleDisconnect(int rc)
     m_connected = false;
 
     if (rc) {
-        m_logger.info(katla::format("MQTT: Unexpected disconnect."));
+        m_logger.debug(katla::format("MQTT: Unexpected disconnect."));
     } else {
-        m_logger.info(katla::format("MQTT: Remote gracefully closed the connection."));
+        m_logger.debug(katla::format("MQTT: Remote gracefully closed the connection."));
     }
 
     m_onDisconnectSubject.next();

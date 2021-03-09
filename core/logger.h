@@ -29,6 +29,7 @@ class Logger {
     virtual ~Logger() = default;
 
     virtual void info(const std::string_view& message) = 0;
+    virtual void debug(const std::string_view& message) = 0;
     virtual void warning(const std::string_view& message) = 0;
     virtual void error(const std::string_view& message) = 0;
 

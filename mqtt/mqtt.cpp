@@ -43,7 +43,7 @@ outcome::result<void, Error>  Mqtt::init() {
     int major, minor, revision = {};
     mosquitto_lib_version(&major, &minor, &revision);
 
-    m_logger.info(katla::format("Loaded mosquitto library version: {}.{}.{}", major, minor, revision));
+    m_logger.debug(katla::format("Loaded mosquitto library version: {}.{}.{}", major, minor, revision));
 
     return outcome::success();
 }
