@@ -38,12 +38,12 @@ template <class T> class Subject : public Observable<T>, public Observer<T> {
         }
     }
 
-    std::unique_ptr<Subscription> subscribe(std::shared_ptr<Observer<T>> observer)
+    std::unique_ptr<Subscription> subscribe(const std::shared_ptr<Observer<T>>& observer)
     {
         m_observers.push_back(observer);
 
         return std::unique_ptr<Subscription>(
-            new FuncSubscription([this, &observer]() { this->unsubscribe(observer); }));
+            new FuncSubscription([this, observer]() { this->unsubscribe(observer); }));
     }
 
     void unsubscribe(const std::shared_ptr<Observer<T>>& observer)
@@ -72,7 +72,7 @@ class Subject<void> : public Observable<void>, public Observer<void> {
         }
     }
 
-    std::unique_ptr<Subscription> subscribe(std::shared_ptr<Observer<void>> observer) override
+    std::unique_ptr<Subscription> subscribe(const std::shared_ptr<Observer<void>>& observer) override
     {
         m_observers.push_back(observer);
 
@@ -82,7 +82,7 @@ class Subject<void> : public Observable<void>, public Observer<void> {
         }));
     }
 
-    void unsubscribe(std::shared_ptr<Observer<void>> observer)
+    void unsubscribe(const std::shared_ptr<Observer<void>>& observer)
     {
         auto it = std::find(m_observers.begin(), m_observers.end(), observer);
         if (it != m_observers.end()) {

@@ -46,7 +46,7 @@ class FuncSubscription : public Subscription {
 template <class T> class Observable {
   public:
     virtual ~Observable() = default;
-    virtual std::unique_ptr<Subscription> subscribe(std::shared_ptr<Observer<T>> observer) = 0;
+    virtual std::unique_ptr<Subscription> subscribe(const std::shared_ptr<Observer<T>>& observer) = 0;
 };
 
 } // namespace katla
