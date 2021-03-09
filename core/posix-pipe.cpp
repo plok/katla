@@ -72,6 +72,26 @@ outcome::result<ssize_t> PosixPipe::write(gsl::span<std::byte>& buffer)
     return nbytes;
 }
 
+outcome::result<void> PosixPipe::redirectToRead(int fd_src)
+{
+    int status = dup2(_fd[0], fd_src);
+    if (status != fd_src) {
+        return std::make_error_code(static_cast<std::errc>(errno));
+    }
+
+    return outcome::success();
+}
+
+outcome::result<void> PosixPipe::redirectToWrite(int fd_src)
+{
+    int status = dup2(_fd[1], fd_src);
+    if (status != fd_src) {
+        return std::make_error_code(static_cast<std::errc>(errno));
+    }
+
+    return outcome::success();
+}
+
 outcome::result<void> PosixPipe::close()
 {
     auto result1 = closeRead();
