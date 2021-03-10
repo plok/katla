@@ -1,0 +1,40 @@
+/***
+ * Copyright 2019 The Katla Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "opencv-image-writer.h"
+
+#include "katla/core/core.h"
+
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
+
+#include "katla/core/dispatcher-thread.h"
+
+#include <string>
+#include <memory>
+
+namespace katla {
+
+    void OpencvImageWriter::write(std::string fileName, const Image& image) {
+        auto mat = image.toMat();
+
+        cv::Mat bgrImg;
+
+        // TODO check format of src image, assuming RGBA for now
+        cv::cvtColor(mat, bgrImg, cv::COLOR_RGBA2BGR);
+        cv::imwrite(fileName, bgrImg);
+    }
+};
