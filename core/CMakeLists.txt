@@ -24,6 +24,9 @@ set(sources
         worker-thread.cpp
         worker-thread.h
 
+        dispatcher-thread.cpp
+        dispatcher-thread.h
+
         observable.h
         observer.h
         subject.h
