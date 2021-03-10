@@ -211,7 +211,6 @@ cv::Mat Image::toNonOwningMat(void) const
     default: katla::fatal("unsupported image type!");
     }
 
-    katla::printInfo("type: {} ({})", type, m_type);
     cv::Mat m(m_size.height, m_size.width, type, pixels(), m_lineStride);
 
     return m;
@@ -233,7 +232,6 @@ Image Image::fromMat(cv::Mat src)
 
     katla::Size_32s size  {src.size().width, src.size().height};
 
-    katla::printInfo("fromMat: {}, type: {}, size: {}x{}", src.step, type, size.width, size.height);
     Image result (size, type, src.step);
 
     assert ((src.total() * src.elemSize()) == result.totalSize());
