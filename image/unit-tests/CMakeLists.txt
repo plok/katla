@@ -35,6 +35,6 @@ target_link_libraries(${target_name}
     katla-image
     fmt opencv_core
     opencv_imgcodecs
-    /home/simon/projects/adjustcentroids/build/linux/x64/debug/bundle/lib/libflutter_linux_gtk.so)
+)
 
 gtest_discover_tests(${target_name})
