@@ -30,11 +30,6 @@ namespace katla {
 
     void OpencvImageWriter::write(std::string fileName, const Image& image) {
         auto mat = image.toMat();
-
-        cv::Mat bgrImg;
-
-        // TODO check format of src image, assuming RGBA for now
-        cv::cvtColor(mat, bgrImg, cv::COLOR_RGBA2BGR);
-        cv::imwrite(fileName, bgrImg);
+        cv::imwrite(fileName, mat);
     }
 };

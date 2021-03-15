@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
-#include "opencv-image-reader.h"
+#include "opencv-image-processor.h"
 
-#include <string>
-#include <memory>
-
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/imgproc.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 namespace katla {
 
-    std::unique_ptr<Image> OpencvImageReader::read(std::string fileName) {
-        cv::Mat img = cv::imread(fileName, cv::IMREAD_UNCHANGED);
-        if (img.data != nullptr) {
-            return std::make_unique<katla::Image>(katla::Image::fromMat(img));
-        }
+OpencvImageProcessor::OpencvImageProcessor()
+{
+}
 
-        return {};
+void OpencvImageProcessor::split(const Image& src, std::vector<Image>& dest) {
+    auto srcMat = src.toNonOwningMat();
+
+    std::vector<cv::Mat> destOpencv;
+    for(auto& it : dest) {
+        destOpencv.push_back(it.toNonOwningMat());
     }
-};
+
+    cv::split(srcMat, destOpencv);
+}
+
+}

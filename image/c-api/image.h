@@ -49,6 +49,9 @@ void write_image_sync(char* imagePath, ImagePtr image);
 struct Size_32s image_size(ImagePtr image);
 
 int image_line_stride(ImagePtr image);
+int image_channels(ImagePtr image);
+
+void split(ImagePtr src, ImagePtr* dest);
 
 #ifdef __cplusplus
 }
