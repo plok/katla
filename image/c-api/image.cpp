@@ -23,6 +23,7 @@
     #include "katla/image/image.h"
     #include "katla/image/opencv-image-reader.h"
     #include "katla/image/opencv-image-writer.h"
+    #include "katla/image/opencv-image-processor.h"
     #include "katla/core/dispatcher-thread.h"
     #include <string>
 
@@ -91,6 +92,20 @@ Size_32s image_size(ImagePtr image) {
 
 int image_line_stride(Image* image) {
     return image->lineStride();
+}
+int image_channels(Image* image) {
+    return image->channels();
+}
+
+void split(ImagePtr src, ImagePtr* dest) {
+    std::vector<katla::Image> destVector;
+
+    for(int i=0 ; i<src->channels(); i++) {
+        destVector.push_back(Image(*dest[i]));
+    }
+
+    OpencvImageProcessor processor;
+    processor.split(*src, destVector);
 }
 
 #ifdef __cplusplus

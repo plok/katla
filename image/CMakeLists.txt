@@ -14,6 +14,8 @@ set(sources
     image-processor.h
     lut.cpp
     lut.h
+    opencv-image-processor.cpp 
+    opencv-image-processor.h
     opencv-image-reader.cpp 
     opencv-image-reader.h
     opencv-image-writer.cpp
