@@ -1,7 +1,7 @@
 # Container image that runs your code
 FROM ubuntu:18.04
 
-RUN apt-get update && DEBIAN_FRONTEND="noninteractive" apt-get install -y build-essential openssh-client git ninja-build cmake g++-8 libfmt-dev googletest libgtest-dev libmsgsl-dev libuv1-dev libwebsockets-dev libsqlite3-dev libmosquitto-dev
+RUN apt-get update && DEBIAN_FRONTEND="noninteractive" apt-get install -y build-essential openssh-client git ninja-build cmake g++-8 libfmt-dev googletest libgtest-dev libmsgsl-dev libuv1-dev libwebsockets-dev libsqlite3-dev libmosquitto-dev libopencv-dev
 
 run mkdir -p /root/katla
 COPY . /root/katla/
