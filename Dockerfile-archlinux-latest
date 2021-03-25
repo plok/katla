@@ -1,7 +1,7 @@
 # Container image that runs your code
 FROM archlinux:latest
 
-RUN pacman -Syu --noconfirm ca-certificates-mozilla  && pacman -Syu --noconfirm base-devel cmake fmt libffi gtest microsoft-gsl libwebsockets sqlite mosquitto
+RUN pacman -Syu --noconfirm ca-certificates-mozilla  && pacman -Syu --noconfirm base-devel cmake fmt libffi gtest microsoft-gsl libwebsockets sqlite mosquitto opencv
 
 run mkdir -p /root/katla
 COPY . /root/katla/

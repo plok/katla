@@ -10,12 +10,34 @@ option(USE_SYSTEM_LIBWEBSOCKETS "use system libwebsockets" OFF) # using included
 option(USE_SYSTEM_LIBUV "use system libuv" OFF)
 option(USE_SYSTEM_OPENCV "use system opencv" ON)
 
-option(BUILD_KATLA_UV "Build uv module" ON)
-option(BUILD_KATLA_MQTT "Build mqtt module" ON)
-option(BUILD_KATLA_SQLITE "Build sqlite module" ON)
-option(BUILD_KATLA_WEBSOCKETS "Build websockets module" ON)
-option(BUILD_KATLA_DART "Build dart module" OFF)
-option(BUILD_KATLA_IMAGE "Build image module" OFF)
+set(BUILD_KATLA_UV_DEFAULT ON)
+set(BUILD_KATLA_SQLITE_DEFAULT ON)
+set(BUILD_KATLA_IMAGE_DEFAULT ON)
+set(BUILD_KATLA_MQTT_DEFAULT ON)
+set(BUILD_KATLA_DART_DEFAULT ON)
+set(BUILD_KATLA_WEBSOCKETS_DEFAULT OFF) # still experimental
+
+IF (WIN32)
+    set(BUILD_KATLA_UV_DEFAULT OFF) # TODO build error
+    set(BUILD_KATLA_SQLITE_DEFAULT OFF) # TODO sqlite currenly only on installed in linux ci
+    set(BUILD_KATLA_IMAGE_DEFAULT OFF) # TODO opencv currenly only on installed in linux ci
+    set(BUILD_KATLA_MQTT_DEFAULT OFF) # TODO mosquitto currenly only on installed in linux ci
+    set(BUILD_KATLA_DART_DEFAULT OFF) # TODO depends on katla-image
+ENDIF()
+
+IF (APPLE)
+    set(BUILD_KATLA_SQLITE_DEFAULT OFF) # TODO sqlite currenly only on installed in linux ci
+    set(BUILD_KATLA_IMAGE_DEFAULT OFF) # TODO opencv currenly only on installed in linux ci
+    set(BUILD_KATLA_MQTT_DEFAULT OFF) # TODO mosquitto currenly only on installed in linux ci
+    set(BUILD_KATLA_DART_DEFAULT OFF) # TODO depends on katla-image
+ENDIF()
+
+option(BUILD_KATLA_UV "Build uv module" BUILD_KATLA_UV_DEFAULT)
+option(BUILD_KATLA_SQLITE "Build sqlite module" BUILD_KATLA_SQLITE_DEFAULT)
+option(BUILD_KATLA_IMAGE "Build image module" BUILD_KATLA_IMAGE_DEFAULT)
+option(BUILD_KATLA_MQTT "Build mqtt module" BUILD_KATLA_MQTT_DEFAULT)
+option(BUILD_KATLA_DART "Build dart module" BUILD_KATLA_DART_DEFAULT)
+option(BUILD_KATLA_WEBSOCKETS "Build websockets module" BUILD_KATLA_WEBSOCKETS_DEFAULT)
 
 option(BUILD_GMOCK "Builds the googlemock subproject" OFF)
 option(INSTALL_GTEST "Enable installation of googletest. (Projects embedding googletest may want to turn this OFF.)" OFF)
