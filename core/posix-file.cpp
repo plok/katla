@@ -50,7 +50,7 @@ outcome::result<void> PosixFile::create(std::string_view pathPath, PosixFile::Op
 
 outcome::result<void> PosixFile::open(std::string_view pathPath, PosixFile::OpenFlags flags)
 {
-    m_fd = ::open(std::string(pathPath).c_str(), static_cast<int>(flags));
+    m_fd = ::open(std::string(pathPath).c_str(), static_cast<int>(flags), 0644);
     if (m_fd == -1) {
         return std::make_error_code(static_cast<std::errc>(errno));
     }
