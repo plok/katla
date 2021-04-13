@@ -46,7 +46,9 @@ outcome::result<void, Error> MqttClient::init(const std::string& clientName)
 
     m_client = mosquitto_new(clientName.c_str(), false, this);
     if (m_client == nullptr) {
-        return Error(std::make_error_code(static_cast<std::errc>(errno)), "Failed initializing mosquitto");
+        auto errorCode = std::make_error_code(static_cast<std::errc>(errno));
+        return Error(make_error_code(MqttErrorCodes::MosquittoError),
+            katla::format("Failed creating mosquitto client - {}", errorCode.message()));
     }
 
     mosquitto_connect_callback_set(m_client, [](struct mosquitto* client, void* obj, int rc) {
