@@ -360,8 +360,6 @@ WebSocketServerLws::WebSocketServerLws() :
                              nullptr,
                              65550 }); // TODO
     d->protocols.push_back({ nullptr, nullptr, 0, 0 } /* terminator */);
-
-    katla::printInfo("this: {}", (void*)this);
 }
 
 WebSocketServerLws::~WebSocketServerLws()
