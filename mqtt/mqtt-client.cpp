@@ -28,12 +28,14 @@ MqttClient::MqttClient(Logger& logger) : m_logger(logger),
 
 MqttClient::~MqttClient()
 {
+    m_workerThread.stop();
+    m_workerThread.join();
+
     if (m_client) {
         if (m_connected) {
             auto _ = disconnect();
         }
-
-        mosquitto_loop_stop(m_client, true); // TODO add start / stop methods instead?
+    
         mosquitto_destroy(m_client);
         m_client = nullptr;
     }
