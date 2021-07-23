@@ -23,19 +23,16 @@
 
 namespace katla {
 
-MqttClient::MqttClient(Logger& logger) : m_logger(logger), 
-      m_workerThread("MQTT_thread", katla::Thread::Priority::Normal) {}
+MqttClient::MqttClient(Logger& logger) : m_logger(logger) {}
 
 MqttClient::~MqttClient()
 {
-    m_workerThread.stop();
-    m_workerThread.join();
-
     if (m_client) {
         if (m_connected) {
             auto _ = disconnect();
         }
-    
+
+        mosquitto_loop_stop(m_client, true); // TODO add start / stop methods instead?
         mosquitto_destroy(m_client);
         m_client = nullptr;
     }
@@ -81,26 +78,19 @@ outcome::result<void, Error> MqttClient::init(const std::string& clientName)
                                        mqttClient->handleSubscribe(mid, qos_count, *granted_qos);
                                    });
 
-    int result = mosquitto_threaded_set(m_client, true);
-    if (result != MOSQ_ERR_SUCCESS) {
-        return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(result));
-    }
-
-using namespace std::literals::chrono_literals;
-    auto initResult = m_workerThread.init([this]() { mosquitto_loop(m_client, -1, 1); }, 20ms);
-
-    if (!initResult) {
-        return Error(initResult.error().code(), "AcquisitionManager.init", initResult.error().message());
-    }
-
     return outcome::success();
 }
 
 outcome::result<void, Error> MqttClient::connect(const std::string& host, int port, int keepAliveSeconds)
 {
-    int connectResult = mosquitto_connect(m_client, host.c_str(), 1883, 60);
+    int connectResult = mosquitto_connect_async(m_client, host.c_str(), 1883, 60);
     if (connectResult != MOSQ_ERR_SUCCESS) {
         return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(connectResult));
+    }
+
+    int result = mosquitto_loop_start(m_client);
+    if (result != MOSQ_ERR_SUCCESS) {
+        return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(result));
     }
 
     return outcome::success();
