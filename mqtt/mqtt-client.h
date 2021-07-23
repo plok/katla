@@ -18,6 +18,8 @@
 
 #include "katla/core/logger.h"
 #include "katla/core/subject.h"
+#include "katla/core/thread.h"
+#include "katla/core/worker-thread.h"
 
 #include "katla/mqtt/mqtt-message.h"
 
@@ -69,6 +71,7 @@ class MqttClient {
     Logger& m_logger;
 
     bool m_connected {};
+    katla::WorkerThread m_workerThread;
 
     katla::Subject<void> m_onConnectSubject;
     katla::Subject<void> m_onDisconnectSubject;
