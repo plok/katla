@@ -89,8 +89,9 @@ outcome::result<void, Error> MqttClient::connect(const std::string& host, int po
         return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(connectResult));
     }
 
-    // the mosquitto docs state that <mosquitto_connect_async> may be called before or after <mosquitto_loop_start>,
-    // but when it is called before, the following bug occurs: https://github.com/eclipse/mosquitto/issues/848.
+    // The mosquitto docs state that <mosquitto_connect_async> may be called before or after <mosquitto_loop_start>,
+    // but when it is called after, the following bug occurs: https://github.com/eclipse/mosquitto/issues/848.
+    // So first call <mosquitto_connect_async>.
     if (!m_mosquittoLoopStarted) {
         // MqttClient::connect function is supposed to be called multiple times,
         // but the mosquitto loop should only be started once.
