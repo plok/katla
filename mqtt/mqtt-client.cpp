@@ -84,7 +84,7 @@ outcome::result<void, Error> MqttClient::init(const std::string& clientName)
 
 outcome::result<void, Error> MqttClient::connect(const std::string& host, int port, int keepAliveSeconds)
 {
-    int connectResult = mosquitto_connect_async(m_client, host.c_str(), 1883, 60);
+    int connectResult = mosquitto_connect_async(m_client, host.c_str(), port, keepAliveSeconds);
     if (connectResult != MOSQ_ERR_SUCCESS) {
         return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(connectResult));
     }
