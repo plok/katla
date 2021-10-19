@@ -32,6 +32,7 @@ MqttClient::~MqttClient()
             auto _ = disconnect();
         }
 
+        m_mosquittoLoopStarted = false;
         mosquitto_loop_stop(m_client, true); // TODO add start / stop methods instead?
         mosquitto_destroy(m_client);
         m_client = nullptr;
@@ -78,11 +79,6 @@ outcome::result<void, Error> MqttClient::init(const std::string& clientName)
                                        mqttClient->handleSubscribe(mid, qos_count, *granted_qos);
                                    });
 
-    int result = mosquitto_loop_start(m_client);
-    if (result != MOSQ_ERR_SUCCESS) {
-        return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(result));
-    }
-
     return outcome::success();
 }
 
@@ -91,6 +87,19 @@ outcome::result<void, Error> MqttClient::connect(const std::string& host, int po
     int connectResult = mosquitto_connect_async(m_client, host.c_str(), 1883, 60);
     if (connectResult != MOSQ_ERR_SUCCESS) {
         return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(connectResult));
+    }
+
+    // the mosquitto docs state that <mosquitto_connect_async> may be called before or after <mosquitto_loop_start>,
+    // but when it is called before, the following bug occurs: https://github.com/eclipse/mosquitto/issues/848.
+    if (!m_mosquittoLoopStarted) {
+        // MqttClient::connect function is supposed to be called multiple times,
+        // but the mosquitto loop should only be started once.
+        int result = mosquitto_loop_start(m_client);
+        if (result != MOSQ_ERR_SUCCESS) {
+            return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(result));
+        }
+        m_mosquittoLoopStarted = true;
+        m_logger.debug(katla::format("MQTT: Mosquitto loop started."));
     }
 
     return outcome::success();
