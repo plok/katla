@@ -68,6 +68,7 @@ class MqttClient {
     mosquitto* m_client {};
     Logger& m_logger;
 
+    bool m_mosquittoLoopStarted {false};
     bool m_connected {};
 
     katla::Subject<void> m_onConnectSubject;
