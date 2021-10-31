@@ -75,6 +75,8 @@ namespace katla {
         fflush(stderr);
         std::abort();
     }
+
+    std::string humanFileSize(long long fileSize);
 }
 
 #endif // KATLA_CORE_H

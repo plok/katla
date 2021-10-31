@@ -8,6 +8,7 @@ set(target_name katla-core)
 add_definitions(-DKATLA_CORE_INDLL)
 
 set(sources
+        core.cpp
         core.h
 
         error.cpp
