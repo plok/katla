@@ -1,6 +1,7 @@
 #include "string-utils.h"
 
 namespace katla {
+namespace string {
 
 std::string humanFileSize(long long fileSize) {
     auto suffixes = std::array{"B", "KiB", "MiB", "GiB", "TiB"};
@@ -26,4 +27,4 @@ std::string trimPrefix(std::string src, std::string prefix) {
     return src;
 }
 
-}
+}}
