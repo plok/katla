@@ -24,6 +24,7 @@ namespace katla {
 
         void updateContainer(const ContainerState& state) override;
 
+        void clear();
 
         // std::unique_ptr<Subscription> onClicked(std::function<void(void)> clickedCallback) override {
         //     return m_onClickedSubject.subscribe(std::make_shared<katla::FuncObserver<void>>(clickedCallback));

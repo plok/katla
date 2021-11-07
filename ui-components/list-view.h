@@ -20,6 +20,7 @@ namespace katla {
         ListView() = default;
         virtual ~ListView() = default;
 
+        virtual std::unique_ptr<Subscription> onRowSelected(std::function<void(int)> rowSelectedCallback) = 0;
     };
 
 }

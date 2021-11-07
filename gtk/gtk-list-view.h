@@ -28,18 +28,23 @@ namespace katla {
         void addWidget(std::shared_ptr<Widget> widget);
 
 
-        // std::unique_ptr<Subscription> onClicked(std::function<void(void)> clickedCallback) override {
-        //     return m_onClickedSubject.subscribe(std::make_shared<katla::FuncObserver<void>>(clickedCallback));
-        // };
+        void clear();
 
+
+         std::unique_ptr<Subscription> onRowSelected(std::function<void(int)> rowSelectedCallback) override {
+             return m_onRowSelectedSubject.subscribe(std::make_shared<katla::FuncObserver<int>>(rowSelectedCallback));
+         };
+
+         // TODO this does not return the GtkListBox!!!
         ::GtkWidget* handle() override {
-            return GTK_WIDGET(m_widget);
+            return GTK_WIDGET(m_scrolledWindow);
         }
 
     private:
-        // static void handleClicked(::GtkButton *button, GtkButtonImpl* self);
+        static void handleRowSelected(::GtkListBox* listView, ::GtkListBoxRow* row, GtkListView* self);
+        static void removeWidget(::GtkWidget *widget, GtkListView* self);
 
-        ::GtkScrolledWindow *m_widget {};
+        ::GtkScrolledWindow *m_scrolledWindow {};
         ::GtkViewport* m_viewport {};
         ::GtkListBox *m_listWidget {};
         
@@ -47,7 +52,7 @@ namespace katla {
         // TODO use references instead (state outside widget)
         ContainerState m_state {};
 
-        // katla::Subject<void> m_onClickedSubject;
+         katla::Subject<int> m_onRowSelectedSubject;
     };
 }
 

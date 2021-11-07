@@ -19,6 +19,10 @@ namespace katla {
         bool expand {}; // flex?
         bool fill {};
         int additionSpacing {};
+
+        // TODO
+        std::optional<int> width {};
+        std::optional<int> height {};
     };
 
     struct ContainerState {

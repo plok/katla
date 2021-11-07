@@ -23,6 +23,7 @@ namespace katla {
         }
 
         m_widget = GTK_BUTTON(::gtk_button_new_with_label(m_state.label.c_str()));
+        g_object_ref(m_widget);
 
         g_signal_connect (m_widget, "clicked", G_CALLBACK (handleClicked), this);
     }

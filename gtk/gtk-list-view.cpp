@@ -16,38 +16,34 @@ namespace katla {
             gtk_widget_destroy(GTK_WIDGET(m_viewport));
             m_viewport = nullptr;
         }
-        if (m_widget) {
-            gtk_widget_destroy(GTK_WIDGET(m_widget));
-            m_widget = nullptr;
+        if (m_scrolledWindow) {
+            gtk_widget_destroy(GTK_WIDGET(m_scrolledWindow));
+            m_scrolledWindow = nullptr;
         }
     }
 
     void GtkListView::init() {
-        if (m_listWidget || m_viewport || m_widget) {
+        if (m_listWidget || m_viewport || m_scrolledWindow) {
             // TODO assert
             return;
         }
 
-        m_widget = GTK_SCROLLED_WINDOW(::gtk_scrolled_window_new(nullptr, nullptr));
-        ::gtk_widget_set_hexpand(GTK_WIDGET(m_widget), true);
-        ::gtk_widget_set_vexpand(GTK_WIDGET(m_widget), true);
+        m_scrolledWindow = GTK_SCROLLED_WINDOW(::gtk_scrolled_window_new(nullptr, nullptr));
+        g_object_ref(m_scrolledWindow);
+        ::gtk_widget_set_hexpand(GTK_WIDGET(m_scrolledWindow), true);
+        ::gtk_widget_set_vexpand(GTK_WIDGET(m_scrolledWindow), true);
 
         m_viewport = GTK_VIEWPORT(::gtk_viewport_new(nullptr, nullptr));
+        g_object_ref(m_viewport);
         ::gtk_widget_set_hexpand(GTK_WIDGET(m_viewport), true);
         ::gtk_widget_set_vexpand(GTK_WIDGET(m_viewport), true);
-        ::gtk_container_add(GTK_CONTAINER(m_widget), GTK_WIDGET(m_viewport));
+        ::gtk_container_add(GTK_CONTAINER(m_scrolledWindow), GTK_WIDGET(m_viewport));
 
         m_listWidget = GTK_LIST_BOX(::gtk_list_box_new());
+        g_object_ref(m_listWidget);
         ::gtk_container_add(GTK_CONTAINER(m_viewport), GTK_WIDGET(m_listWidget));
 
-
-
-
-
-////        // TODO move
-//        ::gtk_widget_set_size_request (GTK_WIDGET(m_widget), 300, 300);
-////        // TODO move
-//        ::gtk_widget_set_size_request (GTK_WIDGET(m_viewport), 300, 300);
+        g_signal_connect (m_listWidget, "row-selected", G_CALLBACK (handleRowSelected), this);
 
         // TODO updateContainer?
         for(auto& containerChild : m_state.children) {
@@ -55,14 +51,12 @@ namespace katla {
             ::gtk_container_add(GTK_CONTAINER(m_listWidget), gtkChild);  // TODO flex wrapper or properties?
         }
 
-
-        // g_signal_connect (m_button, "clicked", G_CALLBACK (handleClicked), this);
     }
 
     void GtkListView::updateContainer(const ContainerState& state)
     {
-        m_state = state;
         if (!m_listWidget) {
+            m_state = state;
             return;
         }
 
@@ -71,6 +65,8 @@ namespace katla {
             auto gtkChild = dynamic_cast<katla::GtkWidgetInterface*>(containerChild.child.get())->handle();
             ::gtk_container_remove(GTK_CONTAINER(m_listWidget), gtkChild);
         }
+
+        m_state = state;
 
         for(auto& containerChild : m_state.children) {
             auto gtkChild = dynamic_cast<katla::GtkWidgetInterface*>(containerChild.child.get())->handle();
@@ -87,14 +83,32 @@ namespace katla {
         m_state.children.push_back(ContainerChild{.child=widget});
     }
 
-    void GtkListView::show() {
-        gtk_widget_show_all(GTK_WIDGET(m_widget));
+    // TODO clear through state instead?
+    void GtkListView::clear() {
+//        for(auto& containerChild : m_state.children) {
+//            auto gtkChild = dynamic_cast<katla::GtkWidgetInterface*>(containerChild.child.get())->handle();
+//            ::gtk_container_remove(GTK_CONTAINER(m_listWidget), gtkChild);
+//        }
+
+        ::gtk_container_foreach(GTK_CONTAINER(m_listWidget), GtkCallback(removeWidget), this);
+        m_state.children.clear();
     }
 
-    // void GtkColumn::handleClicked(::GtkButton *button, GtkButtonImpl* self)
-    // {
-    //     self->m_onClickedSubject.next();
-    // }
+    void GtkListView::show() {
+        gtk_widget_show_all(GTK_WIDGET(m_scrolledWindow));
+    }
+
+     void GtkListView::handleRowSelected(::GtkListBox* listView, ::GtkListBoxRow* row, GtkListView* self)
+     {
+         katla::printInfo("Row selected");
+
+        auto index = ::gtk_list_box_row_get_index(row);
+        self->m_onRowSelectedSubject.next(index);
+     }
+
+    void GtkListView::removeWidget(::GtkWidget *widget, GtkListView* self) {
+        ::gtk_container_remove(GTK_CONTAINER(self->m_listWidget), widget);
+    }
 
 
 }

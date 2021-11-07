@@ -61,14 +61,14 @@ void GtkApplication::handleActivate(::GtkApplication* app, GtkApplication *self)
 }
 
 // TODO here or standalone with some kind of register?
-std::shared_ptr<GtkWindowImpl> GtkApplication::createWindow()
+std::shared_ptr<GtkWindowImpl> GtkApplication::createWindow(std::string title, katla::Size_32s size)
 {
     if (!_isRunning) {
         std::cerr << "Cannot create window when application has not initialized" << std::endl;
         return {}; // TODO return window
     }
 
-    auto createResult = _windowFactory->create("hello", {200,200});
+    auto createResult = _windowFactory->create(title, size);
     if (!createResult) {
         // TODO error
         return {};
