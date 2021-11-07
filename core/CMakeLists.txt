@@ -19,6 +19,9 @@ set(sources
         stopwatch.cpp
         stopwatch.h
 
+        string-utils.cpp
+        string-utils.h
+
         thread.cpp
         thread.h
         worker-thread.cpp
