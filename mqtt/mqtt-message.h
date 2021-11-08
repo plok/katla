@@ -36,7 +36,7 @@ struct MqttMessage
     std::string topic;
     gsl::span<std::byte> payload;
     MqttQos qos;
-    bool retain;
+    bool retain {false};
 };
 
 } // namespace katla
