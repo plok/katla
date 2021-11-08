@@ -24,7 +24,14 @@ namespace katla {
 
 enum class MqttQos {AtMostOnce = 0, AtLeastOnce = 1, ExactlyOnce = 2};
 
-struct MqttMessage {
+struct MqttMessage
+{
+    // Copying a MqttMessage object is dangerous, because payload holds a pointer
+    // to non-owned memory
+    MqttMessage() = default;
+    MqttMessage(MqttMessage const&) = delete;
+    MqttMessage& operator=(MqttMessage const&) = delete;
+
     int messageId {};
     std::string topic;
     gsl::span<std::byte> payload;
