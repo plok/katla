@@ -177,10 +177,11 @@ void MqttClient::handleMessage(const struct mosquitto_message* mosqMessage) {
     message.topic = mosqMessage->topic;
     message.payload = gsl::span<std::byte>(reinterpret_cast<std::byte*>(mosqMessage->payload), mosqMessage->payloadlen);
     message.qos = static_cast<MqttQos>(mosqMessage->qos);
+    message.retain = mosqMessage->retain;
 
-    bool topicMatch;
     for (auto& subscr : m_onMessageSubject)
     {
+        bool topicMatch = false;
         int result = mosquitto_topic_matches_sub(subscr.first.c_str(), mosqMessage->topic, &topicMatch);
         if (topicMatch)
         {
