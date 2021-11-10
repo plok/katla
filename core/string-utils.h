@@ -35,6 +35,8 @@ namespace string {
     std::string humanFileSize(long long fileSize);
 
     std::string trimPrefix(std::string src, std::string prefix);
+
+    void trimSuffix(std::string& src, const std::string& suffix);
     
 }}
 
