@@ -27,16 +27,21 @@ std::string trimPrefix(std::string src, std::string prefix) {
     return src;
 }
 
-void trimSuffix(std::string& src, const std::string& suffix)
+std::string trimSuffix(const std::string& src, const std::string& suffix)
 {
     if (suffix.empty()) {
-        return;
+        return src;
     }
     const size_t srcLength = src.length();
-    if (srcLength >= suffix.length()) {
-        if (src.compare(srcLength - suffix.length(), suffix.length(), suffix) == 0) {
-            src.erase(srcLength - suffix.length());
-        }
+    const size_t suffixLength = suffix.length();
+    if (suffixLength > srcLength) {
+        return src;
     }
+
+    std::string srcCopy(src);
+    if (srcCopy.compare(srcLength - suffixLength, suffixLength, suffix) == 0) {
+        srcCopy.erase(srcLength - suffixLength);
+    }
+    return srcCopy;
 }
 }}

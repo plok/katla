@@ -36,7 +36,7 @@ namespace string {
 
     std::string trimPrefix(std::string src, std::string prefix);
 
-    void trimSuffix(std::string& src, const std::string& suffix);
+    std::string trimSuffix(const std::string& src, const std::string& suffix);
     
 }}
 
