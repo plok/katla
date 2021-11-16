@@ -27,4 +27,21 @@ std::string trimPrefix(std::string src, std::string prefix) {
     return src;
 }
 
+std::string trimSuffix(const std::string& src, const std::string& suffix)
+{
+    if (suffix.empty()) {
+        return src;
+    }
+    const size_t srcLength = src.length();
+    const size_t suffixLength = suffix.length();
+    if (suffixLength > srcLength) {
+        return src;
+    }
+
+    std::string srcCopy(src);
+    if (srcCopy.compare(srcLength - suffixLength, suffixLength, suffix) == 0) {
+        srcCopy.erase(srcLength - suffixLength);
+    }
+    return srcCopy;
+}
 }}
