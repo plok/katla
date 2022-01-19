@@ -18,6 +18,7 @@
 #define STRING_UTILS_H
 
 #include "core/core.h"
+#include <string>
 
 #ifdef _MSC_VER
     #ifdef KATLA_CORE_INDLL
@@ -37,6 +38,8 @@ namespace string {
     std::string trimPrefix(std::string src, std::string prefix);
 
     std::string trimSuffix(const std::string& src, const std::string& suffix);
+
+    std::string trimWhitespace(const std::string& str);
     
 }}
 

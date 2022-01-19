@@ -1,4 +1,6 @@
 #include "string-utils.h"
+#include <algorithm>
+#include <cctype>
 
 namespace katla {
 namespace string {
@@ -43,5 +45,16 @@ std::string trimSuffix(const std::string& src, const std::string& suffix)
         srcCopy.erase(srcLength - suffixLength);
     }
     return srcCopy;
+}
+
+std::string trimWhitespace(const std::string& str)
+{
+    std::string result = str;
+    result.erase(result.begin(),
+                 std::find_if(result.begin(), result.end(), [](unsigned char ch) { return std::isspace(ch) == 0; }));
+    result.erase(
+        std::find_if(result.rbegin(), result.rend(), [](unsigned char ch) { return std::isspace(ch) == 0; }).base(),
+        result.end());
+    return result;
 }
 }}
