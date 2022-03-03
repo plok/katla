@@ -15,6 +15,7 @@
  */
 #include "uv-event-loop.h"
 
+#include "katla/core/core.h"
 #include "katla/core/core-errors.h"
 
 #include "uv.h"
@@ -60,6 +61,8 @@ outcome::result<void, Error> UvEventLoop::close()
     if (result != 0) {
         return Error(katla::make_error_code(katla::CoreErrorCode::CloseFailed), uv_strerror(result), uv_err_name(result));
     }
+
+    // TODO check for busy and wait for a timeout period
 
     delete m_handle;
     m_handle = nullptr;

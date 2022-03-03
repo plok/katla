@@ -40,7 +40,7 @@ UvCoreApplication::UvCoreApplication()
 }
 
 UvCoreApplication::~UvCoreApplication() {
-    auto _ = UvCoreApplication::close();
+    auto _ = close();
 };
 
 outcome::result<void, Error> UvCoreApplication::init()
@@ -104,9 +104,6 @@ outcome::result<void, Error> UvCoreApplication::stop()
 
 outcome::result<void, Error> UvCoreApplication::close()
 {
-    // TODO: close all timers??
-    // TODO: allow logs to be flushed to server
-
     auto result = m_interruptSignalHandler.close();
     if (!result) {
         katla::print(stderr, result.error().message());
