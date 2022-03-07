@@ -26,17 +26,6 @@ namespace katla {
 UvCoreApplication::UvCoreApplication()
     : m_interruptSignalHandler(m_eventLoop), m_terminateSignalHandler(m_eventLoop), m_hangupSignalHandler(m_eventLoop)
 {
-    auto o = std::make_shared<FuncObserver<void>>([this]() {
-        auto closeResult = this->stop();
-        if (!closeResult) {
-            katla::print(stderr,
-                         "{}\n    {}-{}",
-                         closeResult.error().message(),
-                         closeResult.error().description(),
-                         closeResult.error().info());
-        }
-    });
-    m_onCloseSubject.subscribe(o);
 }
 
 UvCoreApplication::~UvCoreApplication() {
