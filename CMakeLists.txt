@@ -65,6 +65,7 @@ IF(BUILD_KATLA_UV)
         add_subdirectory(external/libuv)
     ENDIF()
     add_subdirectory(core-uv)
+    add_subdirectory(core-uv/unit-tests)
 ENDIF()
 
 IF(BUILD_KATLA_WEBSOCKETS)
