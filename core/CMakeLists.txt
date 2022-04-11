@@ -47,6 +47,7 @@ IF (NOT WIN32)
                 posix-file.h
 
                 posix-thread.cpp
+                posix-process.cpp
         )
 
         IF(NOT APPLE)
