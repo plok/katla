@@ -63,7 +63,6 @@ outcome::result<void, Error> PosixProcess::spawn(std::string path, std::string w
 
     // parent
     m_pid = forkResult;
-    katla::printInfo("forked with pid: {}", forkResult);
 
     m_status = Status::Started;
 
@@ -133,7 +132,6 @@ outcome::result<PosixProcess::Status, Error> PosixProcess::status()
     }
 
     if (waitResult == 0) {
-        katla::printInfo("process status: running");
         if (m_status == Status::Started) {
             m_status = Status::Running;
         } else if (m_status != Status::Running) {
@@ -150,8 +148,6 @@ outcome::result<PosixProcess::Status, Error> PosixProcess::status()
     bool signalled = WIFSIGNALED(status) != 0;
     bool crashed = WTERMSIG(status) == SIGSEGV;
     bool killed = WTERMSIG(status) == SIGKILL;
-
-    katla::printInfo("process status: {} {} {} {}", waitResult, exited, signalled, signal);
 
     auto result = PosixProcess::Status::Unknown;
     if (exited) {
