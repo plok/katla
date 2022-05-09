@@ -29,7 +29,7 @@
 
 namespace katla {
 
-outcome::result<void, Error> PosixProcess::spawn(std::string path, std::string workingDir)
+outcome::result<void, Error> PosixProcess::spawn(std::string path, std::vector<std::string> arguments, std::string workingDir)
 {
     m_status = Status::Starting;
 
@@ -50,6 +50,10 @@ outcome::result<void, Error> PosixProcess::spawn(std::string path, std::string w
         }
 
         std::vector<char*> args;
+        args.push_back(const_cast<char*>(path.c_str()));
+        for(auto& it : arguments) {
+            args.push_back(const_cast<char*>(it.c_str()));
+        }
         args.push_back(nullptr);
 
         if (execv(path.c_str(), args.data()) != 0) {

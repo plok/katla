@@ -38,7 +38,7 @@ public:
     PosixProcess() = default;
     virtual ~PosixProcess() = default;
 
-    outcome::result<void, Error> spawn(std::string path, std::string workingDir);
+    outcome::result<void, Error> spawn(std::string path, std::vector<std::string> arguments, std::string workingDir);
     outcome::result<void, Error> kill(Signal signal);
 
     outcome::result<Status, Error> status();
