@@ -57,13 +57,23 @@ class UvCoreApplication : public CoreApplication {
     }
     void clearOnCloseHandlers() override { m_onCloseSubject.clear(); }
 
+    // TODO: not available on windows, only UV specific API for now
+    std::unique_ptr<Subscription> onChild(std::function<void(void)> childCallback)
+    {
+        auto observer = std::make_shared<FuncObserver<void>>(childCallback);
+        return m_onChildSubject.subscribe(observer);
+    }
+    void clearOnChildHandlers() { m_onChildSubject.clear(); }
+
   private:
     UvEventLoop m_eventLoop;
     UvSignalHandler m_interruptSignalHandler;
     UvSignalHandler m_terminateSignalHandler;
     UvSignalHandler m_hangupSignalHandler;
+    UvSignalHandler m_childSignalHandler;
 
     Subject<void> m_onCloseSubject;
+    Subject<void> m_onChildSubject;
 };
 
 } // namespace katla

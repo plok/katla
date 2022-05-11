@@ -18,6 +18,7 @@
 
 #include "katla/core/core-errors.h"
 
+#include <csignal>
 #include <signal.h>
 
 namespace katla {
@@ -77,6 +78,7 @@ outcome::result<void, Error> UvSignalHandler::start(Signal signal, std::function
     int uvSignal = -1;
     switch (signal) {
     case Signal::Unknown: assert(false);
+    case Signal::Child: uvSignal = SIGCHLD; break;
     case Signal::Interrupt: uvSignal = SIGINT; break;
     case Signal::Hangup: uvSignal = SIGHUP; break;
     case Signal::Kill: uvSignal = SIGKILL; break;

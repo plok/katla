@@ -24,7 +24,7 @@
 namespace katla {
 
 UvCoreApplication::UvCoreApplication()
-    : m_interruptSignalHandler(m_eventLoop), m_terminateSignalHandler(m_eventLoop), m_hangupSignalHandler(m_eventLoop)
+    : m_interruptSignalHandler(m_eventLoop), m_terminateSignalHandler(m_eventLoop), m_hangupSignalHandler(m_eventLoop), m_childSignalHandler(m_eventLoop)
 {
 }
 
@@ -51,22 +51,44 @@ outcome::result<void, Error> UvCoreApplication::init()
     if (!error) {
         return error;
     }
+    error = m_childSignalHandler.init();
+    if (!error) {
+        return error;
+    }
 
     error = m_interruptSignalHandler.start(Signal::Interrupt, [this]() {
         katla::print(stdout, "Interrupt signal received\n");
         m_onCloseSubject.next();
     });
+    if (!error) {
+        return error;
+    }
 
     error = m_terminateSignalHandler.start(Signal::Terminate, [this]() {
         katla::print(stdout, "Terminate signal received\n");
         m_onCloseSubject.next();
     });
+    if (!error) {
+        return error;
+    }
 
     error = m_hangupSignalHandler.start(Signal::Hangup, [this]() {
         katla::print(stdout, "Hangup signal received\n");
         m_onCloseSubject.next();
     });
-    return error;
+    if (!error) {
+        return error;
+    }
+
+    error = m_childSignalHandler.start(Signal::Child, [this]() {
+        katla::print(stdout, "Child signal received\n");
+        m_onChildSubject.next();
+    });
+    if (!error) {
+        return error;
+    }
+
+    return outcome::success();
 }
 
 outcome::result<void, Error> UvCoreApplication::run() { return m_eventLoop.run(); }
@@ -88,6 +110,11 @@ outcome::result<void, Error> UvCoreApplication::stop()
         return result.error();
     }
 
+    result = m_childSignalHandler.stop();
+    if (!result) {
+        return result.error();
+    }
+
     return outcome::success();
 }
 
@@ -102,6 +129,10 @@ outcome::result<void, Error> UvCoreApplication::close()
         katla::print(stderr, result.error().message());
     }
     result = m_hangupSignalHandler.close();
+    if (!result) {
+        katla::print(stderr, result.error().message());
+    }
+    result = m_childSignalHandler.close();
     if (!result) {
         katla::print(stderr, result.error().message());
     }

@@ -26,6 +26,7 @@ namespace katla {
 
 enum class Signal {
     Unknown,
+    Child, // Child stopped or terminated
     Interrupt,
     Hangup,
     Kill,
