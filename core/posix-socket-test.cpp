@@ -234,8 +234,6 @@ namespace katla {
 
         auto result = socket.close();
         ASSERT_TRUE(result) << result.error().message();
-
-        exit(EXIT_SUCCESS);
     }
 }
 

@@ -16,6 +16,7 @@ set(sources
 IF (NOT WIN32 AND NOT APPLE)
     set(sources ${sources}
         ../posix-socket-test.cpp
+        ../string-utils-test.cpp
     )
 ENDIF()
 

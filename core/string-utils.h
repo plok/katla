@@ -40,8 +40,15 @@ namespace string {
     std::string trimSuffix(const std::string& src, const std::string& suffix);
 
     std::string trimWhitespace(const std::string& str);
-    
-}}
+
+    std::string toUpper(const std::string& str);
+    std::string toLower(const std::string& str);
+
+    bool startsWith (const std::string& str, const std::string& start);
+    bool endsWith (const std::string& str, const std::string& end);
+
+} // namespace string
+} // namespace katla  
 
 
 #endif // KATLA_CORE_H

@@ -57,4 +57,46 @@ std::string trimWhitespace(const std::string& str)
         result.end());
     return result;
 }
-}}
+
+std::string toUpper(const std::string& str)
+{
+    std::string result = str;
+
+    auto tfunc = [](char c) -> char {
+        return std::toupper(c);
+    };
+    std::transform(result.begin(), result.end(), result.begin(), tfunc);
+    return result;
+}
+
+std::string toLower(const std::string& str)
+{
+    std::string result = str;
+
+    auto tfunc = [](char c) -> char {
+        return static_cast<int>(std::tolower(c));
+    };
+    std::transform(result.begin(), result.end(), result.begin(), tfunc);
+    return result;
+}
+
+bool startsWith (const std::string& str, const std::string& start)
+{
+    if (start.length() > str.length()) {
+        return false;
+    }
+
+    return (str.compare(0, start.length(), start) == 0);
+}
+
+bool endsWith (const std::string& str, const std::string& end) {
+    if (end.length() > str.length()) {
+        return false;
+    }
+
+    return (str.compare (str.length() - end.length(), end.length(), end) == 0);
+}
+
+
+}  // namespace string
+}  // namespace katla
