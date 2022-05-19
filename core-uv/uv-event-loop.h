@@ -21,6 +21,7 @@
 #include "katla/core/event-loop.h"
 
 #include <memory>
+#include <set>
 
 #include <uv.h>
 
@@ -35,13 +36,25 @@ public:
     outcome::result<void, Error> close();
 
     outcome::result<void, Error> run();
+    outcome::result<void, Error> runSingleIteration();
+
     outcome::result<void, Error> stop();
+
+    outcome::result<void, Error> printOpenHandles();
+    outcome::result<void, Error> closeOpenHandles();
 
     uv_loop_t* handle() {
         return m_handle;
     }
 private:
+    static void printOpenHandlesUvWalkCallback(uv_handle_t *handle, void *arg);
+    
+    static void closeOpenHandlesUvWalkCallback(uv_handle_t *handle, void *arg);
+    static void onCloseHandleCallback(uv_handle_t *handle);
+
     uv_loop_t* m_handle {nullptr};
+
+    std::set<uv_handle_t*> m_handlesToClose;
 };
 
 }

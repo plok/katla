@@ -115,6 +115,10 @@ outcome::result<void, Error> UvCoreApplication::stop()
         return result.error();
     }
 
+    // At this point the eventloop should automatically close unless there are till handles open
+    // do a manual stop to make sure the eventloop stops so we can call the close() method outside the eventloop.
+    m_eventLoop.stop();
+
     return outcome::success();
 }
 
@@ -136,6 +140,10 @@ outcome::result<void, Error> UvCoreApplication::close()
     if (!result) {
         katla::print(stderr, result.error().message());
     }
+
+    m_eventLoop.runSingleIteration();
+
+    m_eventLoop.closeOpenHandles();
 
     result = m_eventLoop.close();
     if (!result) {
