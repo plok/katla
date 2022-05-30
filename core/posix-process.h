@@ -19,8 +19,11 @@
 
 #include "katla/core/core.h"
 #include "katla/core/error.h"
+#include "katla/core/subject.h"
 
+#include "posix-pipe.h"
 #include "signal-handler.h"
+#include "worker-thread.h"
 
 #include <gsl/span>
 
@@ -38,15 +41,25 @@ public:
     PosixProcess() = default;
     virtual ~PosixProcess() = default;
 
-    outcome::result<void, Error> spawn(std::string path, std::vector<std::string> arguments, std::string workingDir);
+    struct SpawnOptions {
+        bool redirectStdout {false};
+    };
+
+    outcome::result<void, Error> spawn(const std::string& path, const std::vector<std::string>& arguments, const std::string& workingDir, const SpawnOptions& options);
     outcome::result<void, Error> kill(Signal signal);
 
     outcome::result<Status, Error> status();
+
+    outcome::result<ssize_t> readStdout(gsl::span<std::byte>& buffer) {
+        return m_fdStdout.read(buffer);
+    }
 
 private:
     std::optional<int> m_pid {};
 
     Status m_status {Status::NotStarted};
+
+    katla::PosixPipe m_fdStdout;
 };
 
 }
