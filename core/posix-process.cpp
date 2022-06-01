@@ -26,12 +26,20 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <vector>
+#include <chrono>
 
 namespace katla {
 
-outcome::result<void, Error> PosixProcess::spawn(std::string path, std::vector<std::string> arguments, std::string workingDir)
+outcome::result<void, Error> PosixProcess::spawn(const std::string& path, const std::vector<std::string>& arguments, const std::string& workingDir, const SpawnOptions& options)
 {
     m_status = Status::Starting;
+
+    if (options.redirectStdout) {
+        auto openPipeOut = m_fdStdout.open();
+        if (!openPipeOut) {
+            return Error(std::make_error_code(static_cast<std::errc>(errno)), "Failed openeing pipe");
+        }
+    }
 
     auto forkResult = fork();
     if (forkResult == -1) {
@@ -40,6 +48,15 @@ outcome::result<void, Error> PosixProcess::spawn(std::string path, std::vector<s
 
     if (forkResult == 0) {
         // child
+        if (options.redirectStdout) {
+            m_fdStdout.closeRead();
+
+            auto redirectOutResult = m_fdStdout.redirectToWrite(STDOUT_FILENO);
+            if (!redirectOutResult) {
+                katla::printError(fmt::format("Error connecting pipe to stdout: {}'", redirectOutResult.error().message()));
+                exit(EXIT_FAILURE);
+            }
+        }
 
         if (!workingDir.empty() && workingDir != "./") {
             int chdirResult = chdir(workingDir.c_str());
@@ -67,6 +84,9 @@ outcome::result<void, Error> PosixProcess::spawn(std::string path, std::vector<s
 
     // parent
     m_pid = forkResult;
+    if (options.redirectStdout) {
+        m_fdStdout.closeWrite();
+    }
 
     m_status = Status::Started;
 
