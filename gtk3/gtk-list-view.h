@@ -6,7 +6,7 @@
 
 #include "katla/ui-components/list-view.h"
 
-#include "katla/gtk/gtk-widget-interface.h"
+#include "katla/gtk3/gtk-widget-interface.h"
 
 #include <functional>
 

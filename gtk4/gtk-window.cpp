@@ -5,7 +5,7 @@
 
 #include "gtk-button-impl.h"
 
-#include "katla/gtk/gtk-widget-interface.h"
+#include "katla/gtk4/gtk-widget-interface.h"
 
 #include <gtk/gtk.h>
 
@@ -15,12 +15,12 @@ namespace katla {
             ::GtkWindow *window) :
             _window(window),
             _closeRequested(false) {
-        g_object_ref(window);
+        g_object_ref_sink(window);
     }
 
     GtkWindowImpl::~GtkWindowImpl() {
         if (_window) {
-            gtk_widget_destroy(GTK_WIDGET(_window));
+            g_object_unref(_window);
 
             // glfwDestroyWindow(_window);
             _window = nullptr;
@@ -47,10 +47,10 @@ namespace katla {
         }
 
         if (!state.children.empty()) {
-            gtk_container_add(GTK_CONTAINER (_window), GTK_WIDGET(dynamic_cast<katla::GtkWidgetInterface*>(state.children.front().child.get())->handle()));
+            gtk_window_set_child(_window, GTK_WIDGET(dynamic_cast<katla::GtkWidgetInterface*>(state.children.front().child.get())->handle()));
         }
 
-        gtk_widget_show_all(GTK_WIDGET(_window));
+        gtk_widget_show(GTK_WIDGET(_window));
 
     }
 
@@ -60,7 +60,7 @@ namespace katla {
 
         // glViewport(0, 0, width, height);
 
-        gtk_widget_show_all(GTK_WIDGET(_window));
+        gtk_widget_show(GTK_WIDGET(_window));
     }
 
 

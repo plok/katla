@@ -8,3 +8,4 @@ Makefile
 .directory
 cmake-build-debug/
 .idea/
+.DS_Store

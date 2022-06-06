@@ -1,12 +1,12 @@
-#ifndef KATLA_GTK_COLUMN_H
-#define KATLA_GTK_COLUMN_H
+#ifndef KATLA_GTK_ROW_H
+#define KATLA_GTK_ROW_H
 
 #include "katla/core/error.h"
 #include "katla/core/subject.h"
 
-#include "katla/ui-components/column.h"
+#include "katla/ui-components/row.h"
 
-#include "katla/gtk/gtk-widget-interface.h"
+#include "katla/gtk3/gtk-widget-interface.h"
 
 #include <functional>
 
@@ -14,10 +14,10 @@
 
 namespace katla {
 
-    class GtkColumn : public Column, public GtkWidgetInterface {
+    class GtkRow : public Row, public GtkWidgetInterface {
     public:
-        GtkColumn();
-        virtual ~GtkColumn();
+        GtkRow();
+        virtual ~GtkRow();
 
         void init();
         void show();

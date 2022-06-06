@@ -1,12 +1,12 @@
 #include "katla/core/core-application.h"
 
-#include "katla/gtk/gtk-application.h"
+#include "katla/gtk4/gtk-application.h"
 
-#include "katla/gtk/gtk-text-impl.h"
-#include "katla/gtk/gtk-button-impl.h"
-#include "katla/gtk/gtk-column.h"
-#include "katla/gtk/gtk-row.h"
-#include "katla/gtk/gtk-list-view.h"
+#include "katla/gtk4/gtk-text-impl.h"
+#include "katla/gtk4/gtk-button-impl.h"
+#include "katla/gtk4/gtk-column.h"
+#include "katla/gtk4/gtk-row.h"
+#include "katla/gtk4/gtk-list-view.h"
 
 #include "string.h"
 #include <iostream>
@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
     gtkApplication.onStartup([&gtkApplication, &window]() {
         katla::printInfo("startup!");
 
-        window = gtkApplication.createWindow();
+        window = gtkApplication.createWindow("testapp", {800, 600});
 
         auto label = std::make_shared<katla::GtkTextImpl>();
         label->updateText({"hallo buttons:"});

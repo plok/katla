@@ -1,10 +1,10 @@
 #include "gtk-application.h"
 
 #include "gtk-window.h"
-#include "katla/gtk/gtk-window.h"
-#include "katla/gtk/gtk-button-impl.h"
-#include "katla/gtk/gtk-column.h"
-#include "katla/gtk/gtk-text-impl.h"
+#include "katla/gtk4/gtk-window.h"
+#include "katla/gtk4/gtk-button-impl.h"
+#include "katla/gtk4/gtk-column.h"
+#include "katla/gtk4/gtk-text-impl.h"
 
 #include <gtk/gtk.h>
 

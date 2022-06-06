@@ -7,8 +7,8 @@
 #include "katla/core/subject.h"
 #include "katla/core/size.h"
 
-#include "katla/gtk/gtk-window-factory.h"
-#include "katla/gtk/gtk-window.h"
+#include "katla/gtk3/gtk-window-factory.h"
+#include "katla/gtk3/gtk-window.h"
 
 #include <tuple>
 #include <memory>
