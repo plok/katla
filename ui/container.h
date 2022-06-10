@@ -5,7 +5,7 @@
 #include "katla/core/subject.h"
 #include "katla/core/size.h"
 
-#include "katla/ui-components/widget.h"
+#include "katla/ui/widget.h"
 
 #include <tuple>
 #include <memory>

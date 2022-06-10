@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
     katla::GtkApplication gtkApplication;
     gtkApplication.init(argc, argv, "gtk-application-test");
 
-    std::shared_ptr<katla::GtkWindowImpl> window;
+    std::shared_ptr<katla::Window> window;
 
     gtkApplication.onStartup([&gtkApplication, &window]() {
         katla::printInfo("startup!");

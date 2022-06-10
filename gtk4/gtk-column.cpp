@@ -66,6 +66,7 @@ namespace katla {
         m_state = state;
 
         for(auto& containerChild : m_state.children) {
+            // TODO cross -> gtk
             auto gtkChild = dynamic_cast<katla::GtkWidgetInterface*>(containerChild.child.get())->handle();
 
             // TODO to widget

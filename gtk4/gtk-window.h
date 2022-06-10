@@ -6,7 +6,7 @@
 
 #include "katla/core/subject.h"
 
-#include "katla/ui-components/container.h"
+#include "katla/ui/container.h"
 
 #include <memory>
 #include <functional>

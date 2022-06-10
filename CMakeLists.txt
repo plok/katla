@@ -17,6 +17,8 @@ option(BUILD_KATLA_WEBSOCKETS "Build websockets module" ON)
 option(BUILD_KATLA_GTK3 "Build gtk-3 module" OFF)
 option(BUILD_KATLA_GTK4 "Build gtk-4 module" OFF)
 
+option(BUILD_KATLA_CROSS_UI "Build cross platform UI module" OFF)
+
 option(BUILD_GMOCK "Builds the googlemock subproject" OFF)
 option(INSTALL_GTEST "Enable installation of googletest. (Projects embedding googletest may want to turn this OFF.)" OFF)
 add_subdirectory(external/googletest)
@@ -85,7 +87,7 @@ IF(BUILD_KATLA_MQTT)
     add_subdirectory(mqtt/unit-tests)
 ENDIF()
 
-add_subdirectory(ui-components)
+add_subdirectory(ui)
 add_subdirectory(window-management)
 
 IF (BUILD_KATLA_GTK3)
@@ -102,4 +104,6 @@ IF (BUILD_KATLA_GTK4)
 
     add_subdirectory(gtk4)
     add_subdirectory(gtk4/integration-tests/gtk-application-test)
+
+    add_subdirectory(ui/integration-tests/testapp)
 ENDIF()

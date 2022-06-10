@@ -4,7 +4,7 @@
 #include "katla/core/error.h"
 #include "katla/core/subject.h"
 
-#include "katla/ui-components/text.h"
+#include "katla/ui/text.h"
 
 #include "katla/gtk4/gtk-widget-interface.h"
 
@@ -20,7 +20,7 @@ namespace katla {
         virtual ~GtkTextImpl();
 
         void init();
-        void show();
+        void show() override;
 
         void updateText(const TextState& state) override;
 

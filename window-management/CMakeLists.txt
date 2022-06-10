@@ -20,5 +20,5 @@ target_include_directories(katla-wm PRIVATE
     ../external/
     )
 
-target_link_libraries(katla-wm katla-ui-components)
+target_link_libraries(katla-wm katla-ui katla-core)
 

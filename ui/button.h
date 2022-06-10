@@ -5,7 +5,7 @@
 #include "katla/core/subject.h"
 #include "katla/core/size.h"
 
-#include "katla/ui-components/widget.h"
+#include "katla/ui/widget.h"
 
 #include <tuple>
 #include <memory>
@@ -22,6 +22,8 @@ namespace katla {
     public:
         Button() = default;
         virtual ~Button() = default;
+
+        static std::unique_ptr<Button> create();
 
         virtual void updateButton(const ButtonState& state) = 0;
 

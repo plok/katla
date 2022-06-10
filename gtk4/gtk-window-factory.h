@@ -11,9 +11,6 @@
 #include <memory>
 #include <string>
 
-// TODO to private
-#include <gtk/gtk.h>
-
 #include "gtk-window.h"
 
 namespace katla {

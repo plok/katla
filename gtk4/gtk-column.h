@@ -4,7 +4,7 @@
 #include "katla/core/error.h"
 #include "katla/core/subject.h"
 
-#include "katla/ui-components/column.h"
+#include "katla/ui/column.h"
 
 #include "katla/gtk4/gtk-widget-interface.h"
 

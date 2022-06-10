@@ -47,7 +47,11 @@ namespace katla {
         }
 
         if (!state.children.empty()) {
-            gtk_window_set_child(_window, GTK_WIDGET(dynamic_cast<katla::GtkWidgetInterface*>(state.children.front().child.get())->handle()));
+            auto firstWidget = state.children.front();
+            if (!firstWidget.child) {
+                return;
+            }
+            gtk_window_set_child(_window, GTK_WIDGET(dynamic_cast<katla::GtkWidgetInterface*>(firstWidget.child.get())->handle()));
         }
 
         gtk_widget_show(GTK_WIDGET(_window));

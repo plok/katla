@@ -6,6 +6,9 @@
 #include "katla/gtk4/gtk-column.h"
 #include "katla/gtk4/gtk-text-impl.h"
 
+#include "katla/ui/platform-register.h"
+#include "katla/gtk4/gtk-platform-builder.h"
+
 #include <gtk/gtk.h>
 
 namespace katla {
@@ -26,6 +29,14 @@ GtkApplication::~GtkApplication()
         g_object_unref (_app);
         _app = nullptr;
     }
+}
+
+void GtkApplication::registerPlatform()
+{
+    auto reg = katla::PlatformRegister::instance();
+    auto builder = std::make_shared<katla::GtkPlatformBuilder>();
+    reg->registerBuilder("gtk", builder);
+    reg->activateBuilder("gtk");
 }
 
 void GtkApplication::init(int argc, char* argv[], std::string appName)
@@ -61,7 +72,7 @@ void GtkApplication::handleActivate(::GtkApplication* app, GtkApplication *self)
 }
 
 // TODO here or standalone with some kind of register?
-std::shared_ptr<GtkWindowImpl> GtkApplication::createWindow(std::string title, katla::Size_32s size)
+std::shared_ptr<Window> GtkApplication::createWindow(std::string title, katla::Size_32s size)
 {
     if (!_isRunning) {
         std::cerr << "Cannot create window when application has not initialized" << std::endl;

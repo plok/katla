@@ -7,7 +7,7 @@
 #include "katla/core/subject.h"
 #include "katla/core/size.h"
 
-#include "katla/ui-components/container.h"
+#include "katla/ui/container.h"
 
 #include <tuple>
 #include <memory>

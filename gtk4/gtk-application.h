@@ -7,6 +7,8 @@
 #include "katla/core/subject.h"
 #include "katla/core/size.h"
 
+#include "katla/ui/application.h"
+
 #include "katla/gtk4/gtk-window-factory.h"
 #include "katla/gtk4/gtk-window.h"
 
@@ -32,23 +34,25 @@ namespace katla {
 //     std::shared_ptr<Observer<bool>> closeRequested;
 // };
 
-class GtkApplication {
+class GtkApplication : public Application {
 public:
     GtkApplication();
     virtual ~GtkApplication();
 
-    virtual void init(int argc, char* argv[], std::string appName);
+    static void registerPlatform(); 
 
-    virtual std::shared_ptr<GtkWindowImpl> createWindow(std::string title, katla::Size_32s size);
+    virtual void init(int argc, char* argv[], std::string appName) override;
+
+    virtual std::shared_ptr<Window> createWindow(std::string title, katla::Size_32s size);
 
     // TODO integrate in event-loop or seperate process?
-    virtual int run();
+    virtual int run() override;
 
-    std::unique_ptr<Subscription> onStartup(std::function<void(void)> startupCallback) {
+    std::unique_ptr<Subscription> onStartup(std::function<void(void)> startupCallback) override {
         return m_onStartupSubject.subscribe(std::make_shared<katla::FuncObserver<void>>(startupCallback));
     };
 
-    std::unique_ptr<Subscription> onActivate(std::function<void(void)> activateCallback) {
+    std::unique_ptr<Subscription> onActivate(std::function<void(void)> activateCallback) override {
         return m_onActivateSubject.subscribe(std::make_shared<katla::FuncObserver<void>>(activateCallback));
     };
 
