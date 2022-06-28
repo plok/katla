@@ -49,7 +49,7 @@ outcome::result<void, Error> PosixProcess::spawn(const std::string& path, const 
     if (forkResult == 0) {
         // child
         if (options.redirectStdout) {
-            m_fdStdout.closeRead();
+            auto _ = m_fdStdout.closeRead();
 
             auto redirectOutResult = m_fdStdout.redirectToWrite(STDOUT_FILENO);
             if (!redirectOutResult) {

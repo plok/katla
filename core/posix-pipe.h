@@ -32,7 +32,7 @@ public:
     PosixPipe();
     ~PosixPipe();
 
-    outcome::result<void> open();
+    outcome::result<void> open(bool nonblocking = false);
 
     outcome::result<ssize_t> read(gsl::span<std::byte>& buffer);
     outcome::result<ssize_t> write(gsl::span<std::byte>& buffer);

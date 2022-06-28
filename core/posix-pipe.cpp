@@ -20,6 +20,7 @@
 #include <vector>
 
 #include <unistd.h>
+#include <fcntl.h>
 #include <system_error>
 
 namespace katla {
@@ -40,9 +41,13 @@ PosixPipe::~PosixPipe()
     }
 }
 
-outcome::result<void> PosixPipe::open()
+outcome::result<void> PosixPipe::open(bool nonblocking)
 {
-    int status = pipe(_fd);
+    int flags = 0;
+    if (nonblocking) {
+        flags |= O_NONBLOCK;
+    }
+    int status = pipe2(_fd, flags);
     if (status == -1) {
         return std::make_error_code(static_cast<std::errc>(errno));
     }
