@@ -16,6 +16,8 @@
 
 #include "posix-pipe.h"
 
+#include <asm-generic/errno-base.h>
+#include <asm-generic/errno.h>
 #include <iostream>
 #include <vector>
 
@@ -59,6 +61,10 @@ outcome::result<ssize_t> PosixPipe::read(gsl::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::read(_fd[0], buffer.data(), buffer.size());
 
+    if (nbytes == EAGAIN || nbytes == EWOULDBLOCK) {
+        return 0; // TODO make visible to calling method
+    }
+
     if (nbytes == -1) {
         return std::make_error_code(static_cast<std::errc>(errno));
     }
@@ -69,6 +75,10 @@ outcome::result<ssize_t> PosixPipe::read(gsl::span<std::byte>& buffer)
 outcome::result<ssize_t> PosixPipe::write(gsl::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::write(_fd[1], buffer.data(), buffer.size());
+
+    if (nbytes == EAGAIN || nbytes == EWOULDBLOCK) {
+        return 0; // TODO make visible to calling method
+    }
 
     if (nbytes == -1) {
         return std::make_error_code(static_cast<std::errc>(errno));
