@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 add_definitions(-DKATLA_WINDOW_MANAGEMENT_CLIENT_GLFW_INDLL)
 
 set(sources
+    c-api/gtk-application.cpp
+
     gtk-platform-builder.cpp
     gtk-application.cpp
     gtk-window.cpp

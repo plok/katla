@@ -43,7 +43,7 @@ public:
 
     virtual void init(int argc, char* argv[], std::string appName) override;
 
-    virtual std::shared_ptr<Window> createWindow(std::string title, katla::Size_32s size);
+    virtual std::shared_ptr<Window> createWindow(std::string title, katla::Size_32s size) override;
 
     // TODO integrate in event-loop or seperate process?
     virtual int run() override;

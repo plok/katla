@@ -106,4 +106,5 @@ IF (BUILD_KATLA_GTK4)
     add_subdirectory(gtk4/integration-tests/gtk-application-test)
 
     add_subdirectory(ui/integration-tests/testapp)
+    add_subdirectory(ui/integration-tests/c-api-test-app)
 ENDIF()

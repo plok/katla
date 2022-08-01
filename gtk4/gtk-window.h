@@ -25,15 +25,16 @@ namespace katla {
 
         virtual ~GtkWindowImpl();
 
-        void init();
+        void init() override;
 
         void updateContainer(const ContainerState& state) override;
+        void append(std::shared_ptr<Widget> child) override;
 
-        void show();
+        void show() override;
 
-        void close();
+        void close() override;
 
-        void processEvents();
+        void processEvents() override;
 
     private:
 //    static void windowSizeCallback(GtkWindow* window, int width, int height);

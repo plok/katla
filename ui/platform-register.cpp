@@ -26,6 +26,8 @@ void PlatformRegister::activateBuilder(std::string name)
 }
 
 std::shared_ptr<PlatformBuilder> PlatformRegister::activeBuilder() {
+    assert (m_activeBuilder);
+
     return m_activeBuilder;
 }
 

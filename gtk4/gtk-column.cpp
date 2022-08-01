@@ -89,6 +89,15 @@ namespace katla {
         // gtk_button_set_label (m_button, state.label.c_str());
     }
 
+    void GtkColumn::append(std::shared_ptr<katla::Widget> child) {
+        ContainerChild containerChild;
+        containerChild.child = child;
+        m_state.children.push_back(containerChild);
+
+        auto gtkChild = dynamic_cast<katla::GtkWidgetInterface*>(child.get())->handle();
+        ::gtk_box_append(m_widget, gtkChild);
+    }
+
     // TODO clear through state instead?
     void GtkColumn::clear() {
         for(auto& containerChild : m_state.children) {

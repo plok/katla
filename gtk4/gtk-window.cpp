@@ -58,6 +58,9 @@ namespace katla {
 
     }
 
+    void GtkWindowImpl::append(std::shared_ptr<katla::Widget> child) {
+    }
+
     void GtkWindowImpl::show() {
         int width = 0, height = 0;
         // glfwGetFramebufferSize(_window, &width, &height);

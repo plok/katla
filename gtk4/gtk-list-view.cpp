@@ -76,11 +76,14 @@ namespace katla {
         // gtk_button_set_label (m_button, state.label.c_str());
     }
 
-    void GtkListView::addWidget(std::shared_ptr<Widget> widget) {
-        auto gtkChild = dynamic_cast<katla::GtkWidgetInterface*>(widget.get())->handle();
-        ::gtk_list_box_append(m_listWidget, gtkChild);
+    void GtkListView::append(std::shared_ptr<Widget> child) {
+        auto gtkChild = dynamic_cast<katla::GtkWidgetInterface*>(child.get())->handle();
 
-        m_state.children.push_back(ContainerChild{.child=widget});
+        ContainerChild containerChild;
+        containerChild.child = child;
+        m_state.children.push_back(containerChild);
+
+        ::gtk_list_box_append(m_listWidget, gtkChild);
     }
 
     // TODO clear through state instead?

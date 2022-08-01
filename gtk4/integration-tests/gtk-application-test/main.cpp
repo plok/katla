@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
         listview->init();
 
         for(int i=0; i < 100; i++) {
-            listview->addWidget(genListEntry(katla::format("Entry #{}", i)));
+            listview->append(genListEntry(katla::format("Entry #{}", i)));
         }
         listview->show();
 

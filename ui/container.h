@@ -40,6 +40,7 @@ namespace katla {
         virtual ~Container() = default;
 
         virtual void updateContainer(const ContainerState& state) = 0;
+        virtual void append(std::shared_ptr<Widget> child) = 0;
 
     };
 

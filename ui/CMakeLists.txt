@@ -15,6 +15,8 @@ set(sources
     button.cpp
     column.cpp
     text.cpp
+
+    c-api/ui.cpp
     )
 
 add_library(${target_name} SHARED ${sources})

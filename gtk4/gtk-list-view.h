@@ -23,13 +23,9 @@ namespace katla {
         void show();
 
         void updateContainer(const ContainerState& state) override;
-
-        // TODO replace by builder API?
-        void addWidget(std::shared_ptr<Widget> widget);
-
+        void append(std::shared_ptr<Widget> child) override;
 
         void clear();
-
 
          std::unique_ptr<Subscription> onRowSelected(std::function<void(int)> rowSelectedCallback) override {
              return m_onRowSelectedSubject.subscribe(std::make_shared<katla::FuncObserver<int>>(rowSelectedCallback));
