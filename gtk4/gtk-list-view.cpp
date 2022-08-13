@@ -76,7 +76,7 @@ namespace katla {
         // gtk_button_set_label (m_button, state.label.c_str());
     }
 
-    void GtkListView::append(std::shared_ptr<Widget> child) {
+    void GtkListView::append(std::shared_ptr<Widget> child, const ContainerChildOpts& opts) {
         auto gtkChild = dynamic_cast<katla::GtkWidgetInterface*>(child.get())->handle();
 
         ContainerChild containerChild;

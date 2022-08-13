@@ -89,12 +89,26 @@ namespace katla {
         // gtk_button_set_label (m_button, state.label.c_str());
     }
 
-    void GtkColumn::append(std::shared_ptr<katla::Widget> child) {
+    void GtkColumn::append(std::shared_ptr<katla::Widget> child, const ContainerChildOpts& opts) {
         ContainerChild containerChild;
         containerChild.child = child;
         m_state.children.push_back(containerChild);
 
-        auto gtkChild = dynamic_cast<katla::GtkWidgetInterface*>(child.get())->handle();
+        // TODO to widget
+            auto gtkChild = dynamic_cast<katla::GtkWidgetInterface*>(child.get())->handle();
+
+            int width, height = 0;
+            ::gtk_widget_get_size_request(GTK_WIDGET(gtkChild), &width, &height);
+
+            if (containerChild.width.has_value()) {
+                width = containerChild.width.value();
+            }
+            if (containerChild.height.has_value()) {
+                height = containerChild.height.value();
+                ::gtk_widget_set_vexpand(GTK_WIDGET(gtkChild), false);
+            }
+            ::gtk_widget_set_size_request(GTK_WIDGET(gtkChild), width, height);
+
         ::gtk_box_append(m_widget, gtkChild);
     }
 

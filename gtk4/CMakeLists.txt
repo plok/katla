@@ -16,6 +16,7 @@ set(sources
     gtk-column.cpp
     gtk-row.cpp
     gtk-text-impl.cpp
+    gtk-text-field-impl.cpp
     gtk-list-view.cpp
     )
 

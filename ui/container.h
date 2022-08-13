@@ -25,6 +25,16 @@ namespace katla {
         std::optional<int> height {};
     };
 
+    struct ContainerChildOpts {
+        bool expand {}; // flex?
+        bool fill {};
+        int additionSpacing {};
+
+        // TODO
+        std::optional<int> width {};
+        std::optional<int> height {};
+    };
+
     struct ContainerState {
         enum class Orientation { Horizontal, Vertical };
 
@@ -40,7 +50,7 @@ namespace katla {
         virtual ~Container() = default;
 
         virtual void updateContainer(const ContainerState& state) = 0;
-        virtual void append(std::shared_ptr<Widget> child) = 0;
+        virtual void append(std::shared_ptr<Widget> child, const ContainerChildOpts& opts) = 0;
 
     };
 

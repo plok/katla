@@ -23,7 +23,7 @@ namespace katla {
         void show();
 
         void updateContainer(const ContainerState& state) override;
-        void append(std::shared_ptr<katla::Widget> child) override;
+        void append(std::shared_ptr<katla::Widget> child, const ContainerChildOpts& opts) override;
 
         void clear();
 

@@ -58,7 +58,7 @@ namespace katla {
 
     }
 
-    void GtkWindowImpl::append(std::shared_ptr<katla::Widget> child) {
+    void GtkWindowImpl::append(std::shared_ptr<katla::Widget> child, const ContainerChildOpts& opts) {
     }
 
     void GtkWindowImpl::show() {

@@ -4,6 +4,7 @@
 #include "katla/gtk4/gtk-column.h"
 #include "katla/gtk4/gtk-button-impl.h"
 #include "katla/gtk4/gtk-text-impl.h"
+#include "katla/gtk4/gtk-text-field-impl.h"
 
 namespace katla {
 
@@ -26,6 +27,11 @@ std::unique_ptr<Button> GtkPlatformBuilder::createButton() {
 }
 std::unique_ptr<Text> GtkPlatformBuilder::createText() {
     auto widget = std::make_unique<GtkTextImpl>();
+    widget->init();
+    return widget;
+}
+std::unique_ptr<TextField> GtkPlatformBuilder::createTextField() {
+    auto widget = std::make_unique<GtkTextFieldImpl>();
     widget->init();
     return widget;
 }

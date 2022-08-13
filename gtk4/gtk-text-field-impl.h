@@ -1,10 +1,10 @@
-#ifndef KATLA_GTK_ROW_H
-#define KATLA_GTK_ROW_H
+#ifndef KATLA_GTK_TEXT_FIELD_IMPL_H
+#define KATLA_GTK_TEXT_FIELD_IMPL_H
 
 #include "katla/core/error.h"
 #include "katla/core/subject.h"
 
-#include "katla/ui/row.h"
+#include "katla/ui/text-field.h"
 
 #include "katla/gtk4/gtk-widget-interface.h"
 
@@ -14,18 +14,16 @@
 
 namespace katla {
 
-    class GtkRow : public Row, public GtkWidgetInterface {
+    class GtkTextFieldImpl : public TextField, public GtkWidgetInterface {
     public:
-        GtkRow();
-        virtual ~GtkRow();
+        GtkTextFieldImpl();
+        virtual ~GtkTextFieldImpl();
 
         void init();
-        void show();
+        void show() override;
 
-        void updateContainer(const ContainerState& state) override;
-        void append(std::shared_ptr<Widget> child, const ContainerChildOpts& opts) override;
+        void setText(const TextFieldState& state) override;
 
-        void clear();
 
         // std::unique_ptr<Subscription> onClicked(std::function<void(void)> clickedCallback) override {
         //     return m_onClickedSubject.subscribe(std::make_shared<katla::FuncObserver<void>>(clickedCallback));
@@ -38,10 +36,11 @@ namespace katla {
     private:
         // static void handleClicked(::GtkButton *button, GtkButtonImpl* self);
 
-        ::GtkBox *m_widget {};
+        ::GtkEntry *m_widget {};
+        ::GtkEntryBuffer *m_buffer{};
 
         // TODO use references instead (state outside widget)
-        ContainerState m_state {};
+        TextFieldState m_state {};
 
         // katla::Subject<void> m_onClickedSubject;
     };

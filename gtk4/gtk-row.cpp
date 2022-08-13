@@ -89,7 +89,7 @@ namespace katla {
         // gtk_button_set_label (m_button, state.label.c_str());
     }
 
-    void GtkRow::append(std::shared_ptr<Widget> child) {
+    void GtkRow::append(std::shared_ptr<Widget> child, const ContainerChildOpts& opts) {
         ContainerChild containerChild;
         containerChild.child = child;
         m_state.children.push_back(containerChild);

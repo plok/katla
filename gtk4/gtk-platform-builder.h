@@ -10,6 +10,7 @@
 #include "ui/column.h"
 #include "ui/button.h"
 #include "ui/text.h"
+#include "ui/text-field.h"
 
 #include <memory>
 
@@ -24,6 +25,7 @@ public:
     std::unique_ptr<Column> createColumn();
     std::unique_ptr<Button> createButton();
     std::unique_ptr<Text> createText();
+    std::unique_ptr<TextField> createTextField();
 };
 
 }
