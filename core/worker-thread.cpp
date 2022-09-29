@@ -68,7 +68,6 @@ void WorkerThread::stop()
 void WorkerThread::join()
 {
     if (m_thread) {
-        stop();
         m_thread->join();
         m_thread.reset();
     }
