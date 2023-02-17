@@ -59,8 +59,10 @@ namespace katla {
 
         outcome::result<size_t> size();
 
+        [[nodiscard]] int fd() const {return m_fd;}
+
     private:
-        int m_fd;
+        int m_fd {-1};
     };
 
     inline PosixFile::OpenFlags operator|(PosixFile::OpenFlags lhs, PosixFile::OpenFlags rhs) {
