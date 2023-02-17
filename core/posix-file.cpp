@@ -15,6 +15,7 @@
  */
 
 #include "posix-file.h"
+#include "gsl/gsl_util"
 
 #include <system_error>
 #include <sys/types.h>
@@ -26,10 +27,7 @@
 
 namespace katla {
 
-PosixFile::PosixFile()
-    : m_fd(-1)
-{
-}
+PosixFile::PosixFile() {}
 
 PosixFile::~PosixFile()
 {
@@ -40,7 +38,7 @@ PosixFile::~PosixFile()
 
 outcome::result<void> PosixFile::create(std::string_view pathPath, PosixFile::OpenFlags flags)
 {
-    m_fd = ::open(std::string(pathPath).c_str(), static_cast<int>(flags), 0644);
+    m_fd = ::open(std::string(pathPath).c_str(), gsl::narrow_cast<uint>(flags) | gsl::narrow_cast<uint>(O_CLOEXEC), 0644);
     if (m_fd == -1) {
         return std::make_error_code(static_cast<std::errc>(errno));
     }
