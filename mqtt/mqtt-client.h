@@ -58,6 +58,7 @@ class MqttClient {
 
   private:
     outcome::result<void, Error> init(const std::string& clientName);
+    Error makeMosquittoError(int error);
 
     void handleConnect(int rc);
     void handleDisconnect(int rc);
