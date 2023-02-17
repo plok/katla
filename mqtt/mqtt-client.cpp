@@ -20,6 +20,7 @@
 
 #include <memory>
 #include <mutex>
+#include <errno.h>
 
 namespace katla {
 
@@ -86,7 +87,7 @@ outcome::result<void, Error> MqttClient::connect(const std::string& host, int po
 {
     int connectResult = mosquitto_connect_async(m_client, host.c_str(), port, keepAliveSeconds);
     if (connectResult != MOSQ_ERR_SUCCESS) {
-        return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(connectResult));
+        return makeMosquittoError(connectResult);
     }
 
     // The mosquitto docs state that <mosquitto_connect_async> may be called before or after <mosquitto_loop_start>,
@@ -110,7 +111,7 @@ outcome::result<void, Error> MqttClient::disconnect()
 {
     int result = mosquitto_disconnect(m_client);
     if (result != MOSQ_ERR_SUCCESS) {
-        return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(result));
+        return makeMosquittoError(result);
     }
 
     return outcome::success();
@@ -197,7 +198,7 @@ MqttClient::publish(std::string topic, gsl::span<std::byte> payload, MqttQos qos
     int result = mosquitto_publish(
         m_client, &messageId, topic.c_str(), payload.size(), payload.data(), static_cast<int>(qos), retain);
     if (result != MOSQ_ERR_SUCCESS) {
-        return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(result));
+        return makeMosquittoError(result);
     }
 
     return outcome::success();
@@ -208,11 +209,27 @@ outcome::result<std::unique_ptr<katla::Subscription>, Error> MqttClient::subscri
     int messageId = {};
     int result = mosquitto_subscribe(m_client, &messageId, subPattern.c_str(), static_cast<int>(qos));
     if (result != MOSQ_ERR_SUCCESS) {
-        return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(result));
+        return makeMosquittoError(result);
     }
 
     m_subscriptions[messageId] = subPattern;
     return m_onMessageSubject[subPattern].subscribe(std::make_shared<katla::FuncObserver<MqttMessage>>(callback));
+}
+
+Error MqttClient::makeMosquittoError(int error)
+{
+    if (error == MOSQ_ERR_SUCCESS) {
+        return {};
+    }
+
+    if (error == MOSQ_ERR_ERRNO) {
+        char errnoBuffer[ 256 ];
+        char* stringPtr = strerror_r( errno, errnoBuffer, 256 );
+
+        return Error(make_error_code(MqttErrorCodes::MosquittoError), katla::format("System call failed: {}", std::string(stringPtr)));
+    }
+
+    return Error(make_error_code(MqttErrorCodes::MosquittoError), mosquitto_strerror(error));
 }
 
 } // namespace katla
