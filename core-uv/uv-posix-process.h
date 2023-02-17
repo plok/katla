@@ -17,13 +17,14 @@
 #ifndef KATLA_POSIX_PROCESS_H
 #define KATLA_POSIX_PROCESS_H
 
+#include "core/observable.h"
 #include "katla/core/core.h"
 #include "katla/core/error.h"
 #include "katla/core/subject.h"
 
-#include "posix-pipe.h"
-#include "signal-handler.h"
-#include "worker-thread.h"
+#include "katla/core/posix-pipe.h"
+#include "katla/core/signal-handler.h"
+#include "katla/core/worker-thread.h"
 
 #include <gsl/span>
 
@@ -34,12 +35,12 @@
 
 namespace katla {
 
-class PosixProcess {
+class UvPosixProcess {
 public:
     enum class Status {Unknown, NotStarted, Starting, Started, Running, Exitted, Signalled, Crashed, Killed};
 
-    PosixProcess() = default;
-    virtual ~PosixProcess() = default;
+    UvPosixProcess() = default;
+    virtual ~UvPosixProcess();
 
     struct SpawnOptions {
         bool redirectStdout {false};
@@ -54,12 +55,22 @@ public:
         return m_fdStdout.read(buffer);
     }
 
+    std::unique_ptr<katla::Subscription>
+    onClose(const std::function<void()>& onCloseCallback) {
+        return m_onCloseSubject.subscribe(std::make_shared<katla::FuncObserver<void>>(onCloseCallback));
+    }
+
 private:
+    void handleChildSignal();
+
     std::optional<int> m_pid {};
 
     Status m_status {Status::NotStarted};
 
     katla::PosixPipe m_fdStdout;
+    std::unique_ptr<katla::Subscription> m_onChildSubscription;
+
+    katla::Subject<void> m_onCloseSubject;
 };
 
 }

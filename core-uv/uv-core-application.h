@@ -28,6 +28,8 @@
 
 #include <functional>
 #include <memory>
+#include <mutex>
+#include <atomic>
 
 namespace katla {
 
@@ -36,8 +38,13 @@ class UvSignalHandler;
 
 class UvCoreApplication : public CoreApplication {
   public:
-    UvCoreApplication();
+    UvCoreApplication(const UvCoreApplication&) = delete;
     ~UvCoreApplication() override;
+
+    void operator=(const UvCoreApplication&) = delete;
+
+    static UvCoreApplication& instance();
+    static bool hasInstance();
 
     outcome::result<void, Error> init() override;
     outcome::result<void, Error> close() override;
@@ -66,6 +73,11 @@ class UvCoreApplication : public CoreApplication {
     void clearOnChildHandlers() { m_onChildSubject.clear(); }
 
   private:
+    UvCoreApplication();
+
+    static std::atomic<UvCoreApplication*> s_instancePtr;
+    static std::mutex s_mutex;
+    
     UvEventLoop m_eventLoop;
     UvSignalHandler m_interruptSignalHandler;
     UvSignalHandler m_terminateSignalHandler;

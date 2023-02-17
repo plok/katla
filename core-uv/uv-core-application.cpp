@@ -18,10 +18,15 @@
 #include "uv-event-loop.h"
 #include "uv-signal-handler.h"
 #include "uv-timer.h"
+#include "core/core.h"
 
 #include <memory>
+#include <gsl/gsl>
 
 namespace katla {
+
+std::atomic<UvCoreApplication*> UvCoreApplication::s_instancePtr;
+std::mutex UvCoreApplication::s_mutex;
 
 UvCoreApplication::UvCoreApplication()
     : m_interruptSignalHandler(m_eventLoop), m_terminateSignalHandler(m_eventLoop), m_hangupSignalHandler(m_eventLoop), m_childSignalHandler(m_eventLoop)
@@ -31,6 +36,30 @@ UvCoreApplication::UvCoreApplication()
 UvCoreApplication::~UvCoreApplication() {
     auto _ = close();
 };
+
+UvCoreApplication& UvCoreApplication::instance()
+{
+    static UvCoreApplication coreApp;
+
+    // double locking might not be needed for just the pointer, but adding it for now just to be safe
+    auto* p = s_instancePtr.load(std::memory_order_acquire);
+    if (p == nullptr) {
+        std::lock_guard lock(s_mutex);
+        p = s_instancePtr.load(std::memory_order_relaxed);
+        if (p == nullptr) {
+            p = &coreApp;
+            s_instancePtr.store(p, std::memory_order_release);
+        }
+    }
+    assert(p != nullptr);
+    return coreApp;
+}
+
+bool UvCoreApplication::hasInstance()
+{
+    UvCoreApplication* p = s_instancePtr.load(std::memory_order_acquire);
+    return (p != nullptr);
+}
 
 outcome::result<void, Error> UvCoreApplication::init()
 {

@@ -16,6 +16,7 @@ set(sources
 IF (NOT WIN32 AND NOT APPLE)
     set(sources ${sources}
         ../uv-core-application-test.cpp
+        ../uv-posix-process-test.cpp
     )
 ENDIF()
 
