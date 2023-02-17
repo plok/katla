@@ -20,6 +20,8 @@ class Error {
     virtual std::string description() { return m_description; }
     virtual std::string info() { return m_info; }
 
+    virtual std::string toString() { return katla::format("{}: {} {}", message(), m_description, m_info); }
+
   private:
     std::error_code m_errorCode {};
 
