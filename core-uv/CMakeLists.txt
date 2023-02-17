@@ -16,6 +16,8 @@ set(sources
     uv-timer.h
     uv-core-application.cpp
     uv-core-application.h
+    uv-posix-process.cpp
+    uv-posix-process.h
     )
 
 add_library(${target_name} ${sources})

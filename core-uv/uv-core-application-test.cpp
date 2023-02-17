@@ -16,43 +16,22 @@
 
 #include "core/core.h"
 #include "core/stopwatch.h"
-#include "uv-core-application.h"
+#include "core-uv/uv-core-application.h"
+#include "core-uv/uv-posix-process.h"
 
 #include "gtest/gtest.h"
 
-#include <gsl/span>
-
-#include <fmt/format.h>
-#include <variant>
 #include <chrono>
-
-#include <utility>
-#include <memory>
-#include <functional>
 #include <thread>
-
-#include <cstdlib>
-#include <unistd.h>
-#include <exception>
-#include <fmt/format.h>
-#include <variant>
-#include <chrono>
 
 namespace katla {
 
     using namespace std::chrono_literals;
-
     std::string helloWorld = "Hello World!";
 
-    
-/***
- * - parent starts listening
- * - child sends message
- * - parent receives message
- */
     TEST(KatlaUvTests, ProperCloseTest) {
 
-        UvCoreApplication coreApp;
+        auto& coreApp = UvCoreApplication::instance();
         coreApp.init();
         auto timerResult = coreApp.createTimer();
         ASSERT_TRUE(timerResult) << timerResult.error().message();
@@ -81,14 +60,6 @@ namespace katla {
         katla::printInfo("end");
 
         GTEST_SUCCEED();
-    }
-
-    outcome::result<std::string> createTemporaryDir() {
-        std::string dirTemplate = "/tmp/katla-test-XXXXXX";
-        if (mkdtemp(dirTemplate.data()) == nullptr) {
-            return std::make_error_code(static_cast<std::errc>(errno));
-        }
-        return dirTemplate;
     }
 }
 

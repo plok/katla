@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-#include "posix-process.h"
+#include "katla/core-uv/uv-posix-process.h"
 
-#include "core.h"
-#include "error.h"
-#include "posix-errors.h"
+#include "katla/core/core.h"
+#include "katla/core/error.h"
+#include "katla/core/posix-errors.h"
+#include "katla/core-uv/uv-core-application.h"
 
 #include <csignal>
 #include <cstdlib>
@@ -30,9 +31,23 @@
 
 namespace katla {
 
-outcome::result<void, Error> PosixProcess::spawn(const std::string& path, const std::vector<std::string>& arguments, const std::string& workingDir, const SpawnOptions& options)
+UvPosixProcess::~UvPosixProcess() {
+    if (m_onChildSubscription) {
+        m_onChildSubscription->unsubscribe();
+    }
+}
+
+outcome::result<void, Error> UvPosixProcess::spawn(const std::string& path, const std::vector<std::string>& arguments, const std::string& workingDir, const SpawnOptions& options)
 {
     m_status = Status::Starting;
+
+    if (UvCoreApplication::hasInstance()) {
+        m_onChildSubscription = UvCoreApplication::instance().onChild([this](){
+            handleChildSignal();
+        });
+    } else {
+        katla::printInfo("Warning: no UvCoreApplication instance present. onClose event will be non-functional");
+    }
 
     if (options.redirectStdout) {
         auto openPipeOut = m_fdStdout.open();
@@ -90,12 +105,12 @@ outcome::result<void, Error> PosixProcess::spawn(const std::string& path, const 
 
     m_status = Status::Started;
 
-    status();
+    auto _ = status();
 
     return outcome::success();
 }
 
-outcome::result<void, Error> PosixProcess::kill(Signal signal)
+outcome::result<void, Error> UvPosixProcess::kill(Signal signal)
 {
     if (!m_pid.has_value()) {
         return Error(make_error_code(katla::PosixErrorCodes::Invalid), "No process active!");
@@ -109,6 +124,7 @@ outcome::result<void, Error> PosixProcess::kill(Signal signal)
     case Signal::Kill: sig = SIGKILL; break;
     case Signal::Stop: sig = SIGSTOP; break;
     case Signal::Terminate: sig = SIGTERM; break;
+    case Signal::Child: sig = SIGCHLD; break;
     }
 
     int res = ::kill(m_pid.value(), sig);
@@ -123,7 +139,7 @@ outcome::result<void, Error> PosixProcess::kill(Signal signal)
 }
 
 // status needs to be called by parent after stopping process
-outcome::result<PosixProcess::Status, Error> PosixProcess::status()
+outcome::result<UvPosixProcess::Status, Error> UvPosixProcess::status()
 {
     if (!m_pid.has_value()) {
         return Error(make_error_code(katla::PosixErrorCodes::Invalid), "No process active!");
@@ -173,7 +189,7 @@ outcome::result<PosixProcess::Status, Error> PosixProcess::status()
     bool crashed = WTERMSIG(status) == SIGSEGV;
     bool killed = WTERMSIG(status) == SIGKILL;
 
-    auto result = PosixProcess::Status::Unknown;
+    auto result = Status::Unknown;
     if (exited) {
         m_status = Status::Exitted;
         // exitStatus
@@ -189,6 +205,24 @@ outcome::result<PosixProcess::Status, Error> PosixProcess::status()
     }
 
     return m_status;
+}
+
+void UvPosixProcess::handleChildSignal()
+{
+    if (!m_pid.has_value()) {
+        return;
+    }
+
+    // onClose event will only trigger when no status() is called yet!
+    if (m_status != Status::Started && m_status != Status::Running) {
+        return;
+    }
+
+    auto _ = status();
+
+    if (m_status != Status::Started && m_status != Status::Running) {
+        m_onCloseSubject.next();
+    }
 }
 
 }
