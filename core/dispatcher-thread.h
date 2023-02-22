@@ -39,11 +39,11 @@ class DispatcherThread {
     DispatcherThread(std::string name, katla::Thread::Priority priority);
     virtual ~DispatcherThread();
 
-    outcome::result<void, Error> init(std::chrono::milliseconds interval);
+    expected<void, Error> init(std::chrono::milliseconds interval);
 
     static DispatcherThread& getDefault() {
         static DispatcherThread instance("Default dispatcher", katla::Thread::Priority::Normal);     
-        instance.init(std::chrono::milliseconds(20));               
+        auto _ = instance.init(std::chrono::milliseconds(20));     // TODO fix          
         return instance;
     }
 

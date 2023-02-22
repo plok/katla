@@ -15,7 +15,7 @@
  */
 
 #include "posix-file.h"
-#include "gsl/gsl_util"
+#include "gsl/util"
 
 #include <system_error>
 #include <sys/types.h>

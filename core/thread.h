@@ -33,7 +33,7 @@ public:
         Idle
     };
 
-    static outcome::result<void, Error> setPriority(std::thread& thread, Thread::Priority priority);
+    static expected<void, Error> setPriority(std::thread& thread, Thread::Priority priority);
 private:
 
 };

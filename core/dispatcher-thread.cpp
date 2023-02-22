@@ -34,7 +34,7 @@ DispatcherThread::DispatcherThread(std::string name, katla::Thread::Priority pri
 
 DispatcherThread::~DispatcherThread() { join(); }
 
-outcome::result<void, Error> DispatcherThread::init(std::chrono::milliseconds interval)
+expected<void, Error> DispatcherThread::init(std::chrono::milliseconds interval)
 {
     return _workerThread.init([this]() {this->repeatableWork();}, interval);
 }

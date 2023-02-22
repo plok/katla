@@ -17,8 +17,10 @@
 #ifndef KATLA_CORE_H
 #define KATLA_CORE_H
 
-#include "outcome/outcome.hpp"
-namespace outcome = OUTCOME_V2_NAMESPACE;
+// #include "outcome/outcome.hpp"
+// namespace outcome = OUTCOME_V2_NAMESPACE;
+#include "expected/expected.hpp"
+using namespace tl;
 
 #include "fmt/format.h"
 
