@@ -64,11 +64,14 @@ outcome::result<void, Error> UvPosixProcess::spawn(const std::string& path, cons
     if (forkResult == 0) {
         // child
         if (options.redirectStdout) {
-            m_fdStdout.closeRead();
+            auto closeReadResult = m_fdStdout.closeRead();
+            if (!closeReadResult) {
+                katla::printError("Failed closing read-end of fdStdout: {}", closeReadResult.error().message());
+            }
 
             auto redirectOutResult = m_fdStdout.redirectToWrite(STDOUT_FILENO);
             if (!redirectOutResult) {
-                katla::printError(fmt::format("Error connecting pipe to stdout: {}'", redirectOutResult.error().message()));
+                katla::printError("Error connecting pipe to stdout: {}'", redirectOutResult.error().message());
                 exit(EXIT_FAILURE);
             }
         }
@@ -100,7 +103,10 @@ outcome::result<void, Error> UvPosixProcess::spawn(const std::string& path, cons
     // parent
     m_pid = forkResult;
     if (options.redirectStdout) {
-        m_fdStdout.closeWrite();
+        auto closeWriteResult = m_fdStdout.closeWrite();
+        if (!closeWriteResult) {
+            katla::printError("Failed closing write-end of fdStdout: {}", closeWriteResult.error().message());
+        }
     }
 
     m_status = Status::Started;
