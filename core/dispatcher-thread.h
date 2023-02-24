@@ -31,6 +31,7 @@
 #include <future>
 #include <map>
 #include <queue>
+#include <atomic>
 
 namespace katla {
 
@@ -41,10 +42,24 @@ class DispatcherThread {
 
     outcome::result<void, Error> init(std::chrono::milliseconds interval);
 
-    static DispatcherThread& getDefault() {
-        static DispatcherThread instance("Default dispatcher", katla::Thread::Priority::Normal);     
-        instance.init(std::chrono::milliseconds(20));               
-        return instance;
+    static outcome::result<std::reference_wrapper<DispatcherThread>, katla::Error> getDefault()
+    {
+        DispatcherThread* instance = m_instance.load(std::memory_order_consume);
+        if (!instance) {
+            std::scoped_lock lock(m_singletonMutex);
+            instance = m_instance.load(std::memory_order_consume);
+            if (!instance) {
+                instance = new DispatcherThread("Default dispatcher", katla::Thread::Priority::Normal);
+                
+                auto initResult = instance->init(std::chrono::milliseconds(20));
+                if (!initResult) {
+                  return initResult.error();
+                }
+
+                m_instance.store(instance, std::memory_order_release);
+            }
+        }
+        return std::ref(*instance);
     }
 
     void dispatch(const std::function<void()>& fn);
@@ -57,7 +72,10 @@ class DispatcherThread {
   private:
     void repeatableWork(void);
 
-    std::mutex m_mutex;
+    static std::mutex m_singletonMutex;
+    static std::atomic<DispatcherThread*> m_instance;
+
+    std::mutex m_mutex;    
     katla::WorkerThread _workerThread;
 
     std::queue<std::function<void()>> _execQueue;

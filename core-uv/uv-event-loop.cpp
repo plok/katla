@@ -136,7 +136,10 @@ outcome::result<void, Error> UvEventLoop::closeOpenHandles() {
         m_handlesToClose.clear();
         uv_walk(m_handle, &closeOpenHandlesUvWalkCallback, this);
 
-        runSingleIteration();
+        auto result = runSingleIteration();
+        if (!result) {
+            katla::printError("Failed running mosquitto iteration on close handles: {}", result.error().toString());
+        }
     }
 
     return outcome::success();

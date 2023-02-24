@@ -428,7 +428,13 @@ outcome::result<PosixSocket::WaitResult, Error> PosixSocket::poll(std::chrono::m
     {   //read data written to _wakeupFd to prevent subsequent wakeups without request
         int size = sizeof(uint64_t);
         std::vector<std::byte> buffer(size, std::byte{0});
-        ::read(_wakeupFd, buffer.data(), buffer.size());
+
+        auto readResult = ::read(_wakeupFd, buffer.data(), buffer.size());
+        if (readResult == -1) {
+            return Error(
+                std::make_error_code(static_cast<std::errc>(errno)),
+                katla::format("Failed reading socket"));
+        }
     }
 
     return waitResult;

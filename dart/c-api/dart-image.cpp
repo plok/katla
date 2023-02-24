@@ -48,11 +48,15 @@ void dart_write_image(char* imagePath, ImagePtr image, int64_t nativePort)
 {
     auto path = std::string(imagePath);
  
-    auto& dispatcher = katla::DispatcherThread::getDefault();
+    auto dispatcherResult = katla::DispatcherThread::getDefault();
+    if (!dispatcherResult) {
+        katla::printError("failed getting default dispatcher thread!");
+        return;
+    }
 
     katla::Image imageCopy (*image);
 
-    dispatcher.dispatch([path, imageCopy, nativePort]() {
+    dispatcherResult.value().get().dispatch([path, imageCopy, nativePort]() {
         OpencvImageWriter::write(path, imageCopy);
 
         Dart_PostInteger_DL(nativePort, 1);
