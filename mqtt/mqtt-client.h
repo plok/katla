@@ -38,6 +38,7 @@ class MqttClient {
 
   public:
     explicit MqttClient(Logger& logger);
+    MqttClient(MqttClient&) = delete;
     ~MqttClient();
 
     outcome::result<void, Error> connect(const std::string& host, int port, int keepAliveSeconds);
@@ -75,7 +76,7 @@ class MqttClient {
     katla::Subject<void> m_onConnectSubject;
     katla::Subject<void> m_onDisconnectSubject;
     katla::Subject<std::string> m_onSubscribeSubject;
-    std::map<std::string, katla::Subject<MqttMessage> > m_onMessageSubject;
+    std::map<std::string, std::shared_ptr<katla::Subject<MqttMessage>> > m_onMessageSubject;
     std::map<int, std::string> m_subscriptions;
 };
 
