@@ -184,9 +184,8 @@ void MqttClient::handleMessage(const struct mosquitto_message* mosqMessage) {
     {
         bool topicMatch = false;
         int result = mosquitto_topic_matches_sub(subscr.first.c_str(), mosqMessage->topic, &topicMatch);
-        if (topicMatch)
-        {
-            subscr.second.next(message);
+        if (topicMatch) {
+            subscr.second->next(message);
         }
     }
 }
@@ -213,7 +212,13 @@ outcome::result<std::unique_ptr<katla::Subscription>, Error> MqttClient::subscri
     }
 
     m_subscriptions[messageId] = subPattern;
-    return m_onMessageSubject[subPattern].subscribe(std::make_shared<katla::FuncObserver<MqttMessage>>(callback));
+    
+    auto it = m_onMessageSubject.find(subPattern);
+    if (it == m_onMessageSubject.end()) {
+        m_onMessageSubject[subPattern] = std::make_shared<Subject<MqttMessage>>();
+    }
+
+    return m_onMessageSubject[subPattern]->subscribe(std::make_shared<katla::FuncObserver<MqttMessage>>(callback));
 }
 
 Error MqttClient::makeMosquittoError(int error)

@@ -21,6 +21,7 @@ struct WebSocketServerClientLwsImpl;
 class WebSocketServerClientLws : public WebSocketServerClient {
   public:
     explicit WebSocketServerClientLws(WebSocketServerClientLwsImpl* d);
+    WebSocketServerClientLws(WebSocketServerClientLws&) = delete;
     ~WebSocketServerClientLws();
 
     void send(const LwsPacket& message) override;
