@@ -34,7 +34,7 @@ WorkerThread::WorkerThread(std::string name, katla::Thread::Priority priority)
 
 WorkerThread::~WorkerThread() { join(); }
 
-expected::result<void, Error> WorkerThread::init(std::function<void(void)> repeatableWork,
+expected<void, Error> WorkerThread::init(std::function<void(void)> repeatableWork,
                                                 std::chrono::milliseconds interval)
 {
     m_interval = interval;
@@ -42,7 +42,7 @@ expected::result<void, Error> WorkerThread::init(std::function<void(void)> repea
         std::unique_lock<std::mutex> lock(m_mutex);
 
         if (m_thread) {
-            return Error(katla::make_error_code(katla::CoreErrorCode::AlreadyInitialized));
+            return unexpected<Error>(Error(katla::make_error_code(katla::CoreErrorCode::AlreadyInitialized)));
         }
 
         m_stop = false;
@@ -50,7 +50,7 @@ expected::result<void, Error> WorkerThread::init(std::function<void(void)> repea
         m_thread = std::make_unique<std::thread>(&WorkerThread::exec, this, repeatableWork);
     }
 
-    return outcome::success();
+    return {};
 }
 
 void WorkerThread::wakeup() 

@@ -23,10 +23,10 @@ set(sources
         string-utils.cpp
         string-utils.h
 
-        # thread.cpp
-        # thread.h
-        # worker-thread.cpp
-        # worker-thread.h
+        thread.cpp
+        thread.h
+        worker-thread.cpp
+        worker-thread.h
 
         # dispatcher-thread.cpp
         # dispatcher-thread.h
@@ -40,8 +40,8 @@ set(sources
 
 IF (NOT WIN32)
         set(sources ${sources}
-                # posix-errors.cpp
-                # posix-errors.h
+                posix-errors.cpp
+                posix-errors.h
 
                 # posix-pipe.cpp
                 # posix-pipe.h
@@ -49,7 +49,7 @@ IF (NOT WIN32)
                 # posix-file.cpp
                 # posix-file.h
 
-                # posix-thread.cpp
+                posix-thread.cpp
         )
 
         IF(NOT APPLE)

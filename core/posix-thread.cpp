@@ -22,7 +22,7 @@
 
 namespace katla {
 
-outcome::result<void, Error> PosixThread::setPriority(std::thread& thread, Thread::Priority priority)
+expected<void, Error> PosixThread::setPriority(std::thread& thread, Thread::Priority priority)
 {
 #ifndef __APPLE__
     auto nativeHandle = thread.native_handle();
@@ -49,14 +49,14 @@ outcome::result<void, Error> PosixThread::setPriority(std::thread& thread, Threa
     if (result != 0) {
         switch(result) {
             case ESRCH:
-                return Error(make_error_code(PosixErrorCodes::NotFound), "Thread not found!");
+                return unexpected<Error>(make_error_code(PosixErrorCodes::NotFound), "Thread not found!");
             case EINVAL:
-                return Error(make_error_code(PosixErrorCodes::Invalid), "Invalid policy");
+                return unexpected<Error>(make_error_code(PosixErrorCodes::Invalid), "Invalid policy");
             case EPERM:
-                return Error(make_error_code(PosixErrorCodes::PermissionDenied), "Permission denied");
+                return unexpected<Error>(make_error_code(PosixErrorCodes::PermissionDenied), "Permission denied");
             case ENOTSUP:
             default: {
-                return Error(make_error_code(PosixErrorCodes::OperationNotSupported), "Operation not supported");
+                return unexpected<Error>(make_error_code(PosixErrorCodes::OperationNotSupported), "Operation not supported");
             }
         }
     }
@@ -65,7 +65,7 @@ outcome::result<void, Error> PosixThread::setPriority(std::thread& thread, Threa
     assert(false /*,"setPriority not implemented for macos"*/);
 #endif
 
-    return outcome::success();
+    return expected<void, Error>();
 }
 
 }
