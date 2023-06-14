@@ -47,6 +47,8 @@ namespace string {
     bool startsWith (const std::string& str, const std::string& start);
     bool endsWith (const std::string& str, const std::string& end);
 
+    bool contains (const std::string& str, const std::string& substr);
+
 } // namespace string
 } // namespace katla  
 

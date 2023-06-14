@@ -97,6 +97,11 @@ bool endsWith (const std::string& str, const std::string& end) {
     return (str.compare (str.length() - end.length(), end.length(), end) == 0);
 }
 
+bool contains (const std::string& str, const std::string& substr) {
+    return str.find(substr) != std::string::npos;
+}
+
+
 
 }  // namespace string
 }  // namespace katla

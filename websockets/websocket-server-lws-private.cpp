@@ -5,6 +5,8 @@
 #include "websocket-server-client-lws-impl.h"
 #include "websocket-server-client-lws.h"
 
+#include "katla/core/string-utils.h"
+
 #include <libwebsockets.h>
 #include <variant>
 
@@ -87,7 +89,7 @@ void WebSocketServerLwsPrivate::handleHttpRequest(const std::shared_ptr<WebSocke
     
     bool found = false;
     for (auto& it : httpHandlers) {
-        if (it.url != request.url || it.method != request.method) {
+        if (!matchUrl(request.url, it.url) || it.method != request.method) {
             continue;
         }
 
@@ -138,6 +140,15 @@ std::optional<http_status> WebSocketServerLwsPrivate::toLwsStatusCode(HttpStatus
     }
 
     return {};
+}
+
+bool WebSocketServerLwsPrivate::matchUrl(std::string a, std::string b) {
+    return katla::string::startsWith(a, b); // tODO check for astrix
+    // std::regex re("\\+");
+    // formatStr = std::regex_replace(formatStr, re, "(.*)");
+    // std::regex pattern(formatStr);
+    // std::smatch match;
+    // std::regex_match(topic, match, pattern);
 }
 
 } // namespace katla

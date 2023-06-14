@@ -206,10 +206,16 @@ MqttClient::publish(std::string topic, gsl::span<std::byte> payload, MqttQos qos
 outcome::result<std::unique_ptr<katla::Subscription>, Error> MqttClient::subscribe(std::string subPattern, MqttQos qos, const std::function<void(const MqttMessage& message)>& callback)
 {
     int messageId = {};
+
+    katla::printInfo("subscribe: {}", subPattern);
     int result = mosquitto_subscribe(m_client, &messageId, subPattern.c_str(), static_cast<int>(qos));
     if (result != MOSQ_ERR_SUCCESS) {
+        katla::printInfo("subscribe_failed: {} {}", result, mosquitto_strerror(result));
         return makeMosquittoError(result);
     }
+
+    // TODO blah
+
 
     m_subscriptions[messageId] = subPattern;
     

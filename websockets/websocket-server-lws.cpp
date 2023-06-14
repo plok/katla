@@ -1,4 +1,5 @@
 #include "websocket-server-lws.h"
+#include "core/string-utils.h"
 #include "websocket-server-lws-private.h"
 
 #include "incoming-http-request.h"
@@ -6,6 +7,7 @@
 #include "websocket-server-client-lws-impl.h"
 
 #include <libwebsockets.h>
+#include <string>
 #include <variant>
 
 namespace katla {
@@ -441,7 +443,7 @@ void WebSocketServerLws::handle(katla::HttpMethod method, const std::string& url
 void WebSocketServerLws::handleWebSocket(const std::string& url, const std::function<void(WebSocketServerClient&)>& callback)
 {
     for (auto& it : d->webSocketHandlers) {
-        if (it.url != url) {
+        if (url != it.url) {
             continue;
         }
 
