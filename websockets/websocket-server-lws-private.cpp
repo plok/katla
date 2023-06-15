@@ -5,6 +5,8 @@
 #include "websocket-server-client-lws-impl.h"
 #include "websocket-server-client-lws.h"
 
+#include "katla/core/string-utils.h"
+
 #include <libwebsockets.h>
 #include <variant>
 
@@ -102,7 +104,7 @@ void WebSocketServerLwsPrivate::handleHttpRequest(const std::shared_ptr<WebSocke
     
     bool found = false;
     for (auto& it : httpHandlers) {
-        if (it.url != request.url || it.method != request.method) {
+        if (!matchInclusiveUrl(request.url, it.url) || it.method != request.method) {
             continue;
         }
 
@@ -153,6 +155,24 @@ std::optional<http_status> WebSocketServerLwsPrivate::toLwsStatusCode(HttpStatus
     }
 
     return {};
+}
+
+bool WebSocketServerLwsPrivate::matchInclusiveUrl(std::string requestUrl, std::string subscribedUrl) {
+    auto requestSplits = katla::string::split(requestUrl, "/");
+    auto subscribedSplits = katla::string::split(subscribedUrl, "/");
+
+    for(int i = 0; i < subscribedSplits.size(); i++) {
+        // don't compare input variables
+        if (katla::string::startsWith(subscribedSplits[i], ":")) {
+            continue;
+        }
+
+        if (i < requestSplits.size() && subscribedSplits[i] != requestSplits[i]) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 } // namespace katla
