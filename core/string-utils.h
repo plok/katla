@@ -19,6 +19,7 @@
 
 #include "core/core.h"
 #include <string>
+#include <vector>
 
 #ifdef _MSC_VER
     #ifdef KATLA_CORE_INDLL
@@ -46,6 +47,10 @@ namespace string {
 
     bool startsWith (const std::string& str, const std::string& start);
     bool endsWith (const std::string& str, const std::string& end);
+
+    bool contains (const std::string& str, const std::string& substr);
+
+    std::vector<std::string> split(std::string input, std::string delimiter);
 
 } // namespace string
 } // namespace katla  
