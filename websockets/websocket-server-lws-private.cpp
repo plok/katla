@@ -34,6 +34,21 @@ std::tuple<HttpMethod, std::string> WebSocketServerLwsPrivate::getMethod(lws* ws
         lws_hdr_copy(wsi, uriVec.data(), length + 1, WSI_TOKEN_OPTIONS_URI);
         return { HttpMethod::Options, std::string(uriVec.data()) };
     }
+    if (int length = lws_hdr_total_length(wsi, WSI_TOKEN_DELETE_URI); length > 0) {
+        std::vector<char> uriVec(length + 1, 0);
+        lws_hdr_copy(wsi, uriVec.data(), length + 1, WSI_TOKEN_DELETE_URI);
+        return { HttpMethod::Delete, std::string(uriVec.data()) };
+    }
+    if (int length = lws_hdr_total_length(wsi, WSI_TOKEN_HEAD_URI); length > 0) {
+        std::vector<char> uriVec(length + 1, 0);
+        lws_hdr_copy(wsi, uriVec.data(), length + 1, WSI_TOKEN_HEAD_URI);
+        return { HttpMethod::Head, std::string(uriVec.data()) };
+    }
+    if (int length = lws_hdr_total_length(wsi, WSI_TOKEN_PATCH_URI); length > 0) {
+        std::vector<char> uriVec(length + 1, 0);
+        lws_hdr_copy(wsi, uriVec.data(), length + 1, WSI_TOKEN_PATCH_URI);
+        return { HttpMethod::Patch, std::string(uriVec.data()) };
+    }
 
     return { HttpMethod::Unknown, "" };
 }

@@ -19,7 +19,10 @@ enum class HttpMethod
     Get,
     Post,
     Put,
-    Options
+    Options,
+    Delete,
+    Head,
+    Patch
 };
 
 enum class HttpStatusCode
