@@ -46,7 +46,7 @@ struct WebSocketServerLwsPrivate
 
     struct HttpHandlers {
       std::string url;
-      HttpMethod method;
+      HttpMethod method {};
       std::vector<std::function<void(WebSocketServerClient&, const HttpRequest&)>> callbacks;
     };
 
