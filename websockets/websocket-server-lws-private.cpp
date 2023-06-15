@@ -36,6 +36,21 @@ std::tuple<HttpMethod, std::string> WebSocketServerLwsPrivate::getMethod(lws* ws
         lws_hdr_copy(wsi, uriVec.data(), length + 1, WSI_TOKEN_OPTIONS_URI);
         return { HttpMethod::Options, std::string(uriVec.data()) };
     }
+    if (int length = lws_hdr_total_length(wsi, WSI_TOKEN_DELETE_URI); length > 0) {
+        std::vector<char> uriVec(length + 1, 0);
+        lws_hdr_copy(wsi, uriVec.data(), length + 1, WSI_TOKEN_DELETE_URI);
+        return { HttpMethod::Delete, std::string(uriVec.data()) };
+    }
+    if (int length = lws_hdr_total_length(wsi, WSI_TOKEN_HEAD_URI); length > 0) {
+        std::vector<char> uriVec(length + 1, 0);
+        lws_hdr_copy(wsi, uriVec.data(), length + 1, WSI_TOKEN_HEAD_URI);
+        return { HttpMethod::Head, std::string(uriVec.data()) };
+    }
+    if (int length = lws_hdr_total_length(wsi, WSI_TOKEN_PATCH_URI); length > 0) {
+        std::vector<char> uriVec(length + 1, 0);
+        lws_hdr_copy(wsi, uriVec.data(), length + 1, WSI_TOKEN_PATCH_URI);
+        return { HttpMethod::Patch, std::string(uriVec.data()) };
+    }
 
     return { HttpMethod::Unknown, "" };
 }
@@ -89,7 +104,7 @@ void WebSocketServerLwsPrivate::handleHttpRequest(const std::shared_ptr<WebSocke
     
     bool found = false;
     for (auto& it : httpHandlers) {
-        if (!matchUrl(request.url, it.url) || it.method != request.method) {
+        if (!matchInclusiveUrl(request.url, it.url) || it.method != request.method) {
             continue;
         }
 
@@ -142,13 +157,22 @@ std::optional<http_status> WebSocketServerLwsPrivate::toLwsStatusCode(HttpStatus
     return {};
 }
 
-bool WebSocketServerLwsPrivate::matchUrl(std::string a, std::string b) {
-    return katla::string::startsWith(a, b); // tODO check for astrix
-    // std::regex re("\\+");
-    // formatStr = std::regex_replace(formatStr, re, "(.*)");
-    // std::regex pattern(formatStr);
-    // std::smatch match;
-    // std::regex_match(topic, match, pattern);
+bool WebSocketServerLwsPrivate::matchInclusiveUrl(std::string requestUrl, std::string subscribedUrl) {
+    auto requestSplits = katla::string::split(requestUrl, "/");
+    auto subscribedSplits = katla::string::split(subscribedUrl, "/");
+
+    for(int i = 0; i < subscribedSplits.size(); i++) {
+        // don't compare input variables
+        if (katla::string::startsWith(subscribedSplits[i], ":")) {
+            continue;
+        }
+
+        if (i < requestSplits.size() && subscribedSplits[i] != requestSplits[i]) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 } // namespace katla

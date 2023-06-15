@@ -82,9 +82,9 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
     switch (reason) {
 
     case LWS_CALLBACK_PROTOCOL_INIT: {
-        katla::printInfo("LWS_CALLBACK_PROTOCOL_INIT");
+        // katla::printInfo("LWS_CALLBACK_PROTOCOL_INIT");
 
-        katla::printInfo("protocol name: {}", lws_get_protocol(wsi)->name);
+        // katla::printInfo("protocol name: {}", lws_get_protocol(wsi)->name);
 
         auto* vhd = reinterpret_cast<VhdWebSocketServer*>(
             lws_protocol_vh_priv_zalloc(lws_get_vhost(wsi), lws_get_protocol(wsi), sizeof(VhdWebSocketServer)));
@@ -98,18 +98,18 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
     }
 
     case LWS_CALLBACK_PROTOCOL_DESTROY:
-        katla::printInfo("LWS_CALLBACK_PROTOCOL_DESTROY");
+        // katla::printInfo("LWS_CALLBACK_PROTOCOL_DESTROY");
         break;
     case LWS_CALLBACK_WSI_CREATE:
-        katla::printInfo("LWS_CALLBACK_WSI_CREATE");
+        // katla::printInfo("LWS_CALLBACK_WSI_CREATE");
         break;
     case LWS_CALLBACK_WSI_DESTROY:
-        katla::printInfo("LWS_CALLBACK_WSI_DESTROY");
+        // katla::printInfo("LWS_CALLBACK_WSI_DESTROY");
         break;
 
     case LWS_CALLBACK_HTTP:
-        katla::printInfo("LWS_CALLBACK_HTTP");
-        katla::printInfo("url: {} {}", len, std::string(static_cast<char*>(in)));
+        // katla::printInfo("LWS_CALLBACK_HTTP");
+        // katla::printInfo("url: {} {}", len, std::string(static_cast<char*>(in)));
 
         if (handleHttpNewConnection(wsi, webSocketServer)) {
             return 1;
@@ -118,7 +118,7 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         break;
 
     case LWS_CALLBACK_HTTP_BODY: {
-        katla::printInfo("LWS_CALLBACK_HTTP_BODY");
+        // katla::printInfo("LWS_CALLBACK_HTTP_BODY");
 
         auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
 
@@ -131,7 +131,7 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         break;
     }
     case LWS_CALLBACK_HTTP_BODY_COMPLETION: {
-        katla::printInfo("LWS_CALLBACK_HTTP_BODY_COMPLETION");
+        // katla::printInfo("LWS_CALLBACK_HTTP_BODY_COMPLETION");
 
         auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
 
@@ -150,7 +150,7 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         break;
     }
     case LWS_CALLBACK_HTTP_WRITEABLE: {
-        katla::printInfo("LWS_CALLBACK_HTTP_WRITEABLE");
+        // katla::printInfo("LWS_CALLBACK_HTTP_WRITEABLE");
 
         auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
 
@@ -169,7 +169,7 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         uint8_t *end =  (uint8_t*)bytes.data() + 1000 + data.payload->size();
         uint8_t *p = start;
 
-        katla::printInfo("t: {}", data.payload->size() - LWS_PRE);
+        // katla::printInfo("t: {}", data.payload->size() - LWS_PRE);
 
         http_status lwsHttpStatus = static_cast<http_status>(data.statusCode);
         auto statusCode = WebSocketServerLwsPrivate::toLwsStatusCode(data.statusCode);
@@ -203,7 +203,7 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         }
 
         if (data.payload) {
-            katla::printInfo("write");
+            // katla::printInfo("write");
             int flags = lws_write_ws_flags(data.isBinary ? LWS_WRITE_BINARY : LWS_WRITE_TEXT, data.isFirst, data.isFinal);
 
             // payload already has LWS_PRE prepended
@@ -227,13 +227,13 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         break;
     }
     case LWS_CALLBACK_CLOSED_HTTP: {
-        katla::printInfo("LWS_CALLBACK_CLOSED_HTTP");
+        // katla::printInfo("LWS_CALLBACK_CLOSED_HTTP");
 
         webSocketServer->removeHttpClient(wsi);
         break;
     }
     case LWS_CALLBACK_ESTABLISHED: {
-        katla::printInfo("LWS_CALLBACK_ESTABLISHED");
+        // katla::printInfo("LWS_CALLBACK_ESTABLISHED");
 
         webSocketServer->handleNewWebSocketClient(wsi);
 
@@ -272,7 +272,7 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         break;
     }
     case LWS_CALLBACK_RECEIVE: {
-        katla::printInfo("LWS_CALLBACK_RECEIVE");
+        // katla::printInfo("LWS_CALLBACK_RECEIVE");
         int remainingPackets = (int)lws_remaining_packet_payload(wsi);
         int isFirst = (int)lws_is_first_fragment(wsi);
         int isFinal = (int)lws_is_final_fragment(wsi);
@@ -280,12 +280,12 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
 
         auto& client = webSocketServer->webSocketClientsMap[static_cast<void*>(wsi)];
 
-        katla::printInfo("LWS_CALLBACK_RECEIVE: {} {} {} {} {}",
-                         len,
-                         remainingPackets,
-                         lws_is_first_fragment(wsi),
-                         lws_is_final_fragment(wsi),
-                         lws_frame_is_binary(wsi));
+        // katla::printInfo("LWS_CALLBACK_RECEIVE: {} {} {} {} {}",
+        //                  len,
+        //                  remainingPackets,
+        //                  lws_is_first_fragment(wsi),
+        //                  lws_is_final_fragment(wsi),
+        //                  lws_frame_is_binary(wsi));
 
         auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
 
@@ -299,7 +299,7 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         break;
     }
     case LWS_CALLBACK_CLOSED: {
-        katla::printInfo("LWS_CALLBACK_CLOSED");
+        // katla::printInfo("LWS_CALLBACK_CLOSED");
 
         webSocketServer->removeWebSocketClient(wsi);
         break;
@@ -307,35 +307,35 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
     case LWS_CALLBACK_ADD_HEADERS:
         break;
     case LWS_CALLBACK_FILTER_PROTOCOL_CONNECTION:
-        katla::printInfo("LWS_CALLBACK_FILTER_PROTOCOL_CONNECTION");
+        // katla::printInfo("LWS_CALLBACK_FILTER_PROTOCOL_CONNECTION");
         break;
     case LWS_CALLBACK_HTTP_BIND_PROTOCOL:
-        katla::printInfo("LWS_CALLBACK_HTTP_BIND_PROTOCOL");
+        // katla::printInfo("LWS_CALLBACK_HTTP_BIND_PROTOCOL");
         break;
     case LWS_CALLBACK_HTTP_CONFIRM_UPGRADE:
-        katla::printInfo("LWS_CALLBACK_HTTP_CONFIRM_UPGRADE");
+        // katla::printInfo("LWS_CALLBACK_HTTP_CONFIRM_UPGRADE");
         break;
     case LWS_CALLBACK_WS_SERVER_DROP_PROTOCOL:
-        katla::printInfo("LWS_CALLBACK_WS_SERVER_DROP_PROTOCOL");
+        // katla::printInfo("LWS_CALLBACK_WS_SERVER_DROP_PROTOCOL");
         break;
     case LWS_CALLBACK_WS_PEER_INITIATED_CLOSE:
-        katla::printInfo("LWS_CALLBACK_WS_PEER_INITIATED_CLOSE");
+        // katla::printInfo("LWS_CALLBACK_WS_PEER_INITIATED_CLOSE");
         break;
     case LWS_CALLBACK_SERVER_NEW_CLIENT_INSTANTIATED:
-        katla::printInfo("LWS_CALLBACK_SERVER_NEW_CLIENT_INSTANTIATED");
+        // katla::printInfo("LWS_CALLBACK_SERVER_NEW_CLIENT_INSTANTIATED");
         break;
     case LWS_CALLBACK_FILTER_NETWORK_CONNECTION:
-        katla::printInfo("LWS_CALLBACK_FILTER_NETWORK_CONNECTION");
+        // katla::printInfo("LWS_CALLBACK_FILTER_NETWORK_CONNECTION");
         break;
     case LWS_CALLBACK_FILTER_HTTP_CONNECTION:
-        katla::printInfo("LWS_CALLBACK_FILTER_HTTP_CONNECTION");
+        // katla::printInfo("LWS_CALLBACK_FILTER_HTTP_CONNECTION");
         break;
     case LWS_CALLBACK_GET_THREAD_ID:
         break;
     case LWS_CALLBACK_EVENT_WAIT_CANCELLED:
         break;
     default:
-        katla::printInfo("default callback: {}", static_cast<int>(reason));
+        // katla::printInfo("default callback: {}", static_cast<int>(reason));
         break;
     }
 

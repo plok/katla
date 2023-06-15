@@ -34,7 +34,7 @@ struct WebSocketServerLwsPrivate
     // TODO use a promise for the bytes. So the body can be handles later
     void handleHttpRequest(const std::shared_ptr<WebSocketServerClientLwsImpl>& client, const katla::HttpRequest& request);
 
-    bool matchUrl(std::string a, std::string b);
+    bool matchInclusiveUrl(std::string a, std::string b);
 
     static std::optional<http_status> toLwsStatusCode(HttpStatusCode statusCode);
 
@@ -48,7 +48,7 @@ struct WebSocketServerLwsPrivate
 
     struct HttpHandlers {
       std::string url;
-      HttpMethod method;
+      HttpMethod method {};
       std::vector<std::function<void(WebSocketServerClient&, const HttpRequest&)>> callbacks;
     };
 
