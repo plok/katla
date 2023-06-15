@@ -97,6 +97,23 @@ bool endsWith (const std::string& str, const std::string& end) {
     return (str.compare (str.length() - end.length(), end.length(), end) == 0);
 }
 
+bool contains (const std::string& str, const std::string& substr) {
+    return str.find(substr) != std::string::npos;
+}
+
+std::vector<std::string> split(std::string input, std::string delimiter)
+{
+    std::vector<std::string> result;
+    size_t pos = 0;
+    for(auto newPos = input.find(delimiter, pos); newPos != std::string::npos; newPos = input.find(delimiter, pos)) {
+        int size = newPos-pos;
+        result.push_back(input.substr(pos, size));
+        pos = newPos+delimiter.size();
+    }
+    result.push_back(input.substr(pos));
+
+    return result;
+}
 
 }  // namespace string
 }  // namespace katla
