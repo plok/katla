@@ -50,8 +50,6 @@ int handleHttpNewConnection(lws* wsi, WebSocketServerLwsPrivate* server)
         }
     }
 
-    katla::printInfo("{} - {} - {}", (int)method, url, request.contentType);
-
     client->m_request = std::make_shared<IncomingHttpRequest>(request);
 
     if (!request.contentLength) {

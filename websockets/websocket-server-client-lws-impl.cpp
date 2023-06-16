@@ -17,8 +17,6 @@ WebSocketServerClientLwsImpl::WebSocketServerClientLwsImpl(lws_context* serverCo
     auto [method, url] = WebSocketServerLwsPrivate::getMethod(wsi);
     m_method = method;
     m_url = url;
-
-    katla::printInfo("Websocket client: {} - {}", (int)method, url);
 }
 
 WebSocketServerClientLwsImpl::~WebSocketServerClientLwsImpl() {}
