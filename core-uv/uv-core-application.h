@@ -38,6 +38,11 @@ class UvSignalHandler;
 
 class UvCoreApplication : public CoreApplication {
   public:
+    struct Future {
+      uv_async_t async;
+      std::function<void()> callback;
+    };
+
     UvCoreApplication(const UvCoreApplication&) = delete;
     ~UvCoreApplication() override;
 
@@ -53,6 +58,8 @@ class UvCoreApplication : public CoreApplication {
     outcome::result<void, Error> stop() override;
 
     outcome::result<std::unique_ptr<Timer>, Error> createTimer() override;
+
+    outcome::result<std::shared_ptr<Future>, Error> invokeAsync(std::function<void()> callback);
 
     EventLoop& eventLoop() override;
     UvEventLoop& uvEventLoop();
@@ -74,6 +81,7 @@ class UvCoreApplication : public CoreApplication {
 
   private:
     UvCoreApplication();
+    static void uvCallback(uv_async_t* handle);
 
     static std::atomic<UvCoreApplication*> s_instancePtr;
     static std::mutex s_mutex;

@@ -6,6 +6,7 @@
 #include "websocket-server-client-lws-impl.h"
 
 #include <libwebsockets.h>
+#include <thread>
 #include <variant>
 
 namespace katla {
@@ -316,14 +317,23 @@ WebSocketServerLws::WebSocketServerLws() :
                              nullptr,
                              65550 }); // TODO
     d->protocols.push_back({ nullptr, nullptr, 0, 0 } /* terminator */);
+
+    m_createThreadId = std::this_thread::get_id();
 }
 
 WebSocketServerLws::~WebSocketServerLws()
 {
+    if (!d) {
+        return;
+    }
+
     stop();
 
-    if (d && d->context) {
+    if (d->context) {
+        katla::printInfo("destr Stopping thread: {} {} {}", std::hash<std::thread::id>{}(std::this_thread::get_id()), std::hash<std::thread::id>{}(m_createThreadId), std::hash<std::thread::id>{}(m_initThreadId));
+
         lws_context_destroy(d->context);
+        d->context = nullptr;
     }
     delete d;
     d = nullptr;
@@ -331,6 +341,8 @@ WebSocketServerLws::~WebSocketServerLws()
 
 void WebSocketServerLws::init(int port)
 {
+    m_initThreadId = std::this_thread::get_id();
+
     d->info.port = port;
     d->info.protocols = d->protocols.data();
     d->info.pvo = &d->pvo;
@@ -360,15 +372,25 @@ void WebSocketServerLws::init(int port)
 }
 void WebSocketServerLws::stop()
 {
-    m_workerThread.stop();
-    wakeup();
-
-    if (!d->context) {
+   
+    if (m_stopped) {
         return;
     }
 
+    m_workerThread.stop();
+    wakeup();
+    join();
+
+    if (!d || !d->context) {
+        return;
+    }
+
+ katla::printInfo("stop Stopping thread: {} {} {}", std::hash<std::thread::id>{}(std::this_thread::get_id()), std::hash<std::thread::id>{}(m_createThreadId), std::hash<std::thread::id>{}(m_initThreadId));
+
     lws_context_destroy(d->context);
     d->context = nullptr;
+
+    m_stopped = true;
 }
 
 void WebSocketServerLws::join()

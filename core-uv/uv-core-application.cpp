@@ -22,6 +22,7 @@
 
 #include <memory>
 #include <gsl/gsl>
+#include <functional>
 
 namespace katla {
 
@@ -202,6 +203,25 @@ outcome::result<std::unique_ptr<Timer>, Error> UvCoreApplication::createTimer()
     }
 
     return std::move(timer);
+}
+
+void UvCoreApplication::uvCallback(uv_async_t* handle)
+{
+    reinterpret_cast<std::function<void()>*>(handle->data)->operator()();
+};
+
+outcome::result<std::shared_ptr<UvCoreApplication::Future>, Error> UvCoreApplication::invokeAsync(std::function<void()> callback)
+{
+    auto result = std::make_shared<Future>();
+    result->callback = callback;
+
+    // TODO coalesced
+    auto initHandle = uv_async_init(m_eventLoop.handle(), &result->async, &UvCoreApplication::uvCallback); // TODO keep init handle
+    result->async.data = reinterpret_cast<void*>(&result->callback); // two casts!
+
+    auto asyncResult = uv_async_send(&result->async);
+
+    return result; // TODO keep result till callback is called
 }
 
 EventLoop& UvCoreApplication::eventLoop() { return m_eventLoop; }

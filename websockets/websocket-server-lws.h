@@ -39,6 +39,10 @@ class WebSocketServerLws {
 
     WebSocketServerLwsPrivate* d;
     WorkerThread m_workerThread;
+
+    std::thread::id m_createThreadId;
+    std::thread::id m_initThreadId;
+    bool m_stopped { false };
 };
 
 } // namespace katla

@@ -113,12 +113,18 @@ void UvTimer::uvTimerCallback(uv_timer_t* handle)
 
 void UvTimer::uv_close_callback(uv_handle_t* handle)
 {
+    katla::printInfo("uv_close_callback: {}", reinterpret_cast<size_t>(handle));
     assert(handle);
     assert(handle->data); // event-loop should close handle before destruction
 
     if (handle->data) {
         static_cast<UvTimer*>(handle->data)->deleteHandle();
     }
+}
+
+bool UvTimer::isClosed()
+{
+    return !m_handle;
 }
 
 void UvTimer::deleteHandle()
