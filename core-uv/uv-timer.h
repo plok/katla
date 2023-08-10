@@ -36,6 +36,7 @@ public:
 
     outcome::result<void, Error> init() override;
     outcome::result<void, Error> close() override;
+    bool isClosed() override;
 
     outcome::result<void, Error> start(std::chrono::milliseconds msec, std::function<void()> function) override;
     outcome::result<void, Error> stop() override;
