@@ -121,6 +121,11 @@ void UvTimer::uv_close_callback(uv_handle_t* handle)
     }
 }
 
+bool UvTimer::isClosed()
+{
+    return !m_handle;
+}
+
 void UvTimer::deleteHandle()
 {
     if (m_handle) {
