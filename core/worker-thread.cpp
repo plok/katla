@@ -109,8 +109,6 @@ void WorkerThread::exec(const std::function<void(void)>& repeatableWork)
         noWait = m_skipWaitForNextCycle || m_wakeUp;
         m_skipWaitForNextCycle = false;
     }
-
-    katla::printInfo("Closing thread {}!", m_name);
 }
 
 } // namespace katla
