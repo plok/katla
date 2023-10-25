@@ -150,6 +150,10 @@ outcome::result<void, Error> UvCoreApplication::stop()
         return result.error();
     }
 
+    if (!uv_is_closing(reinterpret_cast<uv_handle_t*>(&m_asyncHandle))) {
+        uv_close(reinterpret_cast<uv_handle_t*>(&m_asyncHandle), uv_close_callback);
+    }
+
     // At this point the eventloop should automatically close unless there are still handles open
     // do a manual stop to make sure the eventloop stops so we can call the close() method outside the eventloop.
     result = m_eventLoop.stop();
@@ -183,20 +187,22 @@ outcome::result<void, Error> UvCoreApplication::close()
         uv_close(reinterpret_cast<uv_handle_t*>(&m_asyncHandle), uv_close_callback);
     }
 
-    result = m_eventLoop.runSingleIteration();
-    if (!result) {
-        katla::printError("Failed running eventloop iteration on close: {}", result.error().toString());
-    }
+    if (m_eventLoop.handle()) {
+        result = m_eventLoop.runSingleIteration();
+        if (!result) {
+            katla::printError("Failed running eventloop iteration on close: {}", result.error().toString());
+        }
 
-    result = m_eventLoop.closeOpenHandles();
-    if (!result) {
-        katla::printError("Failed closing open handles: {}", result.error().toString());
-    }
+        result = m_eventLoop.closeOpenHandles();
+        if (!result) {
+            katla::printError("Failed closing open handles: {}", result.error().toString());
+        }
 
-    result = m_eventLoop.close();
-    if (!result) {
-        katla::printError("Failed closing event-loop: {}", result.error().toString());
-        return result.error();
+        result = m_eventLoop.close();
+        if (!result) {
+            katla::printError("Failed closing event-loop: {}", result.error().toString());
+            return result.error();
+        }
     }
 
     return outcome::success();
