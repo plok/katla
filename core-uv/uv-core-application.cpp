@@ -85,6 +85,12 @@ outcome::result<void, Error> UvCoreApplication::init()
         return error;
     }
 
+    m_asyncHandle.data = this;
+    int uvError = uv_async_init(m_eventLoop.handle(), &m_asyncHandle, &UvCoreApplication::uvAsyncCallback);
+    if (!error) {
+        return error;
+    }
+
     error = m_interruptSignalHandler.start(Signal::Interrupt, [this]() {
         katla::print(stdout, "Interrupt signal received\n");
         m_onCloseSubject.next();
@@ -144,7 +150,7 @@ outcome::result<void, Error> UvCoreApplication::stop()
         return result.error();
     }
 
-    // At this point the eventloop should automatically close unless there are till handles open
+    // At this point the eventloop should automatically close unless there are still handles open
     // do a manual stop to make sure the eventloop stops so we can call the close() method outside the eventloop.
     result = m_eventLoop.stop();
     if (!result) {
@@ -173,6 +179,10 @@ outcome::result<void, Error> UvCoreApplication::close()
         katla::print(stderr, result.error().message());
     }
 
+    if (!uv_is_closing(reinterpret_cast<uv_handle_t*>(&m_asyncHandle))) {
+        uv_close(reinterpret_cast<uv_handle_t*>(&m_asyncHandle), uv_close_callback);
+    }
+
     result = m_eventLoop.runSingleIteration();
     if (!result) {
         katla::printError("Failed running eventloop iteration on close: {}", result.error().toString());
@@ -192,6 +202,12 @@ outcome::result<void, Error> UvCoreApplication::close()
     return outcome::success();
 }
 
+void UvCoreApplication::uv_close_callback(uv_handle_t* handle)
+{
+    assert(handle);
+    assert(handle->data); // event-loop should close handle before destruction
+}
+
 outcome::result<std::unique_ptr<Timer>, Error> UvCoreApplication::createTimer()
 {
     auto timer = std::make_unique<UvTimer>(m_eventLoop);
@@ -202,6 +218,51 @@ outcome::result<std::unique_ptr<Timer>, Error> UvCoreApplication::createTimer()
     }
 
     return std::move(timer);
+}
+
+void UvCoreApplication::uvAsyncCallback(uv_async_t* handle)
+{
+    auto* app = reinterpret_cast<UvCoreApplication*>(handle->data);
+
+    bool empty = false;
+    while(!empty) 
+    {
+        std::shared_ptr<UvFuture> future;
+        {
+            std::scoped_lock lock(app->m_futureMutex);
+            empty = app->m_tasks.empty();
+            if (empty) {
+                continue;
+            }
+
+            future = app->m_tasks.front();
+            app->m_tasks.pop_front();
+        }
+        
+        if (!future) {
+            continue;
+        }
+
+        future->m_callback.operator()();
+
+        // katla::printInfo("Elapsed async method: {} {}", future->id, future->stopwatch.usecsElapsed());
+    }
+};
+
+outcome::result<std::shared_ptr<Future>, Error> UvCoreApplication::invokeAsync(std::function<void()> callback)
+{
+    auto result = std::make_shared<UvFuture>(this, callback);
+
+    {
+        std::scoped_lock lock(m_futureMutex);
+        result->m_id = ++m_lastFutureCounter;
+        m_tasks.push_back(result);
+    }
+
+    result->m_stopwatch.start();
+    auto asyncResult = uv_async_send(&m_asyncHandle);
+
+    return result;
 }
 
 EventLoop& UvCoreApplication::eventLoop() { return m_eventLoop; }
