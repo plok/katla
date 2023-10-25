@@ -16,6 +16,7 @@
 #ifndef KATLA_CORE_UV_CORE_APPLICATION_H
 #define KATLA_CORE_UV_CORE_APPLICATION_H
 
+#include "core/stopwatch.h"
 #include "katla/core-uv/uv-event-loop.h"
 #include "katla/core-uv/uv-signal-handler.h"
 #include "katla/core/core-application.h"
@@ -26,7 +27,9 @@
 #include "katla/core/subject.h"
 #include "katla/core/timer.h"
 
+#include <deque>
 #include <functional>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <atomic>
@@ -35,6 +38,25 @@ namespace katla {
 
 class UvEventLoop;
 class UvSignalHandler;
+class UvCoreApplication;
+
+class Future {
+  uint64_t id() { return m_id; }
+
+protected:
+  uint64_t m_id = {};
+};
+
+class UvFuture : public Future {
+  friend class UvCoreApplication;
+public:
+  UvFuture(UvCoreApplication* owner, std::function<void()> callback) : m_owner(owner), m_callback(callback) {}
+  UvFuture(const UvFuture&) = delete;
+private:
+  UvCoreApplication* m_owner = {};
+  std::function<void()> m_callback;
+  Stopwatch m_stopwatch;
+};
 
 class UvCoreApplication : public CoreApplication {
   public:
@@ -53,6 +75,9 @@ class UvCoreApplication : public CoreApplication {
     outcome::result<void, Error> stop() override;
 
     outcome::result<std::unique_ptr<Timer>, Error> createTimer() override;
+
+     __attribute__ ((warning ("Experimental code!"))) 
+    outcome::result<std::shared_ptr<Future>, Error> invokeAsync(std::function<void()> callback);
 
     EventLoop& eventLoop() override;
     UvEventLoop& uvEventLoop();
@@ -74,6 +99,8 @@ class UvCoreApplication : public CoreApplication {
 
   private:
     UvCoreApplication();
+    static void uvAsyncCallback(uv_async_t* handle);
+    static void uv_close_callback(uv_handle_t* handle);
 
     static std::atomic<UvCoreApplication*> s_instancePtr;
     static std::mutex s_mutex;
@@ -86,6 +113,12 @@ class UvCoreApplication : public CoreApplication {
 
     Subject<void> m_onCloseSubject;
     Subject<void> m_onChildSubject;
+
+    uv_async_t m_asyncHandle = {};
+    
+    std::mutex m_futureMutex;
+    std::atomic<uint64_t> m_lastFutureCounter;
+    std::deque<std::shared_ptr<UvFuture>> m_tasks;
 };
 
 } // namespace katla
