@@ -53,29 +53,29 @@ outcome::result<void, Error> MqttClient::init(const std::string& clientName)
             katla::format("Failed creating mosquitto client - {}", errorCode.message()));
     }
 
-    mosquitto_connect_callback_set(m_client, [](struct mosquitto* client, void* obj, int rc) {
+    mosquitto_connect_callback_set(m_client, [](struct mosquitto* /*client*/, void* obj, int rc) {
         auto mqttClient = reinterpret_cast<MqttClient*>(obj);
         mqttClient->handleConnect(rc);
     });
 
-    mosquitto_disconnect_callback_set(m_client, [](struct mosquitto* client, void* obj, int rc) {
+    mosquitto_disconnect_callback_set(m_client, [](struct mosquitto* /*client*/, void* obj, int rc) {
         auto mqttClient = reinterpret_cast<MqttClient*>(obj);
         mqttClient->handleDisconnect(rc);
     });
 
-    mosquitto_log_callback_set(m_client, [](struct mosquitto* client, void* obj, int level, const char* message) {
+    mosquitto_log_callback_set(m_client, [](struct mosquitto* /*client*/, void* obj, int level, const char* message) {
         auto mqttClient = reinterpret_cast<MqttClient*>(obj);
         mqttClient->handleLogMessage(level, message);
     });
 
     mosquitto_message_callback_set(m_client,
-                                   [](struct mosquitto* client, void* obj, const struct mosquitto_message* message) {
+                                   [](struct mosquitto* /*client*/, void* obj, const struct mosquitto_message* message) {
                                        auto mqttClient = reinterpret_cast<MqttClient*>(obj);
                                        mqttClient->handleMessage(message);
                                    });
 
     mosquitto_subscribe_callback_set(m_client,
-                                   [](struct mosquitto* client, void* obj, int mid, int qos_count, const int* granted_qos) {
+                                   [](struct mosquitto* /*client*/, void* obj, int mid, int qos_count, const int* granted_qos) {
                                        auto mqttClient = reinterpret_cast<MqttClient*>(obj);
                                        mqttClient->handleSubscribe(mid, qos_count, *granted_qos);
                                    });
@@ -166,7 +166,7 @@ void MqttClient::handleLogMessage(int level, const char* message)
     }
 }
 
-void MqttClient::handleSubscribe(int mid, int qos_count, int granted_qos)
+void MqttClient::handleSubscribe(int mid, int /*qos_count*/, int /*granted_qos*/)
 {
    //m_logger.info(katla::format("SUBACK received; mid={} qos_count={} granted_qos={}", mid, qos_count, granted_qos));
    m_onSubscribeSubject.next(m_subscriptions[mid]);
@@ -184,6 +184,9 @@ void MqttClient::handleMessage(const struct mosquitto_message* mosqMessage) {
     {
         bool topicMatch = false;
         int result = mosquitto_topic_matches_sub(subscr.first.c_str(), mosqMessage->topic, &topicMatch);
+        if (result != MOSQ_ERR_SUCCESS) {
+            continue;
+        }
         if (topicMatch) {
             subscr.second->next(message);
         }

@@ -40,6 +40,8 @@ std::string katla::PosixErrorCategory::message(int c) const {
 std::error_condition katla::PosixErrorCategory::default_error_condition(int c) const noexcept {
     switch (static_cast<PosixErrorCodes>(c))
     {
+        case PosixErrorCodes::Invalid:
+            return make_error_condition(std::errc::invalid_argument);
         case PosixErrorCodes::InvalidDomain:
             return make_error_condition(std::errc::invalid_argument);
         case PosixErrorCodes::InvalidType:
@@ -48,6 +50,10 @@ std::error_condition katla::PosixErrorCategory::default_error_condition(int c) c
             return make_error_condition(std::errc::operation_not_supported);
         case PosixErrorCodes::UnixSocketPathTooLong:
             return make_error_condition(std::errc::invalid_argument);
+        case PosixErrorCodes::PermissionDenied:
+            return make_error_condition(std::errc::permission_denied);
+        case PosixErrorCodes::NotFound:
+            return make_error_condition(std::errc::io_error);
     }
 
     return std::error_condition(c, *this);

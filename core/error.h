@@ -13,6 +13,7 @@ class Error {
   public:
     Error() = default;
     Error(const std::error_code errorCode, std::string description = "", std::string info = "");
+    virtual ~Error() = default;
 
     virtual std::error_code code(void) const { return m_errorCode; }
     virtual std::string message(void) const { return m_errorCode.message(); }

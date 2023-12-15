@@ -30,6 +30,7 @@ struct LwsPacket
 
 class WebSocketServerClient {
   public:
+    virtual ~WebSocketServerClient() = default;
     virtual void send(const LwsPacket& message) = 0;
     virtual void sendHttpResult(const HttpRequestResult& result) = 0;
 

@@ -69,20 +69,22 @@ class UvCoreApplication : public CoreApplication {
     static bool hasInstance();
 
     outcome::result<void, Error> init() override;
-    outcome::result<void, Error> close() override;
+    [[maybe_unused]] outcome::result<void, Error> close() override;
 
     outcome::result<void, Error> run() override;
-    outcome::result<void, Error> stop() override;
+    [[maybe_unused]] outcome::result<void, Error> stop() override;
 
     outcome::result<std::unique_ptr<Timer>, Error> createTimer() override;
 
+#ifdef KATLA_MARK_EXPERIMENTAL
      __attribute__ ((warning ("Experimental code!"))) 
+#endif
     outcome::result<std::shared_ptr<Future>, Error> invokeAsync(std::function<void()> callback);
 
     EventLoop& eventLoop() override;
     UvEventLoop& uvEventLoop();
 
-    std::unique_ptr<Subscription> onClose(std::function<void(void)> closeCallback) override
+    [[maybe_unused]] std::unique_ptr<Subscription> onClose(std::function<void(void)> closeCallback) override
     {
         auto observer = std::make_shared<FuncObserver<void>>(closeCallback);
         return m_onCloseSubject.subscribe(observer);

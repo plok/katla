@@ -16,17 +16,14 @@
 
 #include "katla/core/core.h"
 #include "katla/core/default-logger.h"
-#include "mqtt-errors.h"
 #include "mqtt.h"
 
 #include "gtest/gtest.h"
 
-#include <chrono>
-#include <filesystem>
-
 namespace katla {
 
 using namespace std::chrono_literals;
+#define _unused_ [[maybe_unused]] auto _
 
 std::string helloWorld = "Hello World!";
 
@@ -36,7 +33,7 @@ TEST(KatlaMqttTests, CreateTest)
 
     {
         katla::Mqtt mqtt(logger);
-        mqtt.init();
+        _unused_ = mqtt.init();
     }
 
     SUCCEED();
@@ -120,7 +117,7 @@ TEST(KatlaMqttTests, PublishClientTest)
 
             std::string hello = "hello world!";
             gsl::span<std::byte> span (reinterpret_cast<std::byte*>(hello.data()), hello.size());
-            client->publish("hello", span, MqttQos::AtLeastOnce, false);
+            _unused_ = client->publish("hello", span, MqttQos::AtLeastOnce, false);
 
           done = true;
         });

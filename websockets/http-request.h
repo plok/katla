@@ -46,7 +46,8 @@ struct HttpRequest {
 
 class HttpRequestResult {
 public:
-    HttpRequestResult(const HttpRequest& request) {
+    HttpRequestResult(const HttpRequest& request_) {
+        request = request_;
         statusCode = katla::HttpStatusCode::InternalServerError;
         contentType = "application/json";
 
@@ -55,6 +56,7 @@ public:
         headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS";
         headers["Access-Control-Allow-Headers"] = "X-Requested-With, content-type, Authorization";
     };
+    virtual ~HttpRequestResult() = default;
 
     HttpRequest request {};
     HttpStatusCode statusCode {};

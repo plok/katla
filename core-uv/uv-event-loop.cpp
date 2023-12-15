@@ -1,12 +1,12 @@
 /***
  * Copyright 2019 The Katla Authors
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,18 +15,16 @@
  */
 #include "uv-event-loop.h"
 
-#include "katla/core/core.h"
 #include "katla/core/core-errors.h"
-
+#include "katla/core/core.h"
 #include "uv.h"
 
 namespace katla {
 
-UvEventLoop::UvEventLoop()
-{
-}
+UvEventLoop::UvEventLoop() {}
 
-UvEventLoop::~UvEventLoop() {
+UvEventLoop::~UvEventLoop()
+{
     assert(!m_handle); // should be destroyed before destruction because it needs event-loop
 }
 
@@ -39,7 +37,8 @@ outcome::result<void, Error> UvEventLoop::init()
     m_handle = new uv_loop_t();
     auto result = uv_loop_init(m_handle);
     if (result != 0) {
-        return Error(katla::make_error_code(katla::CoreErrorCode::InitFailed), uv_strerror(result), uv_err_name(result));
+        return Error(
+            katla::make_error_code(katla::CoreErrorCode::InitFailed), uv_strerror(result), uv_err_name(result));
     }
 
     return outcome::success();
@@ -59,7 +58,8 @@ outcome::result<void, Error> UvEventLoop::close()
 
     auto result = uv_loop_close(m_handle);
     if (result != 0) {
-        return Error(katla::make_error_code(katla::CoreErrorCode::CloseFailed), uv_strerror(result), uv_err_name(result));
+        return Error(
+            katla::make_error_code(katla::CoreErrorCode::CloseFailed), uv_strerror(result), uv_err_name(result));
     }
 
     // TODO check for busy and wait for a timeout period
@@ -78,12 +78,12 @@ outcome::result<void, Error> UvEventLoop::run()
 
     auto result = uv_run(m_handle, UV_RUN_DEFAULT);
     if (result != 0) {
-        return Error(katla::make_error_code(katla::CoreErrorCode::OperationFailed), uv_strerror(result), uv_err_name(result));
+        return Error(
+            katla::make_error_code(katla::CoreErrorCode::OperationFailed), uv_strerror(result), uv_err_name(result));
     }
 
     return outcome::success();
 }
-
 
 outcome::result<void, Error> UvEventLoop::runSingleIteration()
 {
@@ -93,7 +93,8 @@ outcome::result<void, Error> UvEventLoop::runSingleIteration()
 
     auto result = uv_run(m_handle, UV_RUN_NOWAIT);
     if (result != 0) {
-        return Error(katla::make_error_code(katla::CoreErrorCode::OperationFailed), uv_strerror(result), uv_err_name(result));
+        return Error(
+            katla::make_error_code(katla::CoreErrorCode::OperationFailed), uv_strerror(result), uv_err_name(result));
     }
 
     return outcome::success();
@@ -110,7 +111,8 @@ outcome::result<void, Error> UvEventLoop::stop()
     return outcome::success();
 }
 
-outcome::result<void, Error> UvEventLoop::printOpenHandles() {
+outcome::result<void, Error> UvEventLoop::printOpenHandles()
+{
     if (!m_handle) {
         return Error(katla::make_error_code(katla::CoreErrorCode::NotInitialized));
     }
@@ -119,20 +121,21 @@ outcome::result<void, Error> UvEventLoop::printOpenHandles() {
     return outcome::success();
 }
 
-void UvEventLoop::printOpenHandlesUvWalkCallback(uv_handle_t *handle, void *arg)
+void UvEventLoop::printOpenHandlesUvWalkCallback(uv_handle_t* handle, void* /*arg*/)
 {
     katla::printInfo("Open handle: {}", handle->type);
 }
 
-outcome::result<void, Error> UvEventLoop::closeOpenHandles() {
+outcome::result<void, Error> UvEventLoop::closeOpenHandles()
+{
     if (!m_handle) {
         return Error(katla::make_error_code(katla::CoreErrorCode::NotInitialized));
     }
 
     m_handlesToClose.clear();
     uv_walk(m_handle, &closeOpenHandlesUvWalkCallback, this);
-    
-    while(!m_handlesToClose.empty()) {
+
+    while (!m_handlesToClose.empty()) {
         m_handlesToClose.clear();
         uv_walk(m_handle, &closeOpenHandlesUvWalkCallback, this);
 
@@ -145,7 +148,7 @@ outcome::result<void, Error> UvEventLoop::closeOpenHandles() {
     return outcome::success();
 }
 
-void UvEventLoop::closeOpenHandlesUvWalkCallback(uv_handle_t *handle, void *arg)
+void UvEventLoop::closeOpenHandlesUvWalkCallback(uv_handle_t* handle, void* arg)
 {
     auto* eventLoop = reinterpret_cast<UvEventLoop*>(arg);
     eventLoop->m_handlesToClose.insert(handle);
@@ -158,11 +161,9 @@ void UvEventLoop::closeOpenHandlesUvWalkCallback(uv_handle_t *handle, void *arg)
     uv_close(handle, UvEventLoop::onCloseHandleCallback);
 }
 
-void UvEventLoop::onCloseHandleCallback(uv_handle_t *handle)
+void UvEventLoop::onCloseHandleCallback(uv_handle_t* handle)
 {
     katla::printInfo("Close handle type: {}", handle->type);
 }
 
-
-
-}
+} // namespace katla

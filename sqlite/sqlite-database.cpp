@@ -153,8 +153,6 @@ outcome::result<SqliteQueryResult, Error> SqliteDatabase::insert(std::string tab
         return Error(katla::make_error_code(katla::SqliteErrorCodes::DatabaseNotOpened), katla::format("Database not opened"));;
     }
 
-    char* errorMessage = nullptr;
-
     SqliteQueryResult queryResult;
 
     std::vector<std::string> columns;
@@ -162,7 +160,7 @@ outcome::result<SqliteQueryResult, Error> SqliteDatabase::insert(std::string tab
                    [](std::pair<std::string, std::string> pair) -> std::string { return pair.first; });
 
     std::vector<std::string> valueTemplates;
-    for (int i = 0; i < values.size(); i++) {
+    for (size_t i = 0; i < values.size(); i++) {
         valueTemplates.push_back(katla::format("?{:0>#3}", i+1));
     }
 
@@ -184,7 +182,7 @@ outcome::result<SqliteQueryResult, Error> SqliteDatabase::insert(std::string tab
         return Error(katla::make_error_code(katla::SqliteErrorCodes::QueryFailed), katla::format("Error creating query: {}", sqlite3_errstr(prepareResult)));
     }
 
-    for (int i=0; i<values.size(); i++) {
+    for (size_t i=0; i<values.size(); i++) {
         sqlite3_bind_text(sqlStatement, i + 1, values[i].second.c_str(), values[i].second.size(), SQLITE_STATIC);
     }
 

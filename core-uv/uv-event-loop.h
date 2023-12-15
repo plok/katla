@@ -33,7 +33,7 @@ public:
     virtual ~UvEventLoop();
 
     outcome::result<void, Error> init();
-    outcome::result<void, Error> close();
+    [[maybe_unused]] outcome::result<void, Error> close();
 
     outcome::result<void, Error> run();
     outcome::result<void, Error> runSingleIteration();

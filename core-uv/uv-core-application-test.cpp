@@ -32,30 +32,30 @@ namespace katla {
     TEST(KatlaUvTests, ProperCloseTest) {
 
         auto& coreApp = UvCoreApplication::instance();
-        coreApp.init();
+        [[maybe_unused]] auto _ = coreApp.init();
         auto timerResult = coreApp.createTimer();
         ASSERT_TRUE(timerResult) << timerResult.error().message();
 
         auto timer = std::move(timerResult.value());
 
         coreApp.onClose([&coreApp, &timer]() {
-            timer->stop();
-            coreApp.stop();
+            [[maybe_unused]] auto _1 = timer->stop();
+            _1 = coreApp.stop();
         });
 
-        timer->start(1s, [&timer, &coreApp]() {
+        _ = timer->start(1s, [&timer, &coreApp]() {
             katla::printInfo(helloWorld);
 
-            timer->stop();
-            coreApp.stop();
+            [[maybe_unused]] auto _2 = timer->stop();
+            _2 = coreApp.stop();
         });
 
-        coreApp.run();
+        _ = coreApp.run();
 
         katla::printInfo("exit of event loop");
 
-        timer->close();
-        coreApp.close();
+        _ = timer->close();
+        _ = coreApp.close();
 
         katla::printInfo("end");
 

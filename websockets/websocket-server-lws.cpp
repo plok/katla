@@ -67,7 +67,7 @@ int handleHttpNewConnection(lws* wsi, WebSocketServerLwsPrivate* server)
     return 0;
 }
 
-static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len)
+static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, void* /*user*/, void* in, size_t len)
 {
 
     auto ctx = lws_get_context(wsi);
@@ -104,8 +104,6 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         break;
 
     case LWS_CALLBACK_HTTP_BODY: {
-        auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
-
         gsl::span<std::byte> bytes(reinterpret_cast<std::byte*>(in), len);
 
         auto& client = webSocketServer->httpClientsMap[static_cast<void*>(wsi)];
@@ -115,8 +113,6 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         break;
     }
     case LWS_CALLBACK_HTTP_BODY_COMPLETION: {
-        auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
-
         auto& client = webSocketServer->httpClientsMap[static_cast<void*>(wsi)];
 
         auto request = client->m_request->completedRequest();
@@ -132,8 +128,6 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         break;
     }
     case LWS_CALLBACK_HTTP_WRITEABLE: {
-        auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
-
         auto& client = webSocketServer->httpClientsMap[static_cast<void*>(wsi)];
 
         auto dataOpt = client->dataToSend();
@@ -185,8 +179,13 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
 
             // payload already has LWS_PRE prepended
             int result = lws_write(wsi, (unsigned char*)data.payload->data() + LWS_PRE, data.payload->size() - LWS_PRE, (lws_write_protocol)flags);
+            if (result == -1) {
+                katla::printError("error writing to socket!");
+                return -1;
+            }
 
-            if (result < (data.payload->size() - LWS_PRE)) {
+            int expectedSize = data.payload->size() - LWS_PRE;
+            if (result < expectedSize) {
                 katla::printError("error writing to socket!");
                 return -1;
             }
@@ -214,9 +213,6 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         break;
     }
     case LWS_CALLBACK_SERVER_WRITEABLE: {
-
-        auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
-
         auto& client = webSocketServer->webSocketClientsMap[static_cast<void*>(wsi)];
 
         auto dataOpt = client->dataToSend();
@@ -231,8 +227,13 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
 
             // payload already has LWS_PRE prepended
             int result = lws_write(wsi, (unsigned char*)data.payload->data() + LWS_PRE, data.payload->size() - LWS_PRE, (lws_write_protocol)flags);
+            if (result == -1) {
+                katla::printError("error writing to socket!");
+                return -1;
+            }
 
-            if (result < (data.payload->size() - LWS_PRE)) {
+            int expectedWriteSize = data.payload->size() - LWS_PRE;
+            if (result < expectedWriteSize) {
                 katla::printError("error writing to socket!");
                 return -1;
             }
@@ -245,14 +246,9 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         break;
     }
     case LWS_CALLBACK_RECEIVE: {
-        int remainingPackets = (int)lws_remaining_packet_payload(wsi);
-        int isFirst = (int)lws_is_first_fragment(wsi);
         int isFinal = (int)lws_is_final_fragment(wsi);
-        int isBinary = (int)lws_frame_is_binary(wsi);
 
         auto& client = webSocketServer->webSocketClientsMap[static_cast<void*>(wsi)];
-
-        auto* vhd = (VhdWebSocketServer*)lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
 
         gsl::span<std::byte> bytes(reinterpret_cast<std::byte*>(in), len);
         client->insert(bytes);
@@ -308,14 +304,14 @@ WebSocketServerLws::WebSocketServerLws() :
     d->mount.origin_protocol = LWSMPRO_FILE; // files in a dir
     d->mount.mountpoint_len = 1;             // char count
 
-    d->protocols.push_back({ "websocket-server",
-                             callbackWebsocketServer,
-                             0,
-                             1024,
-                             3,
-                             nullptr,
-                             65550 }); // TODO
-    d->protocols.push_back({ nullptr, nullptr, 0, 0 } /* terminator */);
+    d->protocols.push_back({ .name = "websocket-server",
+                             .callback = callbackWebsocketServer,
+                             .per_session_data_size = 0,
+                             .rx_buffer_size = 1024,
+                             .id = 3,
+                             .user = nullptr,
+                             .tx_packet_size = 65550 });
+    d->protocols.push_back({ .name = nullptr, .callback = nullptr, .per_session_data_size = 0, .rx_buffer_size = 0, .id = 0, .user = nullptr, .tx_packet_size = 0 } /* terminator */);
 }
 
 WebSocketServerLws::~WebSocketServerLws()
@@ -432,7 +428,7 @@ bool WebSocketServerLws::work() {
         }
     }
 
-    int n = lws_service(d->context, 100);
+    [[maybe_unused]] auto unknown = lws_service(d->context, 100); // not sure of the purpose of the return value
     return true; // call work again immediately
 }
 
