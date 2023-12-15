@@ -39,15 +39,17 @@ target_include_directories(${target_name} PRIVATE
 target_link_libraries(${target_name} katla-core fmt websockets_shared)
 
 # override warnings in external projects
-target_compile_options(
-        ${target_name}
-        PRIVATE
-        ${KATLA_INTERN_WARNING_OPTIONS}
-        -Wno-error=shadow
-        -Wno-shadow
-        -Wno-error=non-virtual-dtor
-        -Wno-non-virtual-dtor
-        )
+IF (NOT WIN32 AND NOT APPLE)
+        target_compile_options(
+                ${target_name}
+                PRIVATE
+                ${KATLA_INTERN_WARNING_OPTIONS}
+                -Wno-error=shadow
+                -Wno-shadow
+                -Wno-error=non-virtual-dtor
+                -Wno-non-virtual-dtor
+                )
+ENDIF()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries(${target_name} Threads::Threads)

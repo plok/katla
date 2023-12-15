@@ -1,11 +1,13 @@
 set(CMAKE_CXX_STANDARD 17)
 
-# TODO remove exceptions until all warnings are gone
-SET(KATLA_INTERN_WARNING_OPTIONS
-    -Werror
-    -Wall
-    -Wextra
-    -Wshadow
-    -Wnon-virtual-dtor
-    #-pedantic
-    )
+IF (NOT WIN32 AND NOT APPLE)
+    SET(KATLA_INTERN_WARNING_OPTIONS
+        -Werror
+        -Wall
+        -Wextra
+        -Wshadow
+        -Wnon-virtual-dtor
+        #-pedantic
+        )
+ENDIF()
+
