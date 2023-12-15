@@ -30,6 +30,8 @@ target_include_directories(${target_name} PRIVATE
     ${GTEST_INCLUDE_DIRS}
     )
 
-target_link_libraries(${target_name} gtest gtest_main katla-core  katla-core-uv fmt)
+target_link_libraries(${target_name} gtest gtest_main katla-core-uv katla-core fmt)
+
+target_compile_options(${target_name} PRIVATE ${KATLA_INTERN_WARNING_OPTIONS})
 
 gtest_discover_tests(${target_name})

@@ -33,6 +33,8 @@ target_link_libraries(${target_name}
     opencv_core
     opencv_imgcodecs)
 
+target_compile_options(${target_name} PRIVATE ${KATLA_INTERN_WARNING_OPTIONS})
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries (${target_name})
 

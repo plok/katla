@@ -8,9 +8,10 @@ namespace string {
 std::string humanFileSize(long long fileSize) {
     auto suffixes = std::array{"B", "KiB", "MiB", "GiB", "TiB"};
     auto suffixIndex = 0;
+    int suffixesMaxIndex = suffixes.size()-1;
     
     double size = fileSize;
-    while(size > 1024. && suffixIndex < (suffixes.size()-1)) {
+    while(size > 1024. && suffixIndex < suffixesMaxIndex) {
         size = size / 1024.;
         suffixIndex++;
     }

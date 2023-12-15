@@ -301,7 +301,7 @@ outcome::result<std::unique_ptr<PosixSocket>, Error> PosixSocket::accept()
     };
 
     auto clientSocket = std::unique_ptr<PosixSocket>(new PosixSocket(_protocolDomain, _type, _frameType, _nonBlocking, acceptResult, wakeupFd));
-    return std::move(clientSocket);
+    return clientSocket;
 }
 
 std::optional<Error> PosixSocket::error()
@@ -454,7 +454,6 @@ outcome::result<ssize_t, Error> PosixSocket::receiveFrom(const gsl::span<std::by
 
     ssize_t nbytes = ::recvfrom(_fd, buffer.data(), buffer.size(), flags, nullptr, nullptr);
     if (nbytes == -1) {
-        bool wouldBlock = false;
         if (_nonBlocking && (errno == EAGAIN || errno == EWOULDBLOCK)) {
             // TODO TEST??
             nbytes = 0;

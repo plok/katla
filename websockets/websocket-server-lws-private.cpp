@@ -63,7 +63,6 @@ void WebSocketServerLwsPrivate::addHttpClient(lws* wsi)
 
 void WebSocketServerLwsPrivate::removeHttpClient(lws* wsi)
 {
-    auto& client = httpClientsMap[static_cast<void*>(wsi)];
     httpClientsMap.erase(static_cast<void*>(wsi));
 }
 
@@ -161,7 +160,7 @@ bool WebSocketServerLwsPrivate::matchInclusiveUrl(std::string requestUrl, std::s
     auto requestSplits = katla::string::split(requestUrl, "/");
     auto subscribedSplits = katla::string::split(subscribedUrl, "/");
 
-    for(int i = 0; i < subscribedSplits.size(); i++) {
+    for(size_t i = 0; i < subscribedSplits.size(); i++) {
         // don't compare input variables
         if (katla::string::startsWith(subscribedSplits[i], ":")) {
             continue;

@@ -19,7 +19,7 @@ void handleCommands(std::string command)
 
     if (command == "http-serve") {
 
-        katla::UvCoreApplication uvCoreApp;
+        auto& uvCoreApp = katla::UvCoreApplication::instance();
         auto appInitResult = uvCoreApp.init();
         if (!appInitResult) {
             katla::print(stderr, "{}\n    {}-{}-{}\n", appInitResult.error().message());

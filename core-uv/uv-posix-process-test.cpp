@@ -22,9 +22,6 @@
 #include "gtest/gtest.h"
 
 #include <gsl/span>
-#include <thread>
-
-#include <chrono>
 
 namespace katla {
 
@@ -57,7 +54,7 @@ namespace katla {
         stopwatch.start();
 
         auto& coreApp = UvCoreApplication::instance();
-        coreApp.init();
+        [[maybe_unused]] auto _ = coreApp.init();
 
         bool closed = false;
 
@@ -75,7 +72,7 @@ namespace katla {
         auto timerResult = coreApp.createTimer();
         ASSERT_FALSE(timerResult.has_error());
         auto timer = std::move(timerResult.value());
-        timer->start(100ms, [&]() {
+        _ = timer->start(100ms, [&]() {
             auto msec = stopwatch.msecsElapsed();
             if (msec < 3000) {
                 ASSERT_TRUE(processA.status().value() == UvPosixProcess::Status::Running);
@@ -93,15 +90,15 @@ namespace katla {
                 ASSERT_TRUE(processB.status().value() == UvPosixProcess::Status::Exitted);
                 ASSERT_TRUE(closed);
 
-                timer->stop();
-                coreApp.stop();
+                _ = timer->stop();
+                _ = coreApp.stop();
             }           
         });
 
-        coreApp.run();
+        _ = coreApp.run();
 
-        timer->close();
-        coreApp.close();
+        _ = timer->close();
+        _ = coreApp.close();
 
         SUCCEED();
     }

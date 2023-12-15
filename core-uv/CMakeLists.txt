@@ -31,3 +31,6 @@ target_include_directories(${target_name} PRIVATE
     )
 
 target_link_libraries(${target_name} uv fmt)
+
+target_compile_options(${target_name} PRIVATE ${KATLA_INTERN_WARNING_OPTIONS})
+

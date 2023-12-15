@@ -20,7 +20,6 @@
 
 #include "gtest/gtest.h"
 
-#include <chrono>
 #include <filesystem>
 
 namespace katla {
@@ -39,10 +38,10 @@ namespace katla {
     }
     SqliteDatabase createAndOpenDatabase() {
         SqliteDatabase sqliteDatabase;
-        sqliteDatabase.init();
-        auto createResult = sqliteDatabase.create("/tmp/katla-sqlite-test/sqlite.db");
+        [[maybe_unused]] auto _ = sqliteDatabase.init();
+        _ = sqliteDatabase.create("/tmp/katla-sqlite-test/sqlite.db");
         sqliteDatabase.setPath("/tmp/katla-sqlite-test/sqlite.db");
-        sqliteDatabase.open();
+        _ = sqliteDatabase.open();
 
         return sqliteDatabase;
     }
@@ -74,9 +73,9 @@ namespace katla {
         cleanAndPrepare();
         auto sqliteDatabase = createAndOpenDatabase();
 
-        sqliteDatabase.exec("CREATE TABLE IF NOT EXISTS test (id TEXT NOT NULL PRIMARY KEY, rootId TEXT, timestamp INTEGER, event TEXT, data TEXT);");
+        [[maybe_unused]] auto _ = sqliteDatabase.exec("CREATE TABLE IF NOT EXISTS test (id TEXT NOT NULL PRIMARY KEY, rootId TEXT, timestamp INTEGER, event TEXT, data TEXT);");
 
-        sqliteDatabase.close();
+        [[maybe_unused]] auto _1 = sqliteDatabase.close();
     }
 
 TEST(KatlaSqliteDatabaseTests, InsertInTable) {
@@ -84,11 +83,11 @@ TEST(KatlaSqliteDatabaseTests, InsertInTable) {
     cleanAndPrepare();
     auto sqliteDatabase = createAndOpenDatabase();
 
-    sqliteDatabase.exec("CREATE TABLE IF NOT EXISTS test (id TEXT NOT NULL PRIMARY KEY, rootId TEXT, timestamp INTEGER, event TEXT, data TEXT);");
-    sqliteDatabase.exec( "INSERT INTO test (id, rootId, timestamp, event, data) VALUES('id1', 'rootid1', 1, 'event1', 'data1');");
-    sqliteDatabase.exec( "INSERT INTO test (id, rootId, timestamp, event, data) VALUES('id2', 'rootid2', 2, 'event1', 'data1');");
+    [[maybe_unused]] auto _ = sqliteDatabase.exec("CREATE TABLE IF NOT EXISTS test (id TEXT NOT NULL PRIMARY KEY, rootId TEXT, timestamp INTEGER, event TEXT, data TEXT);");
+    _ = sqliteDatabase.exec( "INSERT INTO test (id, rootId, timestamp, event, data) VALUES('id1', 'rootid1', 1, 'event1', 'data1');");
+    _ = sqliteDatabase.exec( "INSERT INTO test (id, rootId, timestamp, event, data) VALUES('id2', 'rootid2', 2, 'event1', 'data1');");
 
-    sqliteDatabase.close();
+    [[maybe_unused]] auto _1 = sqliteDatabase.close();
 }
 
 TEST(KatlaSqliteDatabaseTests, QueryTable) {
@@ -96,9 +95,9 @@ TEST(KatlaSqliteDatabaseTests, QueryTable) {
     cleanAndPrepare();
     auto sqliteDatabase = createAndOpenDatabase();
 
-    sqliteDatabase.exec("CREATE TABLE IF NOT EXISTS test (id TEXT NOT NULL PRIMARY KEY, rootId TEXT, timestamp INTEGER, event TEXT, data TEXT);");
-    sqliteDatabase.exec( "INSERT INTO test (id, rootId, timestamp, event, data) VALUES('id1', 'rootid1', 1, 'event1', 'data1');");
-    sqliteDatabase.exec( "INSERT INTO test (id, rootId, timestamp, event, data) VALUES('id2', 'rootid2', 2, 'event1', 'data1');");
+    [[maybe_unused]] auto _ = sqliteDatabase.exec("CREATE TABLE IF NOT EXISTS test (id TEXT NOT NULL PRIMARY KEY, rootId TEXT, timestamp INTEGER, event TEXT, data TEXT);");
+    _ = sqliteDatabase.exec( "INSERT INTO test (id, rootId, timestamp, event, data) VALUES('id1', 'rootid1', 1, 'event1', 'data1');");
+    _ = sqliteDatabase.exec( "INSERT INTO test (id, rootId, timestamp, event, data) VALUES('id2', 'rootid2', 2, 'event1', 'data1');");
 
     auto result = sqliteDatabase.exec( "SELECT * FROM test;");
     if (result.has_error()) {
@@ -121,7 +120,7 @@ TEST(KatlaSqliteDatabaseTests, QueryTable) {
         fmt::print("\n");
     }
 
-    sqliteDatabase.close();
+    [[maybe_unused]] auto _1 = sqliteDatabase.close();
 }
 
 }

@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.10)
 project(katla)
 
 include(cmake/cmake-common.txt)
+IF (PROJECT_IS_TOP_LEVEL)
+    include(cmake/cmake-warnings.txt)
+ENDIF()
 
 find_package(Threads REQUIRED)
 
@@ -42,6 +45,9 @@ option(BUILD_KATLA_WEBSOCKETS "Build websockets module" BUILD_KATLA_WEBSOCKETS_D
 option(BUILD_GMOCK "Builds the googlemock subproject" OFF)
 option(INSTALL_GTEST "Enable installation of googletest. (Projects embedding googletest may want to turn this OFF.)" OFF)
 add_subdirectory(external/googletest)
+IF (NOT WIN32 AND NOT APPLE)
+    target_compile_options(gtest PRIVATE -Wno-error=maybe-uninitialized -Wno-maybe-uninitialized)
+ENDIF()
 
 add_subdirectory(external/fmt)
 
@@ -63,6 +69,11 @@ IF(BUILD_KATLA_UV)
         find_package(Uv REQUIRED)
     ELSE()
         add_subdirectory(external/libuv)
+
+        IF (NOT WIN32 AND NOT APPLE)
+            target_compile_options(uv PRIVATE -Wno-sign-compare -Wno-error=sign-compare)
+            target_compile_options(uv_a PRIVATE -Wno-sign-compare -Wno-error=sign-compare)
+        ENDIF()
     ENDIF()
     add_subdirectory(core-uv)
     add_subdirectory(core-uv/unit-tests)
@@ -84,6 +95,11 @@ IF(BUILD_KATLA_WEBSOCKETS)
         SET(POP_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
         SET(BUILD_SHARED_LIBS TRUE)
         add_subdirectory(external/libwebsockets)
+
+        IF (NOT WIN32 AND NOT APPLE)
+            target_compile_options(websockets_shared PRIVATE -Wno-error=shadow)
+        ENDIF()
+
         target_include_directories(websockets_shared INTERFACE
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/libwebsockets/include/>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/libwebsockets/include/libwebsockets>

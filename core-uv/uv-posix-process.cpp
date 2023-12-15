@@ -189,16 +189,16 @@ outcome::result<UvPosixProcess::Status, Error> UvPosixProcess::status()
     }
 
     bool exited = WIFEXITED(status) != 0;
-    int exitStatus = WEXITSTATUS(status);
 
     bool signalled = WIFSIGNALED(status) != 0;
     bool crashed = WTERMSIG(status) == SIGSEGV;
     bool killed = WTERMSIG(status) == SIGKILL;
 
-    auto result = Status::Unknown;
     if (exited) {
         m_status = Status::Exitted;
-        // exitStatus
+
+        // TODO implement return of process exit status
+        // int exitStatus = WEXITSTATUS(status);
     }
     if (signalled) {
         m_status = Status::Signalled;

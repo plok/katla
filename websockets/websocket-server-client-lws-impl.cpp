@@ -62,7 +62,7 @@ void WebSocketServerClientLwsImpl::send(const LwsPacket& message)
 {
     // chop message in multiple packets if it's bigger then PacketSize
     if (message.payload->size() > PacketSize) {
-        int idx = 0;
+        size_t idx = 0;
         while (idx < message.payload->size()) {
             LwsPacket sendMessage {};
             sendMessage.statusCode = message.statusCode;

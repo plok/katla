@@ -19,6 +19,7 @@
 #include "uv-signal-handler.h"
 #include "uv-timer.h"
 #include "core/core.h"
+#include "core/core-errors.h"
 
 #include <memory>
 #include <gsl/gsl>
@@ -87,8 +88,10 @@ outcome::result<void, Error> UvCoreApplication::init()
 
     m_asyncHandle.data = this;
     int uvError = uv_async_init(m_eventLoop.handle(), &m_asyncHandle, &UvCoreApplication::uvAsyncCallback);
-    if (!error) {
-        return error;
+    if (!uvError) {
+        return Error(katla::make_error_code(katla::CoreErrorCode::OperationFailed),
+                         uv_strerror(uvError),
+                         uv_err_name(uvError));
     }
 
     error = m_interruptSignalHandler.start(Signal::Interrupt, [this]() {
@@ -223,7 +226,7 @@ outcome::result<std::unique_ptr<Timer>, Error> UvCoreApplication::createTimer()
         return result.error();
     }
 
-    return std::move(timer);
+    return timer;
 }
 
 void UvCoreApplication::uvAsyncCallback(uv_async_t* handle)
@@ -266,7 +269,10 @@ outcome::result<std::shared_ptr<Future>, Error> UvCoreApplication::invokeAsync(s
     }
 
     result->m_stopwatch.start();
-    auto asyncResult = uv_async_send(&m_asyncHandle);
+    auto sendResult = uv_async_send(&m_asyncHandle);
+    if (sendResult != 0) {
+        return Error(katla::make_error_code(katla::CoreErrorCode::OperationFailed), uv_strerror(sendResult), uv_err_name(sendResult));
+    }
 
     return result;
 }
