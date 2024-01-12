@@ -79,7 +79,7 @@ outcome::result<void, Error> UvEventLoop::run()
     auto result = uv_run(m_handle, UV_RUN_DEFAULT);
     if (result != 0) {
         return Error(
-            katla::make_error_code(katla::CoreErrorCode::OperationFailed), uv_strerror(result), uv_err_name(result));
+            katla::make_error_code(katla::CoreErrorCode::OperationFailed), katla::format("Error during uv_run: {}", uv_strerror(result)), uv_err_name(result));
     }
 
     return outcome::success();
@@ -94,7 +94,7 @@ outcome::result<void, Error> UvEventLoop::runSingleIteration()
     auto result = uv_run(m_handle, UV_RUN_NOWAIT);
     if (result != 0) {
         return Error(
-            katla::make_error_code(katla::CoreErrorCode::OperationFailed), uv_strerror(result), uv_err_name(result));
+            katla::make_error_code(katla::CoreErrorCode::OperationFailed), katla::format("Error during uv_run: {}", uv_strerror(result)), uv_err_name(result));
     }
 
     return outcome::success();

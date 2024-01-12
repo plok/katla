@@ -88,9 +88,9 @@ outcome::result<void, Error> UvCoreApplication::init()
 
     m_asyncHandle.data = this;
     int uvError = uv_async_init(m_eventLoop.handle(), &m_asyncHandle, &UvCoreApplication::uvAsyncCallback);
-    if (!uvError) {
+    if (uvError != 0) {
         return Error(katla::make_error_code(katla::CoreErrorCode::OperationFailed),
-                         uv_strerror(uvError),
+                         katla::format("Error during uv_async_init: {} {}", uvError, uv_strerror(uvError)),
                          uv_err_name(uvError));
     }
 
@@ -271,7 +271,7 @@ outcome::result<std::shared_ptr<Future>, Error> UvCoreApplication::invokeAsync(s
     result->m_stopwatch.start();
     auto sendResult = uv_async_send(&m_asyncHandle);
     if (sendResult != 0) {
-        return Error(katla::make_error_code(katla::CoreErrorCode::OperationFailed), uv_strerror(sendResult), uv_err_name(sendResult));
+        return Error(katla::make_error_code(katla::CoreErrorCode::OperationFailed), katla::format("Error during uv_async_send: {}", uv_strerror(sendResult)), uv_err_name(sendResult));
     }
 
     return result;
