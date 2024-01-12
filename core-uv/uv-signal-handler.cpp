@@ -101,7 +101,7 @@ outcome::result<void, Error> UvSignalHandler::start(Signal signal, std::function
     auto result = uv_signal_start(m_handle, &uv_signal_handler_callback, uvSignal);
     if (result != 0) {
         return Error(
-            katla::make_error_code(katla::CoreErrorCode::OperationFailed), uv_strerror(result), uv_err_name(result));
+            katla::make_error_code(katla::CoreErrorCode::OperationFailed), katla::format("Error during uv_signal_start: {}", uv_strerror(result)), uv_err_name(result));
     }
 
     return outcome::success();
@@ -117,7 +117,7 @@ outcome::result<void, Error> UvSignalHandler::stop()
         auto result = uv_signal_stop(m_handle);
         if (result != 0) {
             return Error(katla::make_error_code(katla::CoreErrorCode::OperationFailed),
-                         uv_strerror(result),
+                         katla::format("Error during uv_signal_stop: {}", uv_strerror(result)),
                          uv_err_name(result));
         }
     }
