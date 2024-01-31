@@ -41,9 +41,7 @@ class WorkerThread {
 
     void stop();
     void join();
-
-  protected:
-    bool m_skipWaitForNextCycle {false};
+    bool isStopped();
 
   private:
     void exec(const std::function<void(void)>& repeatableWork);
