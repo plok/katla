@@ -55,14 +55,27 @@ outcome::result<void, Error> WorkerThread::init(std::function<void(void)> repeat
 
 void WorkerThread::wakeup() 
 {
-    m_wakeUp = true;
+    {
+        std::scoped_lock lock(m_mutex);
+        m_wakeUp = true;
+    }
     m_condition.notify_all(); 
 }
 
 void WorkerThread::stop()
 {
-    m_stop = true;
-    wakeup();
+    {
+        std::scoped_lock lock(m_mutex);
+        m_stop = true;
+    }
+    m_condition.notify_all();
+}
+
+bool WorkerThread::isStopped()
+{
+    std::scoped_lock lock(m_mutex);
+
+    return m_stop;
 }
 
 void WorkerThread::join()
@@ -75,9 +88,6 @@ void WorkerThread::join()
 
 void WorkerThread::exec(const std::function<void(void)>& repeatableWork)
 {
-    bool stop = false;
-    bool noWait = false;
-
     {
         // need lock otherwise m_thread is not always assigned yet
         std::unique_lock<std::mutex> lock(m_mutex);
@@ -88,26 +98,17 @@ void WorkerThread::exec(const std::function<void(void)>& repeatableWork)
         }
     }
 
-    while (!stop) {
+    while (true) {
         {
             std::unique_lock<std::mutex> lock(m_mutex);
 
-            if (!noWait) {
-                m_condition.wait_for(lock, m_interval);
-            }
-
-            if (m_stop) {
-                stop = true;
-                continue;
-            }
+            m_condition.wait_for(lock, m_interval, [this]{ return m_wakeUp || m_stop; });
+            if (m_stop) break;
 
             m_wakeUp = false;
         }
 
         std::invoke(repeatableWork);
-
-        noWait = m_skipWaitForNextCycle || m_wakeUp;
-        m_skipWaitForNextCycle = false;
     }
 }
 
