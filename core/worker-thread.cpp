@@ -19,6 +19,7 @@
 
 #include "katla/core/core.h"
 #include "katla/core/core-errors.h"
+#include "katla/core/stopwatch.h"
 
 #include <chrono>
 #include <mutex>
@@ -98,17 +99,26 @@ void WorkerThread::exec(const std::function<void(void)>& repeatableWork)
         }
     }
 
+    std::chrono::milliseconds waitTime = m_interval;
     while (true) {
+        Stopwatch stopwatch;
+        stopwatch.start();
+
         {
             std::unique_lock<std::mutex> lock(m_mutex);
 
-            m_condition.wait_for(lock, m_interval, [this]{ return m_wakeUp || m_stop; });
+            m_condition.wait_for(lock, waitTime, [this]{ return m_wakeUp || m_stop; });
             if (m_stop) break;
 
             m_wakeUp = false;
         }
 
         std::invoke(repeatableWork);
+
+        // Calculate wait time so that task is invoked at requested interval when possible.
+        // If tasks ran for longer, do not wait.
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(stopwatch.elapsed());
+        waitTime = elapsed < m_interval ? m_interval - elapsed : 0ms;
     }
 }
 
