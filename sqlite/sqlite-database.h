@@ -29,7 +29,7 @@
 namespace katla {
 
 struct SqliteTableData {
-    int nrOfColumns {};
+    size_t nrOfColumns {};
     std::vector<std::string> columnNames;
     std::vector<std::string> data;
 };
