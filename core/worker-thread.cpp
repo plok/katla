@@ -101,9 +101,6 @@ void WorkerThread::exec(const std::function<void(void)>& repeatableWork)
 
     std::chrono::milliseconds waitTime = m_interval;
     while (true) {
-        Stopwatch stopwatch;
-        stopwatch.start();
-
         {
             std::unique_lock<std::mutex> lock(m_mutex);
 
@@ -113,6 +110,8 @@ void WorkerThread::exec(const std::function<void(void)>& repeatableWork)
             m_wakeUp = false;
         }
 
+        Stopwatch stopwatch;
+        stopwatch.start();
         std::invoke(repeatableWork);
 
         // Calculate wait time so that task is invoked at requested interval when possible.
