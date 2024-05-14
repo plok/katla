@@ -52,12 +52,24 @@ namespace katla {
      */
     template <typename S, typename... Args>
     inline std::string format(const S& format_str, Args&&... args) {
-        return fmt::format(format_str, args...);
+        try {
+            return fmt::format(format_str, args...);
+        }
+        catch (...) {
+            // Gracefully handle thrown exceptions, which may occur when fewer arguments are
+            // passed than required by the format string. This helps to avoid run-time crashes,
+            // which could occur when formatting logs and errors for exceptional scenarios.
+            //
+            // This won't be needed after switching to std::format, as it will raise an error
+            // at compile time instead.
+
+            return format_str;
+        }
     }
 
     template <typename S, typename... Args>
     inline void print(std::FILE* f, const S& format_str, Args&&... args) {
-        fmt::print(f, format_str, args...);
+        fmt::print(format(format_str, args...));
     }
 
     template <typename S, typename... Args>
