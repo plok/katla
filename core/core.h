@@ -61,7 +61,7 @@ namespace katla {
             // which could occur when formatting logs and errors for exceptional scenarios.
             //
             // This won't be needed after switching to std::format, as it will raise an error
-            // at compile time instead.
+            // at compile-time instead.
 
             return format_str;
         }
@@ -69,7 +69,9 @@ namespace katla {
 
     template <typename S, typename... Args>
     inline void print(std::FILE* f, const S& format_str, Args&&... args) {
-        fmt::print(format(format_str, args...));
+        // Use print (as a means to output char[], std::string, and other string types to file)
+        // but do not use its built-in formatting on the passed format string to avoid exceptions.
+        fmt::print(f, "{}", format(format_str, args...));
     }
 
     template <typename S, typename... Args>
