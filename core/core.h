@@ -74,6 +74,15 @@ namespace katla {
         fmt::print(f, "{}", format(format_str, args...));
     }
 
+    // Wrap fmt::join to return a string. This enables passing it as an argument to katla::format
+    // and katla::print (at the cost of an extra dynamic memory allocation)
+    template <typename Range, typename S>
+    inline std::string join(Range&& range, S sep) {
+        // fmt::join returns a custom string-view like object. This, unfortunately, cannot be used
+        // to directly construct a std::string. Therefore ftm::format is used.
+        return fmt::format("{}", fmt::join(std::begin(range), std::end(range), sep));
+    }
+
     template <typename S, typename... Args>
     inline void printInfo(const S& message, Args&&... args) {
         print(stdout, fmt::format("{}\n", message), args...);
