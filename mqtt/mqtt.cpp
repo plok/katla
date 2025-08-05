@@ -34,7 +34,7 @@ Mqtt::~Mqtt() {
     }
 }
 
-outcome::result<void, Error>  Mqtt::init() {
+katla::result<void, Error>  Mqtt::init() {
     int result = mosquitto_lib_init();
     if (result != MOSQ_ERR_SUCCESS) {
         return Error(make_error_code(MqttErrorCodes::MosquittoError), katla::format("Error initializing libmosquitto: {}"));
@@ -48,7 +48,7 @@ outcome::result<void, Error>  Mqtt::init() {
     return outcome::success();
 }
 
-outcome::result<std::unique_ptr<MqttClient>, Error> Mqtt::createClient(std::string name) { // NOLINT(readability-convert-member-functions-to-static)
+katla::result<std::unique_ptr<MqttClient>, Error> Mqtt::createClient(std::string name) { // NOLINT(readability-convert-member-functions-to-static)
     auto mqttClient = std::make_unique<MqttClient>(m_logger);
 
     auto initResult = mqttClient->init(name);

@@ -40,7 +40,7 @@ PosixPipe::~PosixPipe()
     }
 }
 
-outcome::result<void> PosixPipe::open()
+katla::result<void> PosixPipe::open()
 {
     int status = pipe(_fd);
     if (status == -1) {
@@ -50,7 +50,7 @@ outcome::result<void> PosixPipe::open()
     return outcome::success();
 }
 
-outcome::result<ssize_t> PosixPipe::read(gsl::span<std::byte>& buffer)
+katla::result<ssize_t> PosixPipe::read(gsl::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::read(_fd[0], buffer.data(), buffer.size());
 
@@ -61,7 +61,7 @@ outcome::result<ssize_t> PosixPipe::read(gsl::span<std::byte>& buffer)
     return nbytes;
 }
 
-outcome::result<ssize_t> PosixPipe::write(gsl::span<std::byte>& buffer)
+katla::result<ssize_t> PosixPipe::write(gsl::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::write(_fd[1], buffer.data(), buffer.size());
 
@@ -72,7 +72,7 @@ outcome::result<ssize_t> PosixPipe::write(gsl::span<std::byte>& buffer)
     return nbytes;
 }
 
-outcome::result<void> PosixPipe::redirectToRead(int fd_src)
+katla::result<void> PosixPipe::redirectToRead(int fd_src)
 {
     int status = dup2(_fd[0], fd_src);
     if (status != fd_src) {
@@ -82,7 +82,7 @@ outcome::result<void> PosixPipe::redirectToRead(int fd_src)
     return outcome::success();
 }
 
-outcome::result<void> PosixPipe::redirectToWrite(int fd_src)
+katla::result<void> PosixPipe::redirectToWrite(int fd_src)
 {
     int status = dup2(_fd[1], fd_src);
     if (status != fd_src) {
@@ -92,7 +92,7 @@ outcome::result<void> PosixPipe::redirectToWrite(int fd_src)
     return outcome::success();
 }
 
-outcome::result<void> PosixPipe::close()
+katla::result<void> PosixPipe::close()
 {
     auto result1 = closeRead();
     auto result2 = closeWrite();
@@ -108,7 +108,7 @@ outcome::result<void> PosixPipe::close()
     return outcome::success();
 }
 
-outcome::result<void> PosixPipe::closeRead()
+katla::result<void> PosixPipe::closeRead()
 {
     if (_fd[0] == -1) {
         return outcome::success();
@@ -124,7 +124,7 @@ outcome::result<void> PosixPipe::closeRead()
     return outcome::success();
 }
 
-outcome::result<void> PosixPipe::closeWrite()
+katla::result<void> PosixPipe::closeWrite()
 {
     if (_fd[1] == -1) {
         return outcome::success();

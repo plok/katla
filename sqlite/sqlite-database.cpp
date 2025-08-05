@@ -33,12 +33,12 @@ SqliteDatabase::SqliteDatabase() {
 SqliteDatabase::~SqliteDatabase() {
 }
 
-outcome::result<void, Error> SqliteDatabase::init()
+katla::result<void, Error> SqliteDatabase::init()
 {
     return outcome::success();
 }
 
-outcome::result<void, Error> SqliteDatabase::create(std::string path)
+katla::result<void, Error> SqliteDatabase::create(std::string path)
 {
     if (std::filesystem::exists(path)) {
         return Error(katla::make_error_code(katla::SqliteErrorCodes::DatabaseAlreadyExists), katla::format("Database exists at: {}", path));
@@ -64,7 +64,7 @@ outcome::result<void, Error> SqliteDatabase::create(std::string path)
     return outcome::success();
 }
 
-outcome::result<void, Error> SqliteDatabase::open()
+katla::result<void, Error> SqliteDatabase::open()
 {
     if (!std::filesystem::exists(m_path)) {
         return Error(katla::make_error_code(katla::SqliteErrorCodes::DatabaseNotFound), katla::format("Database not found at: {}", m_path));
@@ -85,7 +85,7 @@ outcome::result<void, Error> SqliteDatabase::open()
     return outcome::success();
 }
 
-outcome::result<void, Error> SqliteDatabase::close()
+katla::result<void, Error> SqliteDatabase::close()
 {
     if (m_handle == nullptr) {
         return Error(katla::make_error_code(katla::SqliteErrorCodes::DatabaseNotOpened), katla::format("Database not opened"));;
@@ -122,7 +122,7 @@ int callbackFunc(void* user, int nrOfColumns, char** data, char** columnNames) {
     return 0;
 }
 
-outcome::result<SqliteQueryResult, Error> SqliteDatabase::exec(std::string sql)
+katla::result<SqliteQueryResult, Error> SqliteDatabase::exec(std::string sql)
 {
     if (m_handle == nullptr) {
         return Error(katla::make_error_code(katla::SqliteErrorCodes::DatabaseNotOpened), katla::format("Database not opened"));;
@@ -147,7 +147,7 @@ outcome::result<SqliteQueryResult, Error> SqliteDatabase::exec(std::string sql)
     return queryResult;
 }
 
-outcome::result<SqliteQueryResult, Error> SqliteDatabase::insert(std::string table, gsl::span<std::pair<std::string, std::string>> values)
+katla::result<SqliteQueryResult, Error> SqliteDatabase::insert(std::string table, gsl::span<std::pair<std::string, std::string>> values)
 {
     if (m_handle == nullptr) {
         return Error(katla::make_error_code(katla::SqliteErrorCodes::DatabaseNotOpened), katla::format("Database not opened"));;

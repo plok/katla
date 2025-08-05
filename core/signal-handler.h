@@ -38,9 +38,9 @@ class SignalHandler {
 public:
     virtual ~SignalHandler() = default;
 
-    virtual outcome::result<void, Error> init() = 0;
-    virtual outcome::result<void, Error> start(Signal signal, std::function<void()> callback) = 0;
-    virtual outcome::result<void, Error> stop() = 0;
+    virtual katla::result<void, Error> init() = 0;
+    virtual katla::result<void, Error> start(Signal signal, std::function<void()> callback) = 0;
+    virtual katla::result<void, Error> stop() = 0;
 };
 
 }

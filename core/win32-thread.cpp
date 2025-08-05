@@ -23,7 +23,7 @@
 
 namespace katla {
 
-outcome::result<void, Error> Win32Thread::setPriority(std::thread& thread, Thread::Priority priority)
+katla::result<void, Error> Win32Thread::setPriority(std::thread& thread, Thread::Priority priority)
 {
     // Set the priority
     HANDLE win32Thread = GetCurrentThread();

@@ -75,7 +75,7 @@ PosixSocket::~PosixSocket()
     }
 }
 
-outcome::result<std::array<std::shared_ptr<PosixSocket>,2>, Error> PosixSocket::createUnnamedPair(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking)
+katla::result<std::array<std::shared_ptr<PosixSocket>,2>, Error> PosixSocket::createUnnamedPair(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking)
 {
     PosixErrorCategory errorCategory;
 
@@ -150,7 +150,7 @@ int PosixSocket::mapType(Type type) {
     return -1;
 }
 
-outcome::result<void, Error> PosixSocket::bind(std::string url)
+katla::result<void, Error> PosixSocket::bind(std::string url)
 {
     if (_protocolDomain == ProtocolDomain::Packet && _type == Type::Raw) {
         auto result = create();
@@ -219,7 +219,7 @@ outcome::result<void, Error> PosixSocket::bind(std::string url)
     return make_error_code(PosixErrorCodes::OperationNotSupported);
 }
 
-outcome::result<void, Error> PosixSocket::bindIPv4(std::string ip, int port, SocketOptions options)
+katla::result<void, Error> PosixSocket::bindIPv4(std::string ip, int port, SocketOptions options)
 {
     if (_protocolDomain == ProtocolDomain::IPv4 && _type == Type::Stream) {
         auto result = create();
@@ -260,7 +260,7 @@ outcome::result<void, Error> PosixSocket::bindIPv4(std::string ip, int port, Soc
     return make_error_code(PosixErrorCodes::OperationNotSupported);
 }
 
-outcome::result<void, Error> PosixSocket::listen()
+katla::result<void, Error> PosixSocket::listen()
 {
     if (_type != Type::Stream && _type != Type::SequencedPacket) {
         return make_error_code(PosixErrorCodes::OperationNotSupported);
@@ -276,7 +276,7 @@ outcome::result<void, Error> PosixSocket::listen()
     return outcome::success();
 }
 
-outcome::result<std::unique_ptr<PosixSocket>, Error> PosixSocket::accept()
+katla::result<std::unique_ptr<PosixSocket>, Error> PosixSocket::accept()
 {
     if (_type != Type::Stream && _type != Type::SequencedPacket) {
         return make_error_code(PosixErrorCodes::OperationNotSupported);
@@ -324,7 +324,7 @@ std::optional<Error> PosixSocket::error()
     return {};
 }
 
-outcome::result<void, Error> PosixSocket::connect(std::string url, SocketOptions options)
+katla::result<void, Error> PosixSocket::connect(std::string url, SocketOptions options)
 {
     if (_protocolDomain == ProtocolDomain::Unix) {
         auto result = create();
@@ -355,7 +355,7 @@ outcome::result<void, Error> PosixSocket::connect(std::string url, SocketOptions
     return make_error_code(PosixErrorCodes::OperationNotSupported);
 }
 
-outcome::result<void, Error> PosixSocket::connectIPv4(std::string ip, int port, SocketOptions options)
+katla::result<void, Error> PosixSocket::connectIPv4(std::string ip, int port, SocketOptions options)
 {
     if (_protocolDomain == ProtocolDomain::IPv4) {
         auto result = create();
@@ -390,7 +390,7 @@ outcome::result<void, Error> PosixSocket::connectIPv4(std::string ip, int port, 
 }
 
 
-outcome::result<PosixSocket::WaitResult, Error> PosixSocket::poll(std::chrono::milliseconds timeout, bool writePending)
+katla::result<PosixSocket::WaitResult, Error> PosixSocket::poll(std::chrono::milliseconds timeout, bool writePending)
 {
     pollfd pollDescriptor[2] = {{
         _fd,
@@ -440,12 +440,12 @@ outcome::result<PosixSocket::WaitResult, Error> PosixSocket::poll(std::chrono::m
     return waitResult;
 }
 
-outcome::result<ssize_t, Error> PosixSocket::read(const gsl::span<std::byte>& buffer)
+katla::result<ssize_t, Error> PosixSocket::read(const gsl::span<std::byte>& buffer)
 {
     return receiveFrom(buffer);
 }
 
-outcome::result<ssize_t, Error> PosixSocket::receiveFrom(const gsl::span<std::byte>& buffer)
+katla::result<ssize_t, Error> PosixSocket::receiveFrom(const gsl::span<std::byte>& buffer)
 {
     int flags = 0;
     if (_nonBlocking) {
@@ -467,7 +467,7 @@ outcome::result<ssize_t, Error> PosixSocket::receiveFrom(const gsl::span<std::by
     return nbytes;
 }
 
-outcome::result<ssize_t, Error> PosixSocket::write(const gsl::span<std::byte>& buffer)
+katla::result<ssize_t, Error> PosixSocket::write(const gsl::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::write(_fd, buffer.data(), buffer.size());
 
@@ -480,7 +480,7 @@ outcome::result<ssize_t, Error> PosixSocket::write(const gsl::span<std::byte>& b
     return nbytes;
 }
 
-outcome::result<ssize_t, Error> PosixSocket::sendTo(std::string url, const gsl::span<std::byte>& buffer)
+katla::result<ssize_t, Error> PosixSocket::sendTo(std::string url, const gsl::span<std::byte>& buffer)
 {
     if (_protocolDomain == ProtocolDomain::Packet && _type == Type::Raw) {
         auto nameToIndexResult = if_nametoindex(url.c_str());
@@ -512,7 +512,7 @@ outcome::result<ssize_t, Error> PosixSocket::sendTo(std::string url, const gsl::
     return make_error_code(PosixErrorCodes::OperationNotSupported);
 }
 
-outcome::result<void, Error> PosixSocket::wakeup()
+katla::result<void, Error> PosixSocket::wakeup()
 {
     uint64_t counter = 1;
     int status = ::write(_wakeupFd, reinterpret_cast<void*>(&counter), sizeof(counter));
@@ -525,7 +525,7 @@ outcome::result<void, Error> PosixSocket::wakeup()
     return outcome::success();
 }
 
-outcome::result<void, Error> PosixSocket::close()
+katla::result<void, Error> PosixSocket::close()
 {
     if (_fd == -1) {
         return outcome::success();
@@ -543,7 +543,7 @@ outcome::result<void, Error> PosixSocket::close()
     return outcome::success();
 }
 
-outcome::result<void, Error> PosixSocket::create()
+katla::result<void, Error> PosixSocket::create()
 {
     int domain = mapProtocolDomain(_protocolDomain);
     if (domain == -1) {

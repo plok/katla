@@ -48,16 +48,16 @@ namespace katla {
         PosixFile();
         ~PosixFile();
 
-        outcome::result<void> create(std::string_view filePath, OpenFlags flags);
-        outcome::result<void> open(std::string_view filePath, OpenFlags flags);
-        outcome::result<void> close();
+        katla::result<void> create(std::string_view filePath, OpenFlags flags);
+        katla::result<void> open(std::string_view filePath, OpenFlags flags);
+        katla::result<void> close();
 
-        outcome::result<ssize_t> read(gsl::span<std::byte> &buffer);
-        outcome::result<ssize_t> write(gsl::span<std::byte> &buffer);
+        katla::result<ssize_t> read(gsl::span<std::byte> &buffer);
+        katla::result<ssize_t> write(gsl::span<std::byte> &buffer);
 
-        static outcome::result<std::string> absolutePath(std::string path);
+        static katla::result<std::string> absolutePath(std::string path);
 
-        outcome::result<size_t> size();
+        katla::result<size_t> size();
 
         [[nodiscard]] int fd() const {return m_fd;}
 

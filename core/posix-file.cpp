@@ -36,7 +36,7 @@ PosixFile::~PosixFile()
     }
 }
 
-outcome::result<void> PosixFile::create(std::string_view pathPath, PosixFile::OpenFlags flags)
+katla::result<void> PosixFile::create(std::string_view pathPath, PosixFile::OpenFlags flags)
 {
     m_fd = ::open(std::string(pathPath).c_str(), gsl::narrow_cast<uint>(flags) | gsl::narrow_cast<uint>(O_CLOEXEC), 0644);
     if (m_fd == -1) {
@@ -46,7 +46,7 @@ outcome::result<void> PosixFile::create(std::string_view pathPath, PosixFile::Op
     return outcome::success();
 }
 
-outcome::result<void> PosixFile::open(std::string_view pathPath, PosixFile::OpenFlags flags)
+katla::result<void> PosixFile::open(std::string_view pathPath, PosixFile::OpenFlags flags)
 {
     m_fd = ::open(std::string(pathPath).c_str(), static_cast<int>(flags), 0644);
     if (m_fd == -1) {
@@ -56,7 +56,7 @@ outcome::result<void> PosixFile::open(std::string_view pathPath, PosixFile::Open
     return outcome::success();
 }
 
-outcome::result<void> PosixFile::close()
+katla::result<void> PosixFile::close()
 {
     if (m_fd == -1) {
         return outcome::success();
@@ -72,7 +72,7 @@ outcome::result<void> PosixFile::close()
     return outcome::success();
 }
 
-outcome::result<ssize_t> PosixFile::read(gsl::span<std::byte>& buffer)
+katla::result<ssize_t> PosixFile::read(gsl::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::read(m_fd, buffer.data(), buffer.size());
 
@@ -83,7 +83,7 @@ outcome::result<ssize_t> PosixFile::read(gsl::span<std::byte>& buffer)
     return nbytes;
 }
 
-outcome::result<ssize_t> PosixFile::write(gsl::span<std::byte>& buffer)
+katla::result<ssize_t> PosixFile::write(gsl::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::write(m_fd, buffer.data(), buffer.size());
 
@@ -94,7 +94,7 @@ outcome::result<ssize_t> PosixFile::write(gsl::span<std::byte>& buffer)
     return nbytes;
 }
 
-outcome::result<std::string> PosixFile::absolutePath(std::string path) {
+katla::result<std::string> PosixFile::absolutePath(std::string path) {
     char actualpath [PATH_MAX+1];
     auto cstrPtr = realpath(path.c_str(), actualpath);
     if (cstrPtr == nullptr) {
@@ -105,7 +105,7 @@ outcome::result<std::string> PosixFile::absolutePath(std::string path) {
 }
 
 
-outcome::result<size_t> PosixFile::size()
+katla::result<size_t> PosixFile::size()
 {
     struct stat fileInfo;
     int result = fstat(m_fd, &fileInfo);

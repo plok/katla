@@ -31,7 +31,7 @@ UvTimer::~UvTimer() {
     assert(!m_handle); // should be destroyed before destruction because it needs event-loop
 }
 
-outcome::result<void, Error> UvTimer::init()
+katla::result<void, Error> UvTimer::init()
 {
     if (m_handle) {
         return Error(katla::make_error_code(katla::CoreErrorCode::AlreadyInitialized));
@@ -49,7 +49,7 @@ outcome::result<void, Error> UvTimer::init()
     return outcome::success();
 }
 
-outcome::result<void, Error> UvTimer::close()
+katla::result<void, Error> UvTimer::close()
 {
     if (!m_handle) {
         return outcome::success();
@@ -62,7 +62,7 @@ outcome::result<void, Error> UvTimer::close()
     return outcome::success();
 }
 
-outcome::result<void, Error> UvTimer::start(std::chrono::milliseconds msec, std::function<void()> function)
+katla::result<void, Error> UvTimer::start(std::chrono::milliseconds msec, std::function<void()> function)
 {
     if (!m_handle) {
         return Error(katla::make_error_code(katla::CoreErrorCode::NotInitialized));
@@ -83,7 +83,7 @@ outcome::result<void, Error> UvTimer::start(std::chrono::milliseconds msec, std:
     return outcome::success();
 }
 
-outcome::result<void, Error> UvTimer::stop()
+katla::result<void, Error> UvTimer::stop()
 {
     if (!m_handle) {
         return outcome::success();

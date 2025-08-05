@@ -151,7 +151,7 @@ namespace katla {
         ASSERT_TRUE(result) << result.error().message();
     }
 
-    outcome::result<std::string> createTemporaryDir() {
+    katla::result<std::string> createTemporaryDir() {
         std::string dirTemplate = "/tmp/katla-test-XXXXXX";
         if (mkdtemp(dirTemplate.data()) == NULL) {
             return std::make_error_code(static_cast<std::errc>(errno));

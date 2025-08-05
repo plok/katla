@@ -37,7 +37,7 @@ UvPosixProcess::~UvPosixProcess() {
     }
 }
 
-outcome::result<void, Error> UvPosixProcess::spawn(const std::string& path, const std::vector<std::string>& arguments, const std::string& workingDir, const SpawnOptions& options)
+katla::result<void, Error> UvPosixProcess::spawn(const std::string& path, const std::vector<std::string>& arguments, const std::string& workingDir, const SpawnOptions& options)
 {
     m_status = Status::Starting;
 
@@ -116,7 +116,7 @@ outcome::result<void, Error> UvPosixProcess::spawn(const std::string& path, cons
     return outcome::success();
 }
 
-outcome::result<void, Error> UvPosixProcess::kill(Signal signal)
+katla::result<void, Error> UvPosixProcess::kill(Signal signal)
 {
     if (!m_pid.has_value()) {
         return Error(make_error_code(katla::PosixErrorCodes::Invalid), "No process active!");
@@ -145,7 +145,7 @@ outcome::result<void, Error> UvPosixProcess::kill(Signal signal)
 }
 
 // status needs to be called by parent after stopping process
-outcome::result<UvPosixProcess::Status, Error> UvPosixProcess::status()
+katla::result<UvPosixProcess::Status, Error> UvPosixProcess::status()
 {
     if (!m_pid.has_value()) {
         return Error(make_error_code(katla::PosixErrorCodes::Invalid), "No process active!");

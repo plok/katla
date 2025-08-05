@@ -46,12 +46,12 @@ public:
         bool redirectStdout {false};
     };
 
-    outcome::result<void, Error> spawn(const std::string& path, const std::vector<std::string>& arguments, const std::string& workingDir, const SpawnOptions& options);
-    outcome::result<void, Error> kill(Signal signal);
+    katla::result<void, Error> spawn(const std::string& path, const std::vector<std::string>& arguments, const std::string& workingDir, const SpawnOptions& options);
+    katla::result<void, Error> kill(Signal signal);
 
-    outcome::result<Status, Error> status();
+    katla::result<Status, Error> status();
 
-    outcome::result<ssize_t> readStdout(gsl::span<std::byte>& buffer) {
+    katla::result<ssize_t> readStdout(gsl::span<std::byte>& buffer) {
         return m_fdStdout.read(buffer);
     }
 

@@ -40,7 +40,7 @@ MqttClient::~MqttClient()
     }
 }
 
-outcome::result<void, Error> MqttClient::init(const std::string& clientName)
+katla::result<void, Error> MqttClient::init(const std::string& clientName)
 {
     if (m_client) {
         return Error(make_error_code(MqttErrorCodes::MosquittoError), katla::format("Already initialized!"));
@@ -83,7 +83,7 @@ outcome::result<void, Error> MqttClient::init(const std::string& clientName)
     return outcome::success();
 }
 
-outcome::result<void, Error> MqttClient::connect(const std::string& host, int port, int keepAliveSeconds)
+katla::result<void, Error> MqttClient::connect(const std::string& host, int port, int keepAliveSeconds)
 {
     int connectResult = mosquitto_connect_async(m_client, host.c_str(), port, keepAliveSeconds);
     if (connectResult != MOSQ_ERR_SUCCESS) {
@@ -107,7 +107,7 @@ outcome::result<void, Error> MqttClient::connect(const std::string& host, int po
     return outcome::success();
 }
 
-outcome::result<void, Error> MqttClient::disconnect()
+katla::result<void, Error> MqttClient::disconnect()
 {
     int result = mosquitto_disconnect(m_client);
     if (result != MOSQ_ERR_SUCCESS) {
@@ -193,7 +193,7 @@ void MqttClient::handleMessage(const struct mosquitto_message* mosqMessage) {
     }
 }
 
-outcome::result<void, Error>
+katla::result<void, Error>
 MqttClient::publish(std::string topic, gsl::span<std::byte> payload, MqttQos qos, bool retain)
 {
     int messageId = {};
@@ -206,7 +206,7 @@ MqttClient::publish(std::string topic, gsl::span<std::byte> payload, MqttQos qos
     return outcome::success();
 }
 
-outcome::result<std::unique_ptr<katla::Subscription>, Error> MqttClient::subscribe(std::string subPattern, MqttQos qos, const std::function<void(const MqttMessage& message)>& callback)
+katla::result<std::unique_ptr<katla::Subscription>, Error> MqttClient::subscribe(std::string subPattern, MqttQos qos, const std::function<void(const MqttMessage& message)>& callback)
 {
     int messageId = {};
     int result = mosquitto_subscribe(m_client, &messageId, subPattern.c_str(), static_cast<int>(qos));

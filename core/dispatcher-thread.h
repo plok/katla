@@ -40,9 +40,9 @@ class DispatcherThread {
     DispatcherThread(std::string name, katla::Thread::Priority priority);
     virtual ~DispatcherThread();
 
-    outcome::result<void, Error> init(std::chrono::milliseconds interval);
+    katla::result<void, Error> init(std::chrono::milliseconds interval);
 
-    static outcome::result<std::reference_wrapper<DispatcherThread>, katla::Error> getDefault()
+    static katla::result<std::reference_wrapper<DispatcherThread>, katla::Error> getDefault()
     {
         DispatcherThread* instance = m_instance.load(std::memory_order_consume);
         if (!instance) {

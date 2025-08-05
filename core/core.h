@@ -29,7 +29,7 @@ using namespace tl;
 
 #include <cstdio>
 #include <cstdlib>
-#include <string_view>
+#include <string>
 
 #ifdef _MSC_VER
     #ifdef KATLA_CORE_INDLL
@@ -45,6 +45,9 @@ namespace katla {
 
     template<class T, std::size_t Extent>
     using span = gsl::span<T, Extent>;
+
+    template<class R, class S = std::error_code>
+    using result = outcome::result<R, S>;
 
     /****
      * Declare format and print here for convenience. Current implementation uses the Fmt lib,

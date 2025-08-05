@@ -62,7 +62,7 @@ bool UvCoreApplication::hasInstance()
     return (p != nullptr);
 }
 
-outcome::result<void, Error> UvCoreApplication::init()
+katla::result<void, Error> UvCoreApplication::init()
 {
     auto error = m_eventLoop.init();
     if (!error) {
@@ -129,9 +129,9 @@ outcome::result<void, Error> UvCoreApplication::init()
     return outcome::success();
 }
 
-outcome::result<void, Error> UvCoreApplication::run() { return m_eventLoop.run(); }
+katla::result<void, Error> UvCoreApplication::run() { return m_eventLoop.run(); }
 
-outcome::result<void, Error> UvCoreApplication::stop()
+katla::result<void, Error> UvCoreApplication::stop()
 {
     auto result = m_interruptSignalHandler.stop();
     if (!result) {
@@ -167,7 +167,7 @@ outcome::result<void, Error> UvCoreApplication::stop()
     return outcome::success();
 }
 
-outcome::result<void, Error> UvCoreApplication::close()
+katla::result<void, Error> UvCoreApplication::close()
 {
     auto result = m_interruptSignalHandler.close();
     if (!result) {
@@ -217,7 +217,7 @@ void UvCoreApplication::uv_close_callback(uv_handle_t* handle)
     assert(handle->data); // event-loop should close handle before destruction
 }
 
-outcome::result<std::unique_ptr<Timer>, Error> UvCoreApplication::createTimer()
+katla::result<std::unique_ptr<Timer>, Error> UvCoreApplication::createTimer()
 {
     auto timer = std::make_unique<UvTimer>(m_eventLoop);
 
@@ -258,7 +258,7 @@ void UvCoreApplication::uvAsyncCallback(uv_async_t* handle)
     }
 };
 
-outcome::result<std::shared_ptr<Future>, Error> UvCoreApplication::invokeAsync(std::function<void()> callback)
+katla::result<std::shared_ptr<Future>, Error> UvCoreApplication::invokeAsync(std::function<void()> callback)
 {
     auto result = std::make_shared<UvFuture>(this, callback);
 

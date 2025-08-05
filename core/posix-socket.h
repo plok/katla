@@ -33,8 +33,6 @@
 #include <chrono>
 #include <string>
 
-namespace outcome = OUTCOME_V2_NAMESPACE;
-
 namespace katla {
 
 class PosixSocket {
@@ -69,32 +67,32 @@ public:
     PosixSocket(const PosixSocket&) = delete;
     ~PosixSocket();
 
-    static outcome::result<std::array<std::shared_ptr<PosixSocket>, 2>, Error> createUnnamedPair(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking);
+    static katla::result<std::array<std::shared_ptr<PosixSocket>, 2>, Error> createUnnamedPair(ProtocolDomain protocolDomain, Type type, FrameType frameType, bool nonBlocking);
 
-    outcome::result<void, Error> bind(std::string url);
-    outcome::result<void, Error> bindIPv4(std::string ip, int port, SocketOptions options = IPv4SocketOptions);
+    katla::result<void, Error> bind(std::string url);
+    katla::result<void, Error> bindIPv4(std::string ip, int port, SocketOptions options = IPv4SocketOptions);
 
-    outcome::result<void, Error> listen();
-    outcome::result<std::unique_ptr<PosixSocket>, Error> accept();
+    katla::result<void, Error> listen();
+    katla::result<std::unique_ptr<PosixSocket>, Error> accept();
     std::optional<Error> error();
 
-    outcome::result<void, Error> connect(std::string url, SocketOptions options);
-    outcome::result<void, Error> connectIPv4(std::string ip, int port, SocketOptions options = IPv4SocketOptions);
+    katla::result<void, Error> connect(std::string url, SocketOptions options);
+    katla::result<void, Error> connectIPv4(std::string ip, int port, SocketOptions options = IPv4SocketOptions);
 
     // TODO add wakeup to interrupt wait -> multithreading??
-    outcome::result<WaitResult, Error> poll(std::chrono::milliseconds timeout, bool writePending = false);
+    katla::result<WaitResult, Error> poll(std::chrono::milliseconds timeout, bool writePending = false);
 
-    outcome::result<ssize_t, Error> read(const gsl::span<std::byte>& buffer);
-    outcome::result<ssize_t, Error> write(const gsl::span<std::byte>& buffer);
+    katla::result<ssize_t, Error> read(const gsl::span<std::byte>& buffer);
+    katla::result<ssize_t, Error> write(const gsl::span<std::byte>& buffer);
 
-    outcome::result<ssize_t, Error> receiveFrom(const gsl::span<std::byte>& buffer);
-    outcome::result<ssize_t, Error> sendTo(std::string url, const gsl::span<std::byte>& buffer);
+    katla::result<ssize_t, Error> receiveFrom(const gsl::span<std::byte>& buffer);
+    katla::result<ssize_t, Error> sendTo(std::string url, const gsl::span<std::byte>& buffer);
 
-    outcome::result<void, Error> wakeup();
+    katla::result<void, Error> wakeup();
 
-    outcome::result<void, Error> close();
+    katla::result<void, Error> close();
 private:
-    outcome::result<void, Error> create();
+    katla::result<void, Error> create();
 
     PosixSocket & operator=(const PosixSocket&) = delete;
 

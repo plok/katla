@@ -32,11 +32,11 @@ public:
     UvSignalHandler(UvEventLoop& eventLoop);
     virtual ~UvSignalHandler();
 
-    outcome::result<void, Error> init();
-    outcome::result<void, Error> close();
+    katla::result<void, Error> init();
+    katla::result<void, Error> close();
 
-    outcome::result<void, Error> start(Signal signal, std::function<void()> callback);
-    outcome::result<void, Error> stop();
+    katla::result<void, Error> start(Signal signal, std::function<void()> callback);
+    katla::result<void, Error> stop();
 
 private:
     static void uv_signal_handler_callback(uv_signal_t* handle, int signum);
