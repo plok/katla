@@ -19,7 +19,6 @@
 
 #include "gtest/gtest.h"
 
-#include <fmt/format.h>
 #include <variant>
 #include <chrono>
 
@@ -31,7 +30,6 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <exception>
-#include <fmt/format.h>
 #include <variant>
 #include <chrono>
 
@@ -42,7 +40,7 @@ namespace katla {
     std::string helloWorld = "Hello World!";
 
     void testChild(PosixSocket &socket) {
-        fmt::print("child: Starting..\n");
+        katla::print("child: Starting..\n");
 
         katla::span<std::byte> messageSpan(reinterpret_cast<std::byte *>(helloWorld.data()), helloWorld.size());
 
@@ -54,25 +52,25 @@ namespace katla {
         std::function<void(katla::span<std::byte>)> sendFunc = [&socket](katla::span<std::byte> frame) {
             auto result = socket.write(frame);
             if (result) {
-                fmt::print("written bytes {}\n", result.value());
+                katla::print("written bytes {}\n", result.value());
 
                 if (result.value() != static_cast<ssize_t>(frame.size())) {
-                    fmt::print("warning: incomplete write!\n", result.value());
+                    katla::print("warning: incomplete write!\n", result.value());
                 }
             } else {
-                fmt::print("failed writing to pipe: {}\n", result.error().message());
+                katla::print("failed writing to pipe: {}\n", result.error().message());
             }
         };
 
-        fmt::print("send!\n");
+        katla::print("send!\n");
 
         sendFunc(sendSpan);
 
-        fmt::print("child: closed..\n");
+        katla::print("child: closed..\n");
     }
 
     void testParent(PosixSocket &socket) {
-        fmt::print("parent: starting..\n");
+        katla::print("parent: starting..\n");
 
         const int BUFFER_SIZE = 100;
         std::vector<std::byte> buffer(BUFFER_SIZE, std::byte{0});
@@ -89,13 +87,13 @@ namespace katla {
             katla::span<std::byte> bufferSpan(buffer.data(), buffer.size());
             auto result = socket.read(bufferSpan);
             if (!result) {
-                fmt::print(stderr, "server: failed reading from pipe with error: {0}!\n", strerror(errno));
+                katla::print(stderr, "server: failed reading from pipe with error: {0}!\n", strerror(errno));
             }
 
             katla::span<std::byte> readSpan(buffer.data(), result.value());
 
             if (readSpan.size() == helloWorld.length()) {
-                fmt::print("Frame received!\n");
+                katla::print("Frame received!\n");
                 GTEST_SUCCEED();
                 done = true;
                 break;
@@ -105,7 +103,7 @@ namespace katla {
             ASSERT_EQ(timeoutElapsed, false); //timeout
         }
 
-        fmt::print("parent: closed...\n");
+        katla::print("parent: closed...\n");
     }
 
 /***
@@ -161,10 +159,10 @@ namespace katla {
         auto tmpDir = createTemporaryDir();
         ASSERT_TRUE(tmpDir) << tmpDir.error().message();
 
-        fmt::print("{}\n", tmpDir.value());
+        katla::print("{}\n", tmpDir.value());
         fflush(stdout);
 
-        auto url = fmt::format("{}/test.sock", tmpDir.value());
+        auto url = katla::format("{}/test.sock", tmpDir.value());
 
         auto forkResult = fork();
         if (forkResult == -1) {
@@ -201,10 +199,10 @@ namespace katla {
         auto tmpDir = createTemporaryDir();
         ASSERT_TRUE(tmpDir) << tmpDir.error().message();
 
-        fmt::print("{}\n", tmpDir.value());
+        katla::print("{}\n", tmpDir.value());
         fflush(stdout);
 
-        auto url = fmt::format("{}/test.sock", tmpDir.value());
+        auto url = katla::format("{}/test.sock", tmpDir.value());
 
         PosixSocket socket(PosixSocket::ProtocolDomain::Unix, PosixSocket::Type::Datagram, PosixSocket::FrameType::All, false);
         

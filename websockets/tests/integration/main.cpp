@@ -1,6 +1,4 @@
 #include "cxxopts.hpp"
-#include "fmt/core.h"
-#include "fmt/format.h"
 #include "katla/core-uv/uv-core-application.h"
 #include "katla/core/core.h"
 #include "katla/core/posix-socket.h"
@@ -54,7 +52,7 @@ void handleCommands(std::string command)
         return;
     }
 
-    fmt::print(stderr, "unrecognized command: {}!", command);
+    katla::print(stderr, "unrecognized command: {}!", command);
 }
 
 int main(int argc, char* argv[])

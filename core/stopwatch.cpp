@@ -1,8 +1,6 @@
 #include "stopwatch.h"
 #include <chrono>
 
-#include "fmt/format.h"
-
 #include <assert.h>
 
 namespace katla

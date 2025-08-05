@@ -79,7 +79,7 @@ katla::result<void, Error> UvPosixProcess::spawn(const std::string& path, const 
         if (!workingDir.empty() && workingDir != "./") {
             int chdirResult = chdir(workingDir.c_str());
             if (chdirResult != 0) {
-                katla::printError(fmt::format("Error setting working directory: {}'", strerror(errno)));
+                katla::printError(katla::format("Error setting working directory: {}'", strerror(errno)));
                 exit(EXIT_FAILURE);
             }
         }
@@ -92,7 +92,7 @@ katla::result<void, Error> UvPosixProcess::spawn(const std::string& path, const 
         args.push_back(nullptr);
 
         if (execv(path.c_str(), args.data()) != 0) {
-            katla::printError(fmt::format(fmt::format("Error starting child process: {}'", strerror(errno))));
+            katla::printError("Error starting child process: {}'", strerror(errno));
             exit(EXIT_FAILURE);
         }
 

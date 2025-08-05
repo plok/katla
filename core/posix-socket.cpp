@@ -16,8 +16,6 @@
 
 #include "posix-socket.h"
 
-#include "fmt/format.h"
-
 #include <asm-generic/errno.h>
 #include <sys/poll.h>
 #include <vector>

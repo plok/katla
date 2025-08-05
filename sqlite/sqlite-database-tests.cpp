@@ -106,18 +106,18 @@ TEST(KatlaSqliteDatabaseTests, QueryTable) {
     }
 
     for(auto& col : result.value().queryResult->columnNames) {
-        fmt::print("{:<10} ", col);
+        katla::print("{:<10} ", col);
     }
-    fmt::print("\n");
+    katla::print("\n");
 
     auto& data = result.value().queryResult->data;
     auto nrOfColumns = result.value().queryResult->nrOfColumns;
 
     for(int r=0; r<data.size(); r+= nrOfColumns) {
         for(int c=0; c<nrOfColumns; c++) {
-            fmt::print("{:<10} ", data[r+c]);
+            katla::print("{:<10} ", data[r+c]);
         }
-        fmt::print("\n");
+        katla::print("\n");
     }
 
     [[maybe_unused]] auto _1 = sqliteDatabase.close();

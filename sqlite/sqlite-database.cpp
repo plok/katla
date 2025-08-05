@@ -20,8 +20,6 @@
 
 #include "sqlite3.h"
 
-#include "fmt/core.h"
-
 #include <filesystem>
 #include <algorithm>
 
@@ -164,8 +162,8 @@ katla::result<SqliteQueryResult, Error> SqliteDatabase::insert(std::string table
         valueTemplates.push_back(katla::format("?{:0>#3}", i+1));
     }
 
-    auto sqlColumns = fmt::format("({})", fmt::join(columns, ", "));
-    auto sqlValueTemplates = fmt::format("({})", fmt::join(valueTemplates, ", "));
+    auto sqlColumns = katla::format("({})", katla::join(columns, ", "));
+    auto sqlValueTemplates = katla::format("({})", katla::join(valueTemplates, ", "));
 
     auto queryTemplate = katla::format("INSERT INTO {} {} VALUES {};", table, sqlColumns, sqlValueTemplates);
 
