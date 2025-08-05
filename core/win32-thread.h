@@ -22,8 +22,6 @@
 
 #include "katla/core/thread.h"
 
-#include <gsl/span>
-
 #include <optional>
 #include <thread>
 

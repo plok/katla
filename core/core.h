@@ -43,7 +43,7 @@ using namespace tl;
 
 namespace katla {
 
-    template<class T, std::size_t Extent>
+    template<class T, std::size_t Extent = gsl::dynamic_extent>
     using span = gsl::span<T, Extent>;
 
     template<class R, class S = std::error_code>

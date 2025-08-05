@@ -147,7 +147,7 @@ katla::result<SqliteQueryResult, Error> SqliteDatabase::exec(std::string sql)
     return queryResult;
 }
 
-katla::result<SqliteQueryResult, Error> SqliteDatabase::insert(std::string table, gsl::span<std::pair<std::string, std::string>> values)
+katla::result<SqliteQueryResult, Error> SqliteDatabase::insert(std::string table, katla::span<std::pair<std::string, std::string>> values)
 {
     if (m_handle == nullptr) {
         return Error(katla::make_error_code(katla::SqliteErrorCodes::DatabaseNotOpened), katla::format("Database not opened"));;

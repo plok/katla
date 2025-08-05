@@ -15,7 +15,6 @@
  */
 #include "mqtt-client.h"
 
-#include "katla/core/core.h"
 #include "katla/mqtt/mqtt-errors.h"
 
 #include <memory>
@@ -176,7 +175,7 @@ void MqttClient::handleMessage(const struct mosquitto_message* mosqMessage) {
     MqttMessage message;
     message.messageId = mosqMessage->mid;
     message.topic = mosqMessage->topic;
-    message.payload = gsl::span<std::byte>(reinterpret_cast<std::byte*>(mosqMessage->payload), mosqMessage->payloadlen);
+    message.payload = katla::span<std::byte>(reinterpret_cast<std::byte*>(mosqMessage->payload), mosqMessage->payloadlen);
     message.qos = static_cast<MqttQos>(mosqMessage->qos);
     message.retain = mosqMessage->retain;
 
@@ -194,7 +193,7 @@ void MqttClient::handleMessage(const struct mosquitto_message* mosqMessage) {
 }
 
 katla::result<void, Error>
-MqttClient::publish(std::string topic, gsl::span<std::byte> payload, MqttQos qos, bool retain)
+MqttClient::publish(std::string topic, katla::span<std::byte> payload, MqttQos qos, bool retain)
 {
     int messageId = {};
     int result = mosquitto_publish(

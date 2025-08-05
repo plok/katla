@@ -19,8 +19,6 @@
 
 #include "gtest/gtest.h"
 
-#include <gsl/span>
-
 #include <fmt/format.h>
 #include <variant>
 #include <chrono>
@@ -46,14 +44,14 @@ namespace katla {
     void testChild(PosixSocket &socket) {
         fmt::print("child: Starting..\n");
 
-        gsl::span<std::byte> messageSpan(reinterpret_cast<std::byte *>(helloWorld.data()), helloWorld.size());
+        katla::span<std::byte> messageSpan(reinterpret_cast<std::byte *>(helloWorld.data()), helloWorld.size());
 
         std::vector<std::byte> sendBuffer;
         sendBuffer.insert(sendBuffer.end(), messageSpan.begin(), messageSpan.end());
 
-        gsl::span<std::byte> sendSpan(sendBuffer);
+        katla::span<std::byte> sendSpan(sendBuffer);
 
-        std::function<void(gsl::span<std::byte>)> sendFunc = [&socket](gsl::span<std::byte> frame) {
+        std::function<void(katla::span<std::byte>)> sendFunc = [&socket](katla::span<std::byte> frame) {
             auto result = socket.write(frame);
             if (result) {
                 fmt::print("written bytes {}\n", result.value());
@@ -88,13 +86,13 @@ namespace katla {
 
         bool done = false;
         while (!done) {
-            gsl::span<std::byte> bufferSpan(buffer.data(), buffer.size());
+            katla::span<std::byte> bufferSpan(buffer.data(), buffer.size());
             auto result = socket.read(bufferSpan);
             if (!result) {
                 fmt::print(stderr, "server: failed reading from pipe with error: {0}!\n", strerror(errno));
             }
 
-            gsl::span<std::byte> readSpan(buffer.data(), result.value());
+            katla::span<std::byte> readSpan(buffer.data(), result.value());
 
             if (readSpan.size() == helloWorld.length()) {
                 fmt::print("Frame received!\n");

@@ -20,7 +20,6 @@
 #include "katla/core/core.h"
 
 #include <optional>
-#include <gsl/span>
 
 #include <fcntl.h>
 
@@ -52,8 +51,8 @@ namespace katla {
         katla::result<void> open(std::string_view filePath, OpenFlags flags);
         katla::result<void> close();
 
-        katla::result<ssize_t> read(gsl::span<std::byte> &buffer);
-        katla::result<ssize_t> write(gsl::span<std::byte> &buffer);
+        katla::result<ssize_t> read(katla::span<std::byte> &buffer);
+        katla::result<ssize_t> write(katla::span<std::byte> &buffer);
 
         static katla::result<std::string> absolutePath(std::string path);
 

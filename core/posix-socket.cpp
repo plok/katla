@@ -440,12 +440,12 @@ katla::result<PosixSocket::WaitResult, Error> PosixSocket::poll(std::chrono::mil
     return waitResult;
 }
 
-katla::result<ssize_t, Error> PosixSocket::read(const gsl::span<std::byte>& buffer)
+katla::result<ssize_t, Error> PosixSocket::read(const katla::span<std::byte>& buffer)
 {
     return receiveFrom(buffer);
 }
 
-katla::result<ssize_t, Error> PosixSocket::receiveFrom(const gsl::span<std::byte>& buffer)
+katla::result<ssize_t, Error> PosixSocket::receiveFrom(const katla::span<std::byte>& buffer)
 {
     int flags = 0;
     if (_nonBlocking) {
@@ -467,7 +467,7 @@ katla::result<ssize_t, Error> PosixSocket::receiveFrom(const gsl::span<std::byte
     return nbytes;
 }
 
-katla::result<ssize_t, Error> PosixSocket::write(const gsl::span<std::byte>& buffer)
+katla::result<ssize_t, Error> PosixSocket::write(const katla::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::write(_fd, buffer.data(), buffer.size());
 
@@ -480,7 +480,7 @@ katla::result<ssize_t, Error> PosixSocket::write(const gsl::span<std::byte>& buf
     return nbytes;
 }
 
-katla::result<ssize_t, Error> PosixSocket::sendTo(std::string url, const gsl::span<std::byte>& buffer)
+katla::result<ssize_t, Error> PosixSocket::sendTo(std::string url, const katla::span<std::byte>& buffer)
 {
     if (_protocolDomain == ProtocolDomain::Packet && _type == Type::Raw) {
         auto nameToIndexResult = if_nametoindex(url.c_str());

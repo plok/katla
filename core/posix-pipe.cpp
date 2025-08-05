@@ -50,7 +50,7 @@ katla::result<void> PosixPipe::open()
     return outcome::success();
 }
 
-katla::result<ssize_t> PosixPipe::read(gsl::span<std::byte>& buffer)
+katla::result<ssize_t> PosixPipe::read(katla::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::read(_fd[0], buffer.data(), buffer.size());
 
@@ -61,7 +61,7 @@ katla::result<ssize_t> PosixPipe::read(gsl::span<std::byte>& buffer)
     return nbytes;
 }
 
-katla::result<ssize_t> PosixPipe::write(gsl::span<std::byte>& buffer)
+katla::result<ssize_t> PosixPipe::write(katla::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::write(_fd[1], buffer.data(), buffer.size());
 

@@ -19,8 +19,6 @@
 
 #include "katla/core/core.h"
 
-#include <gsl/span>
-
 #include <optional>
 
 namespace katla {
@@ -32,8 +30,8 @@ public:
 
     katla::result<void> open();
 
-    katla::result<ssize_t> read(gsl::span<std::byte>& buffer);
-    katla::result<ssize_t> write(gsl::span<std::byte>& buffer);
+    katla::result<ssize_t> read(katla::span<std::byte>& buffer);
+    katla::result<ssize_t> write(katla::span<std::byte>& buffer);
 
     katla::result<void> redirectToRead(int fd_src);
     katla::result<void> redirectToWrite(int fd_src);

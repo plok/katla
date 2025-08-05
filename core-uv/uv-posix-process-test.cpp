@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
+#include "core/core.h"
 #include "core/stopwatch.h"
 #include "core-uv/uv-posix-process.h"
 #include "googletest/googletest/include/gtest/gtest.h"
 #include "core-uv/uv-core-application.h"
 
 #include "gtest/gtest.h"
-
-#include <gsl/span>
 
 namespace katla {
 

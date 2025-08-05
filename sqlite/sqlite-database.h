@@ -24,7 +24,6 @@
 #include <memory>
 #include <vector>
 #include <optional>
-#include <gsl/span>
 
 namespace katla {
 
@@ -52,7 +51,7 @@ public:
 
     katla::result<SqliteQueryResult, Error> exec(std::string sql);
 
-    katla::result<SqliteQueryResult, Error> insert(std::string table,  gsl::span<std::pair<std::string, std::string>> values);
+    katla::result<SqliteQueryResult, Error> insert(std::string table,  katla::span<std::pair<std::string, std::string>> values);
 
     void setPath(std::string path) {
         m_path = path;

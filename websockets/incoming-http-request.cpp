@@ -6,7 +6,7 @@ IncomingHttpRequest::IncomingHttpRequest(const HttpRequest& request) :
     m_request(std::make_unique<HttpRequest>(request))
 {}
 
-void IncomingHttpRequest::insert(gsl::span<std::byte> bytes)
+void IncomingHttpRequest::insert(katla::span<std::byte> bytes)
 {
     if (!m_buffer) {
         m_buffer = std::make_unique<std::vector<std::byte>>();

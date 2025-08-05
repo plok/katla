@@ -22,7 +22,6 @@
 #include "core/core-errors.h"
 
 #include <memory>
-#include <gsl/gsl>
 
 namespace katla {
 

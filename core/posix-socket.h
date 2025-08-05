@@ -22,8 +22,6 @@
 #include "katla/core/error.h"
 #include "katla/core/core.h"
 
-#include <gsl/span>
-
 #include <net/ethernet.h>
 
 #include <memory>
@@ -82,11 +80,11 @@ public:
     // TODO add wakeup to interrupt wait -> multithreading??
     katla::result<WaitResult, Error> poll(std::chrono::milliseconds timeout, bool writePending = false);
 
-    katla::result<ssize_t, Error> read(const gsl::span<std::byte>& buffer);
-    katla::result<ssize_t, Error> write(const gsl::span<std::byte>& buffer);
+    katla::result<ssize_t, Error> read(const katla::span<std::byte>& buffer);
+    katla::result<ssize_t, Error> write(const katla::span<std::byte>& buffer);
 
-    katla::result<ssize_t, Error> receiveFrom(const gsl::span<std::byte>& buffer);
-    katla::result<ssize_t, Error> sendTo(std::string url, const gsl::span<std::byte>& buffer);
+    katla::result<ssize_t, Error> receiveFrom(const katla::span<std::byte>& buffer);
+    katla::result<ssize_t, Error> sendTo(std::string url, const katla::span<std::byte>& buffer);
 
     katla::result<void, Error> wakeup();
 

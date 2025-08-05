@@ -72,7 +72,7 @@ katla::result<void> PosixFile::close()
     return outcome::success();
 }
 
-katla::result<ssize_t> PosixFile::read(gsl::span<std::byte>& buffer)
+katla::result<ssize_t> PosixFile::read(katla::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::read(m_fd, buffer.data(), buffer.size());
 
@@ -83,7 +83,7 @@ katla::result<ssize_t> PosixFile::read(gsl::span<std::byte>& buffer)
     return nbytes;
 }
 
-katla::result<ssize_t> PosixFile::write(gsl::span<std::byte>& buffer)
+katla::result<ssize_t> PosixFile::write(katla::span<std::byte>& buffer)
 {
     ssize_t nbytes = ::write(m_fd, buffer.data(), buffer.size());
 

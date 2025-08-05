@@ -26,8 +26,6 @@
 #include "katla/core/signal-handler.h"
 #include "katla/core/worker-thread.h"
 
-#include <gsl/span>
-
 #include <optional>
 #include <thread>
 
@@ -51,7 +49,7 @@ public:
 
     katla::result<Status, Error> status();
 
-    katla::result<ssize_t> readStdout(gsl::span<std::byte>& buffer) {
+    katla::result<ssize_t> readStdout(katla::span<std::byte>& buffer) {
         return m_fdStdout.read(buffer);
     }
 
