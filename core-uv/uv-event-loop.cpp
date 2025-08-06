@@ -123,7 +123,7 @@ katla::result<void, Error> UvEventLoop::printOpenHandles()
 
 void UvEventLoop::printOpenHandlesUvWalkCallback(uv_handle_t* handle, void* /*arg*/)
 {
-    katla::printInfo("Open handle: {}", handle->type);
+    katla::printInfo("Open handle: {}", uv_handle_type_name(handle->type));
 }
 
 katla::result<void, Error> UvEventLoop::closeOpenHandles()
@@ -157,13 +157,13 @@ void UvEventLoop::closeOpenHandlesUvWalkCallback(uv_handle_t* handle, void* arg)
         return;
     }
 
-    katla::printInfo("Close handle: {}", handle->type);
+    katla::printInfo("Close handle: {}", uv_handle_type_name(handle->type));
     uv_close(handle, UvEventLoop::onCloseHandleCallback);
 }
 
 void UvEventLoop::onCloseHandleCallback(uv_handle_t* handle)
 {
-    katla::printInfo("Close handle type: {}", handle->type);
+    katla::printInfo("Close handle type: {}", uv_handle_type_name(handle->type));
 }
 
 } // namespace katla

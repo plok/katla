@@ -181,7 +181,7 @@ katla::result<UvPosixProcess::Status, Error> UvPosixProcess::status()
         if (m_status == Status::Started) {
             m_status = Status::Running;
         } else if (m_status != Status::Running) {
-            katla::printInfo("Unexpected child state: {}, expected Running", m_status);
+            katla::printInfo("Unexpected child state: {}, expected Running", katla::enumValue(m_status));
             m_status = Status::Running;
         }
 

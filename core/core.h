@@ -21,12 +21,13 @@
 namespace outcome = OUTCOME_V2_NAMESPACE;
 
 #include "fmt/format.h"
-
-#include <gsl/span>
+#include "fmt/ranges.h"
 
 #include <cstdio>
 #include <cstdlib>
+#include <gsl/span>
 #include <string>
+#include <type_traits>
 
 #ifdef _MSC_VER
     #ifdef KATLA_CORE_INDLL
@@ -45,6 +46,13 @@ namespace katla {
 
     template<class R, class S = std::error_code>
     using result = outcome::result<R, S>;
+
+    // Returns the underlying value of an enumerator
+    // Is added, because newer versions (v10+) of fmt do not implicitly convert enums in format string anymore
+    template<typename EnumType> [[nodiscard]] constexpr auto enumValue(EnumType enumerator)
+    {
+        return static_cast<std::underlying_type_t<EnumType>>(enumerator);
+    }
 
     /****
      * Declare format and print here for convenience. Current implementation uses the Fmt lib,
