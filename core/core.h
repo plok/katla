@@ -40,12 +40,22 @@ namespace outcome = OUTCOME_V2_NAMESPACE;
 #endif
 
 namespace katla {
+    template<class ElementType, std::size_t Extent = gsl::dynamic_extent>
+    using span = gsl::span<ElementType, Extent>;
 
-    template<class T, std::size_t Extent = gsl::dynamic_extent>
-    using span = gsl::span<T, Extent>;
-
+    // https://ned14.github.io/outcome/tutorial/essential/no-value/
     template<class R, class S = std::error_code>
-    using result = outcome::result<R, S>;
+#ifdef NDEBUG
+    // Any observation of a missing value or error is undefined behavior
+    // As bad as this may sound, it generates the most optimal code, and such hard UB is very tool-friendly for
+    // detection e.g. undefined behaviour sanitiser, valgrind memcheck, etc.
+    // Source: https://ned14.github.io/outcome/tutorial/essential/no-value/builtin/
+    using result = outcome::unchecked<R, S>;
+#else
+    // any observation of a missing value or error throws bad_result_access
+    // for easy/early detection in debug only
+    using result = outcome::checked<R, S>;
+#endif
 
     // Returns the underlying value of an enumerator
     // Is added, because newer versions (v10+) of fmt do not implicitly convert enums in format string anymore
