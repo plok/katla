@@ -37,7 +37,7 @@ Mqtt::~Mqtt() {
 katla::result<void, Error>  Mqtt::init() {
     int result = mosquitto_lib_init();
     if (result != MOSQ_ERR_SUCCESS) {
-        return Error(make_error_code(MqttErrorCodes::MosquittoError), katla::format("Error initializing libmosquitto: {}"));
+        return Error(make_error_code(MqttErrorCodes::MosquittoError), katla::format("Error initializing libmosquitto: {}", result));
     }
 
     int major, minor, revision = {};

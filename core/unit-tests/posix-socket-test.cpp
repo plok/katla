@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "core/core.h"
 #include "core/posix-socket.h"
 #include "core/stopwatch.h"
 
@@ -40,7 +41,7 @@ namespace katla {
     std::string helloWorld = "Hello World!";
 
     void testChild(PosixSocket &socket) {
-        katla::print("child: Starting..\n");
+        katla::printInfo("child: Starting..\n");
 
         katla::span<std::byte> messageSpan(reinterpret_cast<std::byte *>(helloWorld.data()), helloWorld.size());
 
@@ -52,25 +53,25 @@ namespace katla {
         std::function<void(katla::span<std::byte>)> sendFunc = [&socket](katla::span<std::byte> frame) {
             auto result = socket.write(frame);
             if (result) {
-                katla::print("written bytes {}\n", result.value());
+                katla::printInfo("written bytes {}\n", result.value());
 
                 if (result.value() != static_cast<ssize_t>(frame.size())) {
-                    katla::print("warning: incomplete write!\n", result.value());
+                    katla::printInfo("warning: incomplete write!\n", result.value());
                 }
             } else {
-                katla::print("failed writing to pipe: {}\n", result.error().message());
+                katla::printInfo("failed writing to pipe: {}\n", result.error().message());
             }
         };
 
-        katla::print("send!\n");
+        katla::printInfo("send!\n");
 
         sendFunc(sendSpan);
 
-        katla::print("child: closed..\n");
+        katla::printInfo("child: closed..\n");
     }
 
     void testParent(PosixSocket &socket) {
-        katla::print("parent: starting..\n");
+        katla::printInfo("parent: starting..\n");
 
         const int BUFFER_SIZE = 100;
         std::vector<std::byte> buffer(BUFFER_SIZE, std::byte{0});
@@ -87,13 +88,13 @@ namespace katla {
             katla::span<std::byte> bufferSpan(buffer.data(), buffer.size());
             auto result = socket.read(bufferSpan);
             if (!result) {
-                katla::print(stderr, "server: failed reading from pipe with error: {0}!\n", strerror(errno));
+                katla::printError("server: failed reading from pipe with error: {0}!\n", strerror(errno));
             }
 
             katla::span<std::byte> readSpan(buffer.data(), result.value());
 
             if (readSpan.size() == helloWorld.length()) {
-                katla::print("Frame received!\n");
+                katla::printInfo("Frame received!\n");
                 GTEST_SUCCEED();
                 done = true;
                 break;
@@ -103,7 +104,7 @@ namespace katla {
             ASSERT_EQ(timeoutElapsed, false); //timeout
         }
 
-        katla::print("parent: closed...\n");
+        katla::printInfo("parent: closed...\n");
     }
 
 /***
@@ -159,7 +160,7 @@ namespace katla {
         auto tmpDir = createTemporaryDir();
         ASSERT_TRUE(tmpDir) << tmpDir.error().message();
 
-        katla::print("{}\n", tmpDir.value());
+        katla::printInfo("{}\n", tmpDir.value());
         fflush(stdout);
 
         auto url = katla::format("{}/test.sock", tmpDir.value());
@@ -199,7 +200,7 @@ namespace katla {
         auto tmpDir = createTemporaryDir();
         ASSERT_TRUE(tmpDir) << tmpDir.error().message();
 
-        katla::print("{}\n", tmpDir.value());
+        katla::printInfo("{}\n", tmpDir.value());
         fflush(stdout);
 
         auto url = katla::format("{}/test.sock", tmpDir.value());

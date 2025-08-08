@@ -79,7 +79,7 @@ katla::result<void, Error> UvPosixProcess::spawn(const std::string& path, const 
         if (!workingDir.empty() && workingDir != "./") {
             int chdirResult = chdir(workingDir.c_str());
             if (chdirResult != 0) {
-                katla::printError(katla::format("Error setting working directory: {}'", strerror(errno)));
+                katla::printError("Error setting working directory: {}'", strerror(errno));
                 exit(EXIT_FAILURE);
             }
         }

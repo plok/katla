@@ -170,19 +170,19 @@ katla::result<void, Error> UvCoreApplication::close()
 {
     auto result = m_interruptSignalHandler.close();
     if (!result) {
-        katla::print(stderr, result.error().message());
+        katla::print(stderr, "{}", result.error().message());
     }
     result = m_terminateSignalHandler.close();
     if (!result) {
-        katla::print(stderr, result.error().message());
+        katla::print(stderr, "{}", result.error().message());
     }
     result = m_hangupSignalHandler.close();
     if (!result) {
-        katla::print(stderr, result.error().message());
+        katla::print(stderr, "{}", result.error().message());
     }
     result = m_childSignalHandler.close();
     if (!result) {
-        katla::print(stderr, result.error().message());
+        katla::print(stderr, "{}", result.error().message());
     }
 
     if (!uv_is_closing(reinterpret_cast<uv_handle_t*>(&m_asyncHandle))) {
