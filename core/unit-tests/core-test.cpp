@@ -1,6 +1,9 @@
 #include "core/core.h"
+#include "core/string-utils.h"
 
 #include "gtest/gtest.h"
+
+#include <chrono>
 
 namespace katla {
 TEST(KatlaCoreTests, FormatAndPrint)
@@ -26,5 +29,19 @@ TEST(KatlaCoreTests, FormatAndPrint)
     std::array<std::string, 3> arrayStrings = { "str1", "str2", "str3" };
     katla::printInfo("join arrayStrings: {}", katla::join(arrayStrings, " & "));
     katla::printInfo("arrayStrings (w/o join): {}", arrayStrings);
+
+    static constexpr char dateFormatString[] = "{:%Y%m%d-%H%M%S}";
+
+    auto timePoint = std::chrono::system_clock::now();
+
+    katla::printInfo("timestamp (precison: default, sec): {}", string::localTime(timePoint, dateFormatString));
+#if __cplusplus > 201703L
+    katla::printInfo("timestamp (precison: ms): {}",
+                     string::localTime<std::chrono::milliseconds>(timePoint, dateFormatString));
+    katla::printInfo("timestamp (precison: ns): {}",
+                     string::localTime<std::chrono::nanoseconds>(timePoint, dateFormatString));
+    katla::printInfo("timestamp (minutes format): {}",
+                     string::localTime<std::chrono::nanoseconds>(timePoint, "{:%Y%m%d-%H%M}"));
+#endif
 }
 } // namespace katla
