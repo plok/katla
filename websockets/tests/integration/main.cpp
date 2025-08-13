@@ -20,7 +20,7 @@ void handleCommands(std::string command)
         auto& uvCoreApp = katla::UvCoreApplication::instance();
         auto appInitResult = uvCoreApp.init();
         if (!appInitResult) {
-            katla::print(stderr, "{}\n    {}-{}-{}\n", appInitResult.error().message());
+            katla::printError("{}", appInitResult.error().message());
         }
 
         katla::WebSocketServerLws server;
@@ -39,11 +39,10 @@ void handleCommands(std::string command)
 
         auto runResult = uvCoreApp.run();
         if (!runResult) {
-            katla::print(stderr,
-                         "{}\n    {}-{}\n",
-                         runResult.error().message(),
-                         runResult.error().description(),
-                         runResult.error().info());
+            katla::printError("{}\n    {}-{}",
+                              runResult.error().message(),
+                              runResult.error().description(),
+                              runResult.error().info());
         }
 
         server.stop();
@@ -52,7 +51,7 @@ void handleCommands(std::string command)
         return;
     }
 
-    katla::print(stderr, "unrecognized command: {}!", command);
+    katla::printError("unrecognized command: {}!", command);
 }
 
 int main(int argc, char* argv[])

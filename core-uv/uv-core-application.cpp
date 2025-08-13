@@ -94,7 +94,7 @@ katla::result<void, Error> UvCoreApplication::init()
     }
 
     error = m_interruptSignalHandler.start(Signal::Interrupt, [this]() {
-        katla::print(stdout, "Interrupt signal received\n");
+        katla::printInfo("Interrupt signal received");
         m_onCloseSubject.next();
     });
     if (!error) {
@@ -102,7 +102,7 @@ katla::result<void, Error> UvCoreApplication::init()
     }
 
     error = m_terminateSignalHandler.start(Signal::Terminate, [this]() {
-        katla::print(stdout, "Terminate signal received\n");
+        katla::printInfo("Terminate signal received");
         m_onCloseSubject.next();
     });
     if (!error) {
@@ -110,7 +110,7 @@ katla::result<void, Error> UvCoreApplication::init()
     }
 
     error = m_hangupSignalHandler.start(Signal::Hangup, [this]() {
-        katla::print(stdout, "Hangup signal received\n");
+        katla::printInfo("Hangup signal received");
         m_onCloseSubject.next();
     });
     if (!error) {
@@ -118,7 +118,7 @@ katla::result<void, Error> UvCoreApplication::init()
     }
 
     error = m_childSignalHandler.start(Signal::Child, [this]() {
-        katla::print(stdout, "Child signal received\n");
+        katla::printInfo("Child signal received");
         m_onChildSubject.next();
     });
     if (!error) {
@@ -170,19 +170,19 @@ katla::result<void, Error> UvCoreApplication::close()
 {
     auto result = m_interruptSignalHandler.close();
     if (!result) {
-        katla::print(stderr, "{}", result.error().message());
+        katla::printError("{}", result.error().message());
     }
     result = m_terminateSignalHandler.close();
     if (!result) {
-        katla::print(stderr, "{}", result.error().message());
+        katla::printError("{}", result.error().message());
     }
     result = m_hangupSignalHandler.close();
     if (!result) {
-        katla::print(stderr, "{}", result.error().message());
+        katla::printError("{}", result.error().message());
     }
     result = m_childSignalHandler.close();
     if (!result) {
-        katla::print(stderr, "{}", result.error().message());
+        katla::printError("{}", result.error().message());
     }
 
     if (!uv_is_closing(reinterpret_cast<uv_handle_t*>(&m_asyncHandle))) {
