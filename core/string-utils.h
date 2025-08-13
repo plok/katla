@@ -87,6 +87,11 @@ namespace string {
     }
 #endif
 
+    // Returns the current local time in format "{:%Y%m%d-%H%M%S}" -> 20250811-151112
+    // with seconds resolution. If the local time could not be determined (unlikely)
+    // it returns the number of seconds since unix epoch.
+    [[nodiscard]] std::string currentLocalTimeWithFallback();
+
 } // namespace string
 } // namespace katla  
 
