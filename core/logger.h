@@ -23,6 +23,8 @@ namespace katla {
 class Logger
 {
   public:
+    virtual ~Logger() = default;
+
     virtual void debug(std::string_view message) = 0;
     virtual void info(std::string_view message) = 0;
     virtual void warning(std::string_view message) = 0;
