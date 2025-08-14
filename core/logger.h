@@ -16,25 +16,17 @@
 #ifndef KATLA_LOGGER_H_
 #define KATLA_LOGGER_H_
 
-#include "error.h"
-
-#include <exception>
-#include <string>
+#include <string_view>
 
 namespace katla {
 
-class Logger {
+class Logger
+{
   public:
-    Logger() = default;
-    virtual ~Logger() = default;
-
-    virtual void info(const std::string_view& message) = 0;
-    virtual void debug(const std::string_view& message) = 0;
-    virtual void warning(const std::string_view& message) = 0;
-    virtual void error(const std::string_view& message) = 0;
-
-    virtual void error(const Error& error) = 0;
-    virtual void exception(const std::exception& ex) = 0;
+    virtual void debug(std::string_view message) = 0;
+    virtual void info(std::string_view message) = 0;
+    virtual void warning(std::string_view message) = 0;
+    virtual void error(std::string_view message) = 0;
 };
 
 } // namespace katla

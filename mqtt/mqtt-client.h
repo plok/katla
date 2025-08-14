@@ -17,13 +17,15 @@
 #define KATLA_MQTT_CLIENT_H
 
 #include "katla/core/core.h"
+#include "katla/core/error.h"
 #include "katla/core/logger.h"
 #include "katla/core/subject.h"
-
 #include "katla/mqtt/mqtt-message.h"
-
 #include "mosquitto.h"
+
 #include <map>
+#include <memory>
+#include <string>
 
 namespace katla {
 
