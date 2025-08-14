@@ -1,6 +1,7 @@
 #include "string-utils.h"
 #include <algorithm>
 #include <cctype>
+#include <cassert>
 
 namespace katla {
 namespace string {
@@ -114,6 +115,18 @@ std::vector<std::string> split(std::string input, std::string delimiter)
     result.push_back(input.substr(pos));
 
     return result;
+}
+
+std::string currentLocalTimeWithFallback()
+{
+    using namespace std::chrono;
+    const auto now = system_clock::now();
+    auto timestamp = katla::string::localTime(now, "{:%Y%m%d-%H%M%S}");
+    if (timestamp.empty()) {
+        assert(false);
+        timestamp = std::to_string(duration_cast<seconds>(now.time_since_epoch()).count());
+    }
+    return timestamp;
 }
 
 }  // namespace string

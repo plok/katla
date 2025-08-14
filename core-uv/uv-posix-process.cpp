@@ -37,7 +37,7 @@ UvPosixProcess::~UvPosixProcess() {
     }
 }
 
-outcome::result<void, Error> UvPosixProcess::spawn(const std::string& path, const std::vector<std::string>& arguments, const std::string& workingDir, const SpawnOptions& options)
+katla::result<void, Error> UvPosixProcess::spawn(const std::string& path, const std::vector<std::string>& arguments, const std::string& workingDir, const SpawnOptions& options)
 {
     m_status = Status::Starting;
 
@@ -79,7 +79,7 @@ outcome::result<void, Error> UvPosixProcess::spawn(const std::string& path, cons
         if (!workingDir.empty() && workingDir != "./") {
             int chdirResult = chdir(workingDir.c_str());
             if (chdirResult != 0) {
-                katla::printError(fmt::format("Error setting working directory: {}'", strerror(errno)));
+                katla::printError("Error setting working directory: {}'", strerror(errno));
                 exit(EXIT_FAILURE);
             }
         }
@@ -92,7 +92,7 @@ outcome::result<void, Error> UvPosixProcess::spawn(const std::string& path, cons
         args.push_back(nullptr);
 
         if (execv(path.c_str(), args.data()) != 0) {
-            katla::printError(fmt::format(fmt::format("Error starting child process: {}'", strerror(errno))));
+            katla::printError("Error starting child process: {}'", strerror(errno));
             exit(EXIT_FAILURE);
         }
 
@@ -116,7 +116,7 @@ outcome::result<void, Error> UvPosixProcess::spawn(const std::string& path, cons
     return outcome::success();
 }
 
-outcome::result<void, Error> UvPosixProcess::kill(Signal signal)
+katla::result<void, Error> UvPosixProcess::kill(Signal signal)
 {
     if (!m_pid.has_value()) {
         return Error(make_error_code(katla::PosixErrorCodes::Invalid), "No process active!");
@@ -145,7 +145,7 @@ outcome::result<void, Error> UvPosixProcess::kill(Signal signal)
 }
 
 // status needs to be called by parent after stopping process
-outcome::result<UvPosixProcess::Status, Error> UvPosixProcess::status()
+katla::result<UvPosixProcess::Status, Error> UvPosixProcess::status()
 {
     if (!m_pid.has_value()) {
         return Error(make_error_code(katla::PosixErrorCodes::Invalid), "No process active!");
@@ -181,7 +181,7 @@ outcome::result<UvPosixProcess::Status, Error> UvPosixProcess::status()
         if (m_status == Status::Started) {
             m_status = Status::Running;
         } else if (m_status != Status::Running) {
-            katla::printInfo("Unexpected child state: {}, expected Running", m_status);
+            katla::printInfo("Unexpected child state: {}, expected Running", katla::enumValue(m_status));
             m_status = Status::Running;
         }
 

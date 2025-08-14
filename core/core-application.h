@@ -33,13 +33,13 @@ public:
     CoreApplication() = default;
     virtual ~CoreApplication() = default;
 
-    virtual outcome::result<void, Error> init() = 0;
-    virtual outcome::result<void, Error> close() = 0;
+    virtual katla::result<void, Error> init() = 0;
+    virtual katla::result<void, Error> close() = 0;
 
-    virtual outcome::result<void, Error> run() = 0;
-    virtual outcome::result<void, Error> stop() = 0;
+    virtual katla::result<void, Error> run() = 0;
+    virtual katla::result<void, Error> stop() = 0;
 
-    virtual outcome::result<std::unique_ptr<Timer>, Error> createTimer() = 0;
+    virtual katla::result<std::unique_ptr<Timer>, Error> createTimer() = 0;
 
     virtual EventLoop& eventLoop() = 0;
 

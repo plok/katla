@@ -27,8 +27,8 @@ class Mqtt {
     Mqtt(Logger& logger);
     ~Mqtt();
 
-    outcome::result<void, Error> init();
-    outcome::result<std::unique_ptr<MqttClient>, Error> createClient(std::string name);
+    katla::result<void, Error> init();
+    katla::result<std::unique_ptr<MqttClient>, Error> createClient(std::string name);
   private:
     Logger& m_logger;
 };

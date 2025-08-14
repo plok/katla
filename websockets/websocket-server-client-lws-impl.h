@@ -34,7 +34,7 @@ class WebSocketServerClientLwsImpl {
     ~WebSocketServerClientLwsImpl();
 
     //// used by lws server
-    void insert(gsl::span<std::byte> bytes);
+    void insert(katla::span<std::byte> bytes);
     virtual std::unique_ptr<LwsPacket> message();
     void handleMessage(const LwsPacket& message);
     std::optional<LwsPacket> dataToSend();

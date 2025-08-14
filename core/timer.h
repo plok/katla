@@ -28,12 +28,12 @@ class Timer {
 public:
     virtual ~Timer() = default;
 
-    virtual outcome::result<void, Error> init() = 0;
-    virtual outcome::result<void, Error> close() = 0;
+    virtual katla::result<void, Error> init() = 0;
+    virtual katla::result<void, Error> close() = 0;
     virtual bool isClosed() = 0;
     
-    virtual outcome::result<void, Error> start(std::chrono::milliseconds msec, std::function<void()> function) = 0;
-    virtual outcome::result<void, Error> stop() = 0;
+    virtual katla::result<void, Error> start(std::chrono::milliseconds msec, std::function<void()> function) = 0;
+    virtual katla::result<void, Error> stop() = 0;
 private:
     
 };

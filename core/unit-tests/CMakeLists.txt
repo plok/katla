@@ -15,8 +15,9 @@ set(sources
 
 IF (NOT WIN32 AND NOT APPLE)
     set(sources ${sources}
-        ../posix-socket-test.cpp
-        ../string-utils-test.cpp
+        posix-socket-test.cpp
+        string-utils-test.cpp
+        core-test.cpp
     )
 ENDIF()
 
@@ -25,11 +26,10 @@ add_executable(${target_name} ${sources})
 target_include_directories(${target_name} PRIVATE
     ../../
     ../../external/
-    ../../external/abseil-cpp/
     ../../external/outcome/
     ${GTEST_INCLUDE_DIRS}
     )
 
-target_link_libraries(${target_name} gtest gtest_main katla-core fmt)
+target_link_libraries(${target_name} gtest gtest_main katla-core)
 
 gtest_discover_tests(${target_name})

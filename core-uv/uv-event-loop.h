@@ -32,16 +32,16 @@ public:
     UvEventLoop();
     virtual ~UvEventLoop();
 
-    outcome::result<void, Error> init();
-    [[maybe_unused]] outcome::result<void, Error> close();
+    katla::result<void, Error> init();
+    [[maybe_unused]] katla::result<void, Error> close();
 
-    outcome::result<void, Error> run();
-    outcome::result<void, Error> runSingleIteration();
+    katla::result<void, Error> run();
+    katla::result<void, Error> runSingleIteration();
 
-    outcome::result<void, Error> stop();
+    katla::result<void, Error> stop();
 
-    outcome::result<void, Error> printOpenHandles();
-    outcome::result<void, Error> closeOpenHandles();
+    katla::result<void, Error> printOpenHandles();
+    katla::result<void, Error> closeOpenHandles();
 
     uv_loop_t* handle() {
         return m_handle;

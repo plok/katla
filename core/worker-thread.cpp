@@ -35,7 +35,7 @@ WorkerThread::WorkerThread(std::string name, katla::Thread::Priority priority)
 
 WorkerThread::~WorkerThread() { join(); }
 
-outcome::result<void, Error> WorkerThread::init(std::function<void(void)> repeatableWork,
+katla::result<void, Error> WorkerThread::init(std::function<void(void)> repeatableWork,
                                                 std::chrono::milliseconds interval)
 {
     m_interval = interval;

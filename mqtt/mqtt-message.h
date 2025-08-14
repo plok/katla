@@ -16,9 +16,7 @@
 #ifndef KATLA_MQTT_MESSAGE_H
 #define KATLA_MQTT_MESSAGE_H
 
-#include "outcome/outcome.hpp"
-
-#include <gsl/span>
+#include "katla/core/core.h"
 
 namespace katla {
 
@@ -34,7 +32,7 @@ struct MqttMessage
 
     int messageId {};
     std::string topic;
-    gsl::span<std::byte> payload;
+    katla::span<std::byte> payload;
     MqttQos qos;
     bool retain {false};
 };

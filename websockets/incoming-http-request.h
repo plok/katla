@@ -18,7 +18,7 @@ class IncomingHttpRequest {
     IncomingHttpRequest(const HttpRequest& request);
     ~IncomingHttpRequest() = default;
 
-    void insert(gsl::span<std::byte> bytes);
+    void insert(katla::span<std::byte> bytes);
     std::unique_ptr<HttpRequest> completedRequest();
 
   private:

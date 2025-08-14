@@ -24,7 +24,6 @@
 #include <memory>
 #include <vector>
 #include <optional>
-#include <gsl/span>
 
 namespace katla {
 
@@ -43,16 +42,16 @@ public:
     SqliteDatabase();
     virtual ~SqliteDatabase();
 
-    outcome::result<void, Error> init();
+    katla::result<void, Error> init();
 
-    outcome::result<void, Error> open();
-    outcome::result<void, Error> close();
+    katla::result<void, Error> open();
+    katla::result<void, Error> close();
 
-    outcome::result<void, Error> create(std::string path);
+    katla::result<void, Error> create(std::string path);
 
-    outcome::result<SqliteQueryResult, Error> exec(std::string sql);
+    katla::result<SqliteQueryResult, Error> exec(std::string sql);
 
-    outcome::result<SqliteQueryResult, Error> insert(std::string table,  gsl::span<std::pair<std::string, std::string>> values);
+    katla::result<SqliteQueryResult, Error> insert(std::string table,  katla::span<std::pair<std::string, std::string>> values);
 
     void setPath(std::string path) {
         m_path = path;

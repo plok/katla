@@ -21,8 +21,6 @@
 #include "katla/core/error.h"
 #include "katla/core/thread.h"
 
-#include <gsl/span>
-
 #include <optional>
 #include <thread>
 
@@ -30,7 +28,7 @@ namespace katla {
 
 class PosixThread {
 public:
-    static outcome::result<void, Error> setPriority(std::thread& thread, Thread::Priority priority);
+    static katla::result<void, Error> setPriority(std::thread& thread, Thread::Priority priority);
 private:
 
 };

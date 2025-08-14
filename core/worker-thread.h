@@ -35,7 +35,7 @@ class WorkerThread {
     WorkerThread(std::string name, katla::Thread::Priority priority);
     virtual ~WorkerThread();
 
-    outcome::result<void, Error> init(std::function<void(void)> repeatableWork, std::chrono::milliseconds interval);
+    katla::result<void, Error> init(std::function<void(void)> repeatableWork, std::chrono::milliseconds interval);
 
     void wakeup();
 

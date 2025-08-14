@@ -116,7 +116,7 @@ TEST(KatlaMqttTests, PublishClientTest)
         client->onConnect([&done, &client]() {
 
             std::string hello = "hello world!";
-            gsl::span<std::byte> span (reinterpret_cast<std::byte*>(hello.data()), hello.size());
+            katla::span<std::byte> span (reinterpret_cast<std::byte*>(hello.data()), hello.size());
             _unused_ = client->publish("hello", span, MqttQos::AtLeastOnce, false);
 
           done = true;

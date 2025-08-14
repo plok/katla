@@ -19,11 +19,7 @@
 
 #include "katla/core/core.h"
 
-#include <gsl/span>
-
 #include <optional>
-
-namespace outcome = OUTCOME_V2_NAMESPACE;
 
 namespace katla {
 
@@ -32,17 +28,17 @@ public:
     PosixPipe();
     ~PosixPipe();
 
-    outcome::result<void> open();
+    katla::result<void> open();
 
-    outcome::result<ssize_t> read(gsl::span<std::byte>& buffer);
-    outcome::result<ssize_t> write(gsl::span<std::byte>& buffer);
+    katla::result<ssize_t> read(katla::span<std::byte>& buffer);
+    katla::result<ssize_t> write(katla::span<std::byte>& buffer);
 
-    outcome::result<void> redirectToRead(int fd_src);
-    outcome::result<void> redirectToWrite(int fd_src);
+    katla::result<void> redirectToRead(int fd_src);
+    katla::result<void> redirectToWrite(int fd_src);
 
-    outcome::result<void> close();
-    outcome::result<void> closeRead();
-    outcome::result<void> closeWrite();
+    katla::result<void> close();
+    katla::result<void> closeRead();
+    katla::result<void> closeWrite();
 private:
     int _fd[2];
 };

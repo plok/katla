@@ -34,12 +34,12 @@ public:
     UvTimer(UvEventLoop& eventLoop);
     virtual ~UvTimer();
 
-    outcome::result<void, Error> init() override;
-    [[maybe_unused]] outcome::result<void, Error> close() override;
+    katla::result<void, Error> init() override;
+    [[maybe_unused]] katla::result<void, Error> close() override;
     bool isClosed() override;
 
-    outcome::result<void, Error> start(std::chrono::milliseconds msec, std::function<void()> function) override;
-    [[maybe_unused]] outcome::result<void, Error> stop() override;
+    katla::result<void, Error> start(std::chrono::milliseconds msec, std::function<void()> function) override;
+    [[maybe_unused]] katla::result<void, Error> stop() override;
 
 private:
     static void uvTimerCallback(uv_timer_t* handle);

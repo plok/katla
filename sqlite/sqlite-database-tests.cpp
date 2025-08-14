@@ -105,19 +105,14 @@ TEST(KatlaSqliteDatabaseTests, QueryTable) {
         ASSERT_FALSE(result.has_error()) << result.error().message();
     }
 
-    for(auto& col : result.value().queryResult->columnNames) {
-        fmt::print("{:<10} ", col);
-    }
-    fmt::print("\n");
+    katla::printInfo("{::<10}", result.value().queryResult->columnNames);
 
     auto& data = result.value().queryResult->data;
     auto nrOfColumns = result.value().queryResult->nrOfColumns;
 
-    for(int r=0; r<data.size(); r+= nrOfColumns) {
-        for(int c=0; c<nrOfColumns; c++) {
-            fmt::print("{:<10} ", data[r+c]);
-        }
-        fmt::print("\n");
+    for (int r = 0; r < data.size(); r += nrOfColumns) {
+        std::vector<std::string> rowData = { data.begin() + r, data.begin() + r + nrOfColumns };
+        katla::printInfo("{::<10}", rowData);
     }
 
     [[maybe_unused]] auto _1 = sqliteDatabase.close();

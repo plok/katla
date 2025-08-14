@@ -68,18 +68,18 @@ class UvCoreApplication : public CoreApplication {
     static UvCoreApplication& instance();
     static bool hasInstance();
 
-    outcome::result<void, Error> init() override;
-    [[maybe_unused]] outcome::result<void, Error> close() override;
+    katla::result<void, Error> init() override;
+    [[maybe_unused]] katla::result<void, Error> close() override;
 
-    outcome::result<void, Error> run() override;
-    [[maybe_unused]] outcome::result<void, Error> stop() override;
+    katla::result<void, Error> run() override;
+    [[maybe_unused]] katla::result<void, Error> stop() override;
 
-    outcome::result<std::unique_ptr<Timer>, Error> createTimer() override;
+    katla::result<std::unique_ptr<Timer>, Error> createTimer() override;
 
 #ifdef KATLA_MARK_EXPERIMENTAL
      __attribute__ ((warning ("Experimental code!"))) 
 #endif
-    outcome::result<std::shared_ptr<Future>, Error> invokeAsync(std::function<void()> callback);
+    katla::result<std::shared_ptr<Future>, Error> invokeAsync(std::function<void()> callback);
 
     EventLoop& eventLoop() override;
     UvEventLoop& uvEventLoop();

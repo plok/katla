@@ -104,7 +104,7 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
         break;
 
     case LWS_CALLBACK_HTTP_BODY: {
-        gsl::span<std::byte> bytes(reinterpret_cast<std::byte*>(in), len);
+        katla::span<std::byte> bytes(reinterpret_cast<std::byte*>(in), len);
 
         auto& client = webSocketServer->httpClientsMap[static_cast<void*>(wsi)];
 
@@ -250,7 +250,7 @@ static int callbackWebsocketServer(lws* wsi, enum lws_callback_reasons reason, v
 
         auto& client = webSocketServer->webSocketClientsMap[static_cast<void*>(wsi)];
 
-        gsl::span<std::byte> bytes(reinterpret_cast<std::byte*>(in), len);
+        katla::span<std::byte> bytes(reinterpret_cast<std::byte*>(in), len);
         client->insert(bytes);
 
         if (isFinal) {

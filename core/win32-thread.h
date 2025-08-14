@@ -22,8 +22,6 @@
 
 #include "katla/core/thread.h"
 
-#include <gsl/span>
-
 #include <optional>
 #include <thread>
 
@@ -31,7 +29,7 @@ namespace katla {
 
 class Win32Thread {
 public:
-    static outcome::result<void, Error> setPriority(std::thread& thread, Thread::Priority priority);
+    static katla::result<void, Error> setPriority(std::thread& thread, Thread::Priority priority);
 private:
 
 };

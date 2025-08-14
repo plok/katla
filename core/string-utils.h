@@ -18,8 +18,14 @@
 #define STRING_UTILS_H
 
 #include "core/core.h"
+
+#include <chrono>
 #include <string>
 #include <vector>
+
+#if __cplusplus <= 201703L
+#include "fmt/chrono.h"
+#endif
 
 #ifdef _MSC_VER
     #ifdef KATLA_CORE_INDLL
@@ -51,6 +57,40 @@ namespace string {
     bool contains (const std::string& str, const std::string& substr);
 
     std::vector<std::string> split(std::string input, std::string delimiter);
+
+#if __cplusplus > 201703L
+    // Returns 'timePoint' in local time in the specified format (e.g. "{:%Y%m%d-%H%M%S}" -> 20250811-151112) with
+    // seconds resolution (by default)
+    // Returns an empty string upon failure
+    // Note that this function may be relatively slow, because of reading the time zone database, so
+    // avoid calling from performance critical functions.
+    template<typename Resolution = std::chrono::seconds>
+    [[nodiscard]] std::string localTime(std::chrono::system_clock::time_point timePoint,
+                                        std::format_string<std::chrono::zoned_time<Resolution>> formatString)
+    {
+        try {
+            return std::format(formatString,
+                               std::chrono::zoned_time { std::chrono::current_zone(),
+                                                         std::chrono::time_point_cast<Resolution>(timePoint) });
+        } catch (const std::runtime_error& ex) {
+            katla::printError("Exception determining local time: {}", ex.what());
+        }
+        return {};
+    }
+#else
+    // Returns 'timePoint' in local time in the specified format (e.g. "{:%Y%m%d-%H%M%S}" -> 20250811-151112) with
+    // seconds resolution
+    [[nodiscard]] inline std::string localTime(std::chrono::system_clock::time_point timePoint,
+                                               fmt::format_string<std::tm> formatString)
+    {
+        return katla::format(formatString, fmt::localtime(std::chrono::system_clock::to_time_t(timePoint)));
+    }
+#endif
+
+    // Returns the current local time in format "{:%Y%m%d-%H%M%S}" -> 20250811-151112
+    // with seconds resolution. If the local time could not be determined (unlikely)
+    // it returns the number of seconds since unix epoch.
+    [[nodiscard]] std::string currentLocalTimeWithFallback();
 
 } // namespace string
 } // namespace katla  

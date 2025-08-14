@@ -16,13 +16,13 @@
 #ifndef KATLA_MQTT_CLIENT_H
 #define KATLA_MQTT_CLIENT_H
 
+#include "katla/core/core.h"
 #include "katla/core/logger.h"
 #include "katla/core/subject.h"
 
 #include "katla/mqtt/mqtt-message.h"
 
 #include "mosquitto.h"
-#include "outcome/outcome.hpp"
 #include <map>
 
 namespace katla {
@@ -41,11 +41,11 @@ class MqttClient {
     MqttClient(MqttClient&) = delete;
     ~MqttClient();
 
-    outcome::result<void, Error> connect(const std::string& host, int port, int keepAliveSeconds);
-    outcome::result<void, Error> disconnect();
+    katla::result<void, Error> connect(const std::string& host, int port, int keepAliveSeconds);
+    katla::result<void, Error> disconnect();
 
-    outcome::result<void, Error> publish(std::string topic, gsl::span<std::byte> payload, MqttQos qos, bool retain);
-    outcome::result<std::unique_ptr<katla::Subscription>, Error> subscribe(std::string subPattern, MqttQos qos, const std::function<void(const MqttMessage& message)>& callback);
+    katla::result<void, Error> publish(std::string topic, katla::span<std::byte> payload, MqttQos qos, bool retain);
+    katla::result<std::unique_ptr<katla::Subscription>, Error> subscribe(std::string subPattern, MqttQos qos, const std::function<void(const MqttMessage& message)>& callback);
 
     std::unique_ptr<katla::Subscription> onConnect(const std::function<void(void)>& callback) {
         return m_onConnectSubject.subscribe(std::make_shared<katla::FuncObserver<void>>(callback));
@@ -58,7 +58,7 @@ class MqttClient {
     }
 
   private:
-    outcome::result<void, Error> init(const std::string& clientName);
+    katla::result<void, Error> init(const std::string& clientName);
     Error makeMosquittoError(int error);
 
     void handleConnect(int rc);

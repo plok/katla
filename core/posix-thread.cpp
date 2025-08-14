@@ -22,7 +22,7 @@
 
 namespace katla {
 
-outcome::result<void, Error> PosixThread::setPriority(std::thread& thread, Thread::Priority priority)
+katla::result<void, Error> PosixThread::setPriority(std::thread& thread, Thread::Priority priority)
 {
 #ifndef __APPLE__
     auto nativeHandle = thread.native_handle();

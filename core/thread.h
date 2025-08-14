@@ -33,7 +33,7 @@ public:
         Idle
     };
 
-    static outcome::result<void, Error> setPriority(std::thread& thread, Thread::Priority priority);
+    static katla::result<void, Error> setPriority(std::thread& thread, Thread::Priority priority);
 private:
 
 };

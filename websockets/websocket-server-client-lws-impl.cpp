@@ -21,7 +21,7 @@ WebSocketServerClientLwsImpl::WebSocketServerClientLwsImpl(lws_context* serverCo
 
 WebSocketServerClientLwsImpl::~WebSocketServerClientLwsImpl() {}
 
-void WebSocketServerClientLwsImpl::insert(gsl::span<std::byte> bytes)
+void WebSocketServerClientLwsImpl::insert(katla::span<std::byte> bytes)
 {
     if (!m_receiveBuffer) {
         m_receiveBuffer = std::make_unique<std::vector<std::byte>>();

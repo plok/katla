@@ -30,7 +30,7 @@ UvSignalHandler::~UvSignalHandler()
     assert(!m_handle); // should be destroyed before destruction because it needs event-loop
 }
 
-outcome::result<void, Error> UvSignalHandler::init()
+katla::result<void, Error> UvSignalHandler::init()
 {
     if (m_handle) {
         return Error(katla::make_error_code(katla::CoreErrorCode::AlreadyInitialized));
@@ -49,7 +49,7 @@ outcome::result<void, Error> UvSignalHandler::init()
     return outcome::success();
 }
 
-outcome::result<void, Error> UvSignalHandler::close()
+katla::result<void, Error> UvSignalHandler::close()
 {
     if (!m_handle) {
         return outcome::success();
@@ -62,7 +62,7 @@ outcome::result<void, Error> UvSignalHandler::close()
     return outcome::success();
 }
 
-outcome::result<void, Error> UvSignalHandler::start(Signal signal, std::function<void()> function)
+katla::result<void, Error> UvSignalHandler::start(Signal signal, std::function<void()> function)
 {
     if (!m_handle) {
         return Error(katla::make_error_code(katla::CoreErrorCode::NotInitialized));
@@ -107,7 +107,7 @@ outcome::result<void, Error> UvSignalHandler::start(Signal signal, std::function
     return outcome::success();
 }
 
-outcome::result<void, Error> UvSignalHandler::stop()
+katla::result<void, Error> UvSignalHandler::stop()
 {
     if (!m_handle) {
         return outcome::success();
