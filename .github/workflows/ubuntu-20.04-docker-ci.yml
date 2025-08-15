@@ -1,4 +1,4 @@
-name: ubuntu-18.04-docker-ci
+name: ubuntu-20.04-docker-ci
 
 on:
   push:
@@ -16,4 +16,4 @@ jobs:
       with:
         submodules: 'true'
     - name: Build the Docker image
-      run: docker build . --file Dockerfile-ubuntu-1804 --tag katla-builder$(date +%s)
+      run: docker build . --file Dockerfile-ubuntu-2004 --tag katla-builder$(date +%s)
