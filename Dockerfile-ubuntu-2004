@@ -1,0 +1,11 @@
+# Container image that runs your code
+FROM ubuntu:20.04
+
+RUN apt-get update && DEBIAN_FRONTEND="noninteractive" apt-get install -y build-essential openssh-client git ninja-build cmake libsqlite3-dev libmosquitto-dev libopencv-dev
+
+RUN mkdir -p /root/katla/build
+COPY . /root/katla/
+
+WORKDIR /root/katla/build
+
+RUN cmake .. -GNinja -DCMAKE_CXX_STANDARD=17 && ninja
