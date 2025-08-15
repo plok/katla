@@ -1,0 +1,11 @@
+**/.git*
+
+# Build artifacts
+/build
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# IDE/editor settings
+.vscode/
