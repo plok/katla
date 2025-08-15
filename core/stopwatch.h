@@ -33,7 +33,7 @@ namespace katla
 
         void reset (void);
 
-        std::chrono::microseconds elapsed(void) const;
+        std::chrono::steady_clock::duration elapsed() const;
         int64_t msecsElapsed (void) const;
         int64_t usecsElapsed (void) const;
         int64_t nsecsElapsed (void) const;

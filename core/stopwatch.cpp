@@ -1,7 +1,6 @@
 #include "stopwatch.h"
-#include <chrono>
 
-#include <assert.h>
+#include <cassert>
 
 namespace katla
 {
@@ -36,16 +35,12 @@ void Stopwatch::reset()
     start();
 }
 
-std::chrono::microseconds Stopwatch::elapsed (void) const
-{   
-    assert (m_isValid);
+std::chrono::steady_clock::duration Stopwatch::elapsed() const
+{
+    assert(m_isValid);
 
-    auto stopTime = m_steadyStopTime;
-    if (m_isStarted) {
-        stopTime = std::chrono::steady_clock::now();
-    }
-
-    return std::chrono::duration_cast<std::chrono::microseconds>(stopTime - m_steadyStartTime);
+    const auto stopTime = m_isStarted ? std::chrono::steady_clock::now() : m_steadyStopTime;
+    return (stopTime - m_steadyStartTime);
 }
 
 int64_t Stopwatch::msecsElapsed (void) const
