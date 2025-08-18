@@ -18,29 +18,17 @@
 
 #include "katla/core/core.h"
 #include "katla/core/logger.h"
-#include "error.h"
 
-#include <exception>
-#include <string>
+#include <string_view>
 
 namespace katla {
 
 class DefaultLogger : public Logger {
   public:
-    DefaultLogger() = default;
-    ~DefaultLogger() override = default;
-
-    void info(const std::string_view& message) override { katla::printInfo(message); };
-    void debug(const std::string_view& message) override { katla::printInfo(message); };
-    void warning(const std::string_view& message) override { katla::printError(message); };
-    void error(const std::string_view& message) override { katla::printError(message); };
-
-    void error(const Error& error) override {
-        katla::printError( error.message() );
-    };
-    void exception(const std::exception& ex) override {
-        katla::printError( ex.what() );
-    };
+    void debug(std::string_view message) override { katla::printInfo("{}", message); };
+    void info(std::string_view message) override { katla::printInfo("{}", message); };
+    void warning(std::string_view message) override { katla::printError("{}", message); };
+    void error(std::string_view message) override { katla::printError("{}", message); };
 };
 
 } // namespace katla
