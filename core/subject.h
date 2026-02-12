@@ -20,11 +20,12 @@
 #include "observable.h"
 #include "observer.h"
 
+#include <algorithm>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <string>
 #include <vector>
-#include <mutex>
 
 namespace katla {
 
