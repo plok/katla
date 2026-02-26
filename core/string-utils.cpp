@@ -1,23 +1,30 @@
 #include "string-utils.h"
+
 #include <algorithm>
-#include <cctype>
+#include <array>
 #include <cassert>
+#include <cctype>
 
-namespace katla {
-namespace string {
+namespace katla::string {
 
-std::string humanFileSize(long long fileSize) {
-    auto suffixes = std::array{"B", "KiB", "MiB", "GiB", "TiB"};
-    auto suffixIndex = 0;
-    int suffixesMaxIndex = suffixes.size()-1;
-    
-    double size = fileSize;
-    while(size > 1024. && suffixIndex < suffixesMaxIndex) {
-        size = size / 1024.;
-        suffixIndex++;
+std::string humanFileSize(uintmax_t fileSizeInBytes)
+{
+    constexpr auto suffixes = std::array { "B", "KiB", "MiB", "GiB", "TiB" };
+    constexpr uintmax_t bytesPerUnit = 1024;
+    uintmax_t remainder {};
+
+    auto size = fileSizeInBytes;
+    size_t index {};
+    while (size >= bytesPerUnit && index < suffixes.size() - 1) {
+        remainder = size % bytesPerUnit;
+        size /= bytesPerUnit;
+        index++;
     }
 
-    return format("{:.2f}{}", size, suffixes[suffixIndex]);
+    auto fractional = static_cast<double>(size) + static_cast<double>(remainder) / static_cast<double>(bytesPerUnit);
+    // Do not show decimals for Bytes (B)
+    return (index > 0) ? format("{:.3f} {}", fractional, suffixes[index])
+                       : format("{} {}", size, suffixes[index]);
 }
 
 std::string trimPrefix(std::string src, std::string prefix) {
@@ -129,5 +136,5 @@ std::string currentLocalTimeWithFallback()
     return timestamp;
 }
 
-}  // namespace string
-}  // namespace katla
+} // namespace katla::string
+

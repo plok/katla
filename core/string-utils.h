@@ -20,6 +20,7 @@
 #include "core/core.h"
 
 #include <chrono>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -37,10 +38,9 @@
     #define KATLA_CORE_DECLSPEC
 #endif
 
-namespace katla {
-namespace string {
+namespace katla::string {
 
-    std::string humanFileSize(long long fileSize);
+    std::string humanFileSize(uintmax_t fileSizeInBytes);
 
     std::string trimPrefix(std::string src, std::string prefix);
 
@@ -92,8 +92,8 @@ namespace string {
     // it returns the number of seconds since unix epoch.
     [[nodiscard]] std::string currentLocalTimeWithFallback();
 
-} // namespace string
-} // namespace katla  
+} // namespace katla::string
+
 
 
 #endif // KATLA_CORE_H
